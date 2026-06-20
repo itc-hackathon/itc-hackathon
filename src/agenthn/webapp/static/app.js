@@ -73,10 +73,10 @@ function replayStream(frames, dispatch, onDone) {
 
 /* ============================ DEMO TABS ============================ */
 const DEMO_META = [
-  { num: "01", label: "Long-horizon memory" },
+  { num: "01", label: "Memory" },
   { num: "02", label: "Personalization" },
-  { num: "03", label: "Iterative Recall" },
-  { num: "04", label: "Self-improving skills" },
+  { num: "03", label: "Skills" },
+  { num: "04", label: "Self-Improvement" },
 ];
 let activeDemo = 0; // open on the live long-horizon memory demo
 
@@ -141,7 +141,7 @@ const m1mk = (cls, tag, text) => {
 
 function m1Fills(nap, md, van) {
   const rows = [
-    ["NapLoRA", "#2f6ae0", nap],
+    ["AgentHN", "#2f6ae0", nap],
     ["Markdown .md", "#c79a3a", md],
     ["Vanilla (raw)", "#94908a", van],
   ];
@@ -162,7 +162,7 @@ function m1Fills(nap, md, van) {
 
 function m1CostCards(methods) {
   const order = [
-    ["napora", "NapLoRA", "#2f6ae0"],
+    ["napora", "AgentHN", "#2f6ae0"],
     ["markdown", "Markdown .md", "#c79a3a"],
     ["vanilla", "Vanilla", "#94908a"],
   ];
@@ -235,7 +235,7 @@ function m1OnTurn(f) {
   hay.scrollTop = hay.scrollHeight;
   $("m1HayTok").textContent = f.raw_tokens.toLocaleString() + " tokens so far";
 
-  // --- NapLoRA: context (compression summary) + activity log ---
+  // --- AgentHN: context (compression summary) + activity log ---
   const nap = f.napora;
   $("m1NapCtx").innerHTML =
     '<div class="napcompress">' +
@@ -1059,7 +1059,7 @@ async function init() {
     $("pAdapterLabel").style.color = on ? "#2f6ae0" : "#9a9890";
   });
 
-  // demo 3 (Iterative Recall — self-refine rounds, SSE)
+  // demo 4 (Self-Improvement — self-refine rounds, SSE)
   skReset();
   $("skRun").onclick = skRun;
   $("skReset").onclick = () => { if (!SK.running) skReset(); };

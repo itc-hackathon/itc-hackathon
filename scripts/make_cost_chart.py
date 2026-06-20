@@ -1,9 +1,9 @@
 """Render results/cost.json -> static/cost.png (two panels).
 
 Left:  $ per query, cold (uncached) vs warm (prefix-cache hit) — shows caching
-       helps vanilla a lot but NapLoRA is still cheapest.
+       helps vanilla a lot but AgentHN is still cheapest.
 Right: $ per 1,000 queries incl. one-time creation — shows Cartridges' offline
-       training cost dominating; NapLoRA lowest total.
+       training cost dominating; AgentHN lowest total.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ OUT = ROOT / "src" / "agenthn" / "webapp" / "static" / "cost.png"
 
 ORDER = ["vanilla", "rag", "cartridges", "napora"]
 LABELS = {"vanilla": "vanilla\n(full ctx)", "rag": "RAG", "cartridges": "Cartridges\n(trained KV)",
-          "napora": "NapLoRA"}
+          "napora": "AgentHN"}
 COLOR = {"vanilla": "#94908a", "rag": "#c79a3a", "cartridges": "#7b61b8", "napora": "#2f6ae0"}
 INK, DIM = "#26241f", "#8a877f"
 
@@ -51,7 +51,7 @@ def main():
         axL.text(xi + w / 2, m[k]["query_warm"] * 1000 * 1.15, f"{m[k]['query_warm']*1000:.2f}",
                  ha="center", fontsize=8.5, color=INK)
     axL.set_ylabel("milli-$ per query (log)", color=DIM)
-    axL.set_title("Cost per query — caching helps, NapLoRA still cheapest", color=INK)
+    axL.set_title("Cost per query — caching helps, AgentHN still cheapest", color=INK)
     axL.annotate("prefix caching\n10× cheaper", xy=(0 + w / 2, warm[0]), xytext=(0.55, cold[0] * 0.7),
                  fontsize=9, color="#6b6862", ha="center",
                  arrowprops=dict(arrowstyle="->", color="#6b6862", lw=1.2))

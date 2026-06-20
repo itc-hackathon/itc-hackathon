@@ -14,7 +14,7 @@
 
   <!-- ===== MASTHEAD ===== -->
   <header style="max-width:1080px;margin:0 auto;padding:88px 24px 0">
-    <h1 style="font-size:48px;line-height:1.08;letter-spacing:-0.025em;font-weight:600;margin:0 0 34px;max-width:20ch">AgentHN: Self-Editing Agents via Hypernetworks</h1>
+    <h1 style="font-size:clamp(24px,4.3vw,42px);line-height:1.1;letter-spacing:-0.025em;font-weight:600;margin:0 0 34px;white-space:nowrap">AgentHN: Self-Editing Agents via Hypernetworks</h1>
     <div style="display:flex;flex-wrap:wrap;gap:28px 40px;align-items:flex-start;padding:22px 0;border-top:1px solid #eceae3;border-bottom:1px solid #eceae3">
       <div>
         <div class="eyebrow" style="margin-bottom:9px">Authors</div>
@@ -35,23 +35,27 @@
   <!-- ===== ABSTRACT ===== -->
   <section style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#2f6ae0;margin-bottom:18px">Abstract</div>
-    <p style="font-family:'IBM Plex Serif',Georgia,serif;font-size:21px;line-height:1.62;color:#26241f;margin:0;max-width:62ch">Text-based memory breaks over long horizons and wastes the context window. We instead use hypernetworks to allow an agent to edit their own parameters at inference time. A hypernetwork (<em>Doc-to-LoRA</em>) converts context into LoRA adapters through a single forward pass, avoiding the lengthy training runs of SFT or RL. We show three applications across <strong>memory</strong>, <strong>personalization</strong>, and <strong>skills</strong>, each with a live, interactive demo below.</p>
+    <p style="font-family:'IBM Plex Serif',Georgia,serif;font-size:21px;line-height:1.62;color:#26241f;margin:0;max-width:62ch">Text-based memory breaks over long horizons and wastes the context window. We instead use hypernetworks to allow an agent to edit their own parameters at inference time. A hypernetwork (<em>Doc-to-LoRA</em>) converts context into LoRA adapters through a single forward pass, avoiding the lengthy training runs of SFT or RL. We show four applications — <strong>memory</strong>, <strong>personalization</strong>, <strong>skills</strong>, and <strong>self-improvement</strong> — each with a live, interactive demo below.</p>
   </section>
 
   <!-- ===== CONTRIBUTIONS ===== -->
   <section style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px" class="grid-3">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px" class="grid-3">
       <div class="card" style="padding:26px 24px">
-        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Long-horizon memory</h3>
-        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">Every K steps, the oldest turns are compacted into an adapter and evicted from context. Memory persists in weights, not tokens, mitigating context window overflow.</p>
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Memory</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">Every K turns, the oldest turns are compacted into a LoRA adapter and evicted from context. Memory persists in weights, not tokens, so the prompt stays small as the conversation grows.</p>
       </div>
       <div class="card" style="padding:26px 24px">
-        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Permanent personalization</h3>
-        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">During conversations, user preferences are updated in a document and periodically internalized as per-user LoRA profiles. Profiles persist across sessions without needing to reload context.</p>
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Personalization</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">User preferences are kept in a running document and periodically internalized as a per-user LoRA profile. Profiles persist across sessions without reloading context.</p>
       </div>
       <div class="card" style="padding:26px 24px">
-        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Self-improving skills</h3>
-        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">A reference doc for a skill (formulas, output-format conventions) is internalized once into a LoRA adapter. The agent recalls it straight from the weights afterward, instead of re-paying the doc's context cost on every query.</p>
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Skills</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">A reference doc for a skill (formulas, output-format conventions) is internalized once into a LoRA adapter. The agent recalls it straight from the weights, instead of re-paying the doc's context cost on every query.</p>
+      </div>
+      <div class="card" style="padding:26px 24px">
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Self-Improvement</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">The agent attempts a task, reflects on its mistakes, rewrites its own notes, and re-internalizes them into a fresh adapter — improving its weights over rounds with no gradient training.</p>
       </div>
     </div>
   </section>
@@ -62,11 +66,11 @@
     <p style="font-size:18px;line-height:1.72;color:#3a3832;margin:0 0 18px;max-width:64ch">SFT and RL adapt a model with long training loops. A hypernetwork instead <em>predicts</em> the adapter weights directly from an input, so adaptation happens in real time, mid-conversation.</p>
     <div style="border:1px solid #eceae3;border-radius:12px;background:#faf9f6;padding:24px;margin:26px 0">
       <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:16px">
-        <span class="eyebrow">Doc-to-LoRA (D2L) · memory, personalization &amp; skills</span>
+        <span class="eyebrow">Doc-to-LoRA (D2L) · memory &amp; personalization</span>
         <a href="https://arxiv.org/abs/2602.15902" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0;text-decoration:none">Sakana AI · arXiv:2602.15902 ↗</a>
       </div>
       <div class="pipeline">
-        <span class="pill">oldest turns / prefs / skill doc</span><span class="arr">→</span>
+        <span class="pill">oldest turns / preference doc</span><span class="arr">→</span>
         <span class="pill hot">D2L hypernetwork</span><span class="arr">→</span>
         <span class="pill">adapter&nbsp;r=8</span><span class="arr">⊕</span>
         <span class="pill">running adapter</span><span class="arr">→</span>
@@ -74,14 +78,15 @@
       </div>
       <div style="height:1px;background:#e7e4dd;margin:22px 0"></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:16px">
-        <span class="eyebrow" style="color:#c79a3a">Roadmap — Text-to-LoRA (T2L) · self-reflective skills</span>
-        <a href="https://arxiv.org/abs/2506.06105" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0;text-decoration:none">Sakana AI · arXiv:2506.06105 ↗</a>
+        <span class="eyebrow">Doc-to-LoRA (D2L) · self-improving skills</span>
+        <a href="https://arxiv.org/abs/2602.15902" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0;text-decoration:none">Sakana AI · arXiv:2602.15902 ↗</a>
       </div>
       <div class="pipeline">
         <span class="pill">failed attempt</span><span class="arr">→</span>
-        <span class="pill">self-written task prompt</span><span class="arr">→</span>
-        <span class="pill hot">T2L hypernetwork</span><span class="arr">→</span>
-        <span class="pill">task adapter</span><span class="arr">→</span>
+        <span class="pill">reflect on errors</span><span class="arr">→</span>
+        <span class="pill">updated skill notes</span><span class="arr">→</span>
+        <span class="pill hot">D2L hypernetwork</span><span class="arr">→</span>
+        <span class="pill">skill adapter</span><span class="arr">→</span>
         <span class="pill">retry</span>
       </div>
     </div>
@@ -98,7 +103,7 @@
 
   <!-- ===== DEMO 1 : MEMORY (live) ===== -->
   <section id="demo-0" style="max-width:1080px;margin:0 auto;padding:16px 24px 0">
-    <h3 class="demo-title">Constant-cost memory for long-running agents <span class="badge-live">live</span></h3>
+    <h3 class="demo-title">Constant-cost memory for long-running agents</h3>
 
     <!-- ===== USE-CASE NARRATIVE ===== -->
     <div style="border:1px solid #cdddfb;border-radius:14px;background:#f5f9ff;padding:22px 24px;margin:4px 0 18px">
@@ -116,7 +121,7 @@
         later), or bolt on <strong>RAG</strong> (re-injects chunks into the prompt every call, needs a vector store).
       </p>
       <p style="font-size:15.5px;line-height:1.62;color:#26241f;margin:0;max-width:74ch">
-        <strong style="color:#2f6ae0">NapLoRA puts the agent's memory in its weights.</strong> Every K steps it
+        <strong style="color:#2f6ae0">AgentHN puts the agent's memory in its weights.</strong> Every K steps it
         "naps" the oldest slice of the trajectory into a tiny LoRA adapter in <strong>one forward pass — no
         training</strong> — and evicts it from context. To recall an old fact it loads the relevant adapter and
         answers with <strong>only the current step in the prompt</strong>. Per-step context stays <strong>flat no
@@ -125,7 +130,7 @@
       </p>
     </div>
 
-    <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-2px 0 14px;max-width:74ch"><strong>How we test it below:</strong> a needle-in-a-haystack over a trajectory — a few facts (<strong>needles</strong>) are dropped early into a long conversation, then asked about at the very end. <strong style="color:#2f6ae0">NapLoRA</strong> naps the oldest turns into LoRA weights and evicts them; baselines (<strong style="color:#9a7a30">markdown .md</strong>, RAG, vanilla, a trained Cartridges cache) are run side-by-side. Watch the context window and inference cost diverge.</p>
+    <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-2px 0 14px;max-width:74ch"><strong>How we test it below:</strong> a needle-in-a-haystack over a trajectory — a few facts (<strong>needles</strong>) are dropped early into a long conversation, then asked about at the very end. <strong style="color:#2f6ae0">AgentHN</strong> naps the oldest turns into LoRA weights and evicts them; baselines (<strong style="color:#9a7a30">markdown .md</strong>, RAG, vanilla, a trained Cartridges cache) are run side-by-side. Watch the context window and inference cost diverge.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px">
       <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#f2efe9;border:1px solid #e2ded6;border-radius:7px;padding:5px 11px;color:#5c594f"><strong style="color:#26241f">Base model:</strong> 1 × gemma-2-2b-it (2B params, 8k window)</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#ebf2fe;border:1px solid #cdddfb;border-radius:7px;padding:5px 11px;color:#1e50c0"><strong>Hypernetwork:</strong> 1 × Doc-to-LoRA — context → rank-8 LoRA in one forward pass</span>
@@ -165,14 +170,14 @@
       </div>
       <div id="m1Hay" class="feed hayfeed"></div>
 
-      <!-- two model columns: NapLoRA vs Markdown -->
+      <!-- two model columns: AgentHN vs Markdown -->
       <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #eceae3" class="grid-2">
-        <!-- NapLoRA -->
+        <!-- AgentHN -->
         <div style="border-right:1px solid #eceae3">
           <div class="colhead">
             <div style="display:flex;align-items:center;gap:9px">
               <span id="m1NapDot" class="dot" style="background:#2f6ae0"></span>
-              <span style="font-size:14px;font-weight:600;color:#1e50c0">NapLoRA <span style="font-weight:400;color:#9a9890">· memory in weights</span></span>
+              <span style="font-size:14px;font-weight:600;color:#1e50c0">AgentHN <span style="font-weight:400;color:#9a9890">· memory in weights</span></span>
             </div>
             <span id="m1NapStat" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0">0 adapters</span>
           </div>
@@ -219,269 +224,6 @@
       </div>
     </div>
 
-    <!-- ===== SCALING RESULT: repeated naps beyond the single-encode limit ===== -->
-    <div class="panel" style="margin-top:22px">
-      <div class="controlbar" style="justify-content:flex-start;gap:12px">
-        <span class="eyebrow">Scaling result</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">Repeated naps push memory past the single-encode limit</span>
-      </div>
-      <div style="padding:18px 22px">
-        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:74ch">
-          Doc-to-LoRA encodes a <em>bounded</em> document in one pass — chunk it into ≤8 pieces,
-          rank-concatenate, and you reach about <strong>4× the model's context window</strong> before the
-          chunk count goes out-of-distribution and recall degrades. We don't encode once. We
-          <strong style="color:#2f6ae0">nap repeatedly</strong> over the stream: every K turns the oldest
-          segment becomes its own in-distribution LoRA adapter, appended to a growing store and evicted
-          from context. At recall time we <strong>retrieve</strong> the relevant nap — so there is no
-          rank-concatenation ceiling, and the horizon is unbounded.
-        </p>
-        <img src="/scaling.png" alt="Recall and inference cost vs conversation length"
-             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
-        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
-          <span>📈 <strong>6 / 6 recall held to 48k tokens</strong> (410 naps) at a flat <strong>~10-token</strong> prompt</span>
-          <span>🟰 <strong>same retriever as text-RAG</strong>, but <strong>~13× less</strong> query context (RAG re-enters the chunk; NapLoRA keeps it in weights) — recall trade-off quantified in the statistical study below</span>
-          <span>🧱 vanilla 8k context <strong>collapses to 0 / 6</strong> once the conversation overflows the window</span>
-        </div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
-          measured on gemma-2-2b-it · 6 needles planted early, conversation grown to 48k tokens · scripts/scaling_sweep.py
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== ABLATION LADDER ===== -->
-    <div class="panel" style="margin-top:22px">
-      <div class="controlbar" style="justify-content:flex-start;gap:12px">
-        <span class="eyebrow">Ablation study</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">Where does the recall actually come from?</span>
-      </div>
-      <div style="padding:18px 22px">
-        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
-          Same task (6 facts planted early, conversation grown to <strong>12k tokens</strong> so it overflows the 8k
-          window). We remove <strong>one component at a time</strong> and watch recall + the context the model must
-          attend to at query. The decisive row is <strong style="color:#2f6ae0">text-RAG</strong> vs
-          <strong style="color:#2f6ae0">NapLoRA</strong>: identical retriever, identical recall — the only
-          difference is whether the retrieved memory's tokens enter the prompt. That gap is exactly what the
-          hypernetwork (LoRA compaction) buys.
-        </p>
-        <table style="width:100%;border-collapse:collapse;font-size:13.5px">
-          <thead>
-            <tr style="text-align:left;color:#8a877f;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em">
-              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd">Condition</th>
-              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd">What's removed</th>
-              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd;text-align:center">Recall</th>
-              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd;text-align:center">Query context</th>
-              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd">Isolates</th>
-            </tr>
-          </thead>
-          <tbody style="font-family:'IBM Plex Sans'">
-            <tr>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6">vanilla</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">no memory</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0 / 6</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">8,498</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f">memory is needed</td>
-            </tr>
-            <tr>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6">naive-internalize</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">internalize, replace (no store)</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0 / 6</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">10</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f">a <strong>store</strong> is needed</td>
-            </tr>
-            <tr>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6">compose-all</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">rank-concat ALL (no retrieval)</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0 / 6</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">10</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f"><strong>retrieval</strong> is needed</td>
-            </tr>
-            <tr style="background:#fdf7ec">
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;font-weight:600;color:#9a7a30">text-RAG <span style="font-weight:400;font-size:11px">ablation</span></td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">deliver retrieved chunk as <strong>text</strong></td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57;font-weight:600">6 / 6</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">119</td>
-              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f">← removes weight-injection</td>
-            </tr>
-            <tr style="background:#ebf2fe">
-              <td style="padding:9px 10px;font-weight:700;color:#1e50c0">NapLoRA <span style="font-weight:400;font-size:11px">full</span></td>
-              <td style="padding:9px 10px;color:#8a877f">deliver retrieved chunk as <strong>LoRA</strong></td>
-              <td style="padding:9px 10px;text-align:center;color:#2f7d57;font-weight:700">6 / 6</td>
-              <td style="padding:9px 10px;text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1e50c0">10</td>
-              <td style="padding:9px 10px;color:#1e50c0;font-weight:600">~12× less context (recall cost quantified below)</td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
-          query context = tokens the model attends to at recall time (≈ KV-cache cost) · scripts/ablation_study.py
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== STATISTICAL VALIDATION ===== -->
-    <div class="panel" style="margin-top:22px">
-      <div class="controlbar" style="justify-content:flex-start;gap:12px">
-        <span class="eyebrow">Statistical validation</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">Does it hold up at scale, across seeds?</span>
-      </div>
-      <div style="padding:18px 22px">
-        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
-          Beyond the curated 6-fact demo: <strong>20 randomly-generated facts × 5 seeds × 5 haystack
-          sizes</strong> (2k → 48k tokens) = <strong>100 trials per cell</strong>, reported as mean ± std with
-          Wilson 95% CIs. We <strong>trained a real Cartridges baseline</strong> (soft-prompt, our reimplementation)
-          and measured it on the same task. This is the honest, defensible picture.
-        </p>
-        <img src="/large_scale.png" alt="Recall and context vs haystack size, mean ± std over seeds"
-             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
-        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
-          <span>📊 <strong>NapLoRA recall is flat across the horizon</strong> — 87 ± 6% at 2k <em>and</em> at 48k; it does not decay as the conversation grows. <strong>vanilla collapses</strong> 95% → 36% → <strong>0%</strong>.</span>
-          <span>🟣 <strong>measured Cartridges: 92% (CI 85–96) @ 96 ctx</strong> — a trained KV/soft-prompt cache lands between NapLoRA and RAG, but needs <strong>offline training per corpus</strong> (~43s each) and can't update online.</span>
-          <span>⚖️ <strong>the recall ↔ context trade:</strong> RAG 100% @116t · Cartridges 92% @96t · <strong style="color:#2f6ae0">NapLoRA 87% @ 7t</strong> — NapLoRA gives up ~5–13% recall for <strong>~14× less context</strong> and the only <em>online, no-training</em> memory.</span>
-          <span>🔬 same retriever in NapLoRA &amp; RAG → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
-        </div>
-        <div style="margin-top:16px;border:1px solid #d9cdf0;border-radius:10px;background:#f7f4fc;padding:14px 16px">
-          <div class="eyebrow" style="color:#6b4fa0;margin-bottom:8px">NapLoRA vs Cartridges — head-to-head multipliers</div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px 22px;font-size:13.5px;color:#3a3832">
-            <span>📉 <strong style="color:#2f6ae0">13.3× less</strong> query-time context (7.2 vs 96 tok)</span>
-            <span>💸 <strong style="color:#2f6ae0">1.8× cheaper</strong> per query (0.47 vs 0.85 µ$)</span>
-            <span>⚙️ <strong style="color:#2f6ae0">no training</strong> — one forward pass vs ~43 s gradient training / corpus</span>
-            <span>🟢 <strong style="color:#2f6ae0">online</strong> vs offline / batch-only</span>
-            <span>📊 cost: <strong style="color:#9a7a30">−5 pts recall</strong> (87% vs 92%)</span>
-          </div>
-        </div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
-          gemma-2-2b-it · n=100 trials/cell · Wilson 95% CIs · scripts/large_scale_eval.py
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== METHOD LANDSCAPE (incl. Cartridges) ===== -->
-    <div class="panel" style="margin-top:22px">
-      <div class="controlbar" style="justify-content:flex-start;gap:12px">
-        <span class="eyebrow">Where NapLoRA sits</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">vs RAG and Cartridges — four ways to give a model memory</span>
-      </div>
-      <div style="padding:18px 22px">
-        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:80ch">
-          The honest framing isn't "we beat everyone" — it's <em>which axis you optimize</em>.
-          <a href="https://arxiv.org/abs/2506.06266" target="_blank" rel="noopener" style="color:#7b61b8;font-weight:600">Cartridges</a>
-          (HazyResearch) trains a small KV cache offline per corpus and matches in-context quality; RAG pastes the
-          retrieved text; NapLoRA predicts a LoRA in one forward pass. They trade off creation cost, whether they
-          can run <strong>online</strong>, recall, and per-query cost differently.
-        </p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <thead>
-            <tr style="text-align:left;color:#8a877f;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">
-              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd">Method</th>
-              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd">Memory stored as</th>
-              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd">Built by</th>
-              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd;text-align:center">Online / streaming?</th>
-              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd;text-align:center">Recall</th>
-              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd;text-align:right">$/query (warm)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;font-weight:600">vanilla</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">raw text in the prompt</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">nothing (just append)</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57">yes</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0% past window</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">14.9µ$</td>
-            </tr>
-            <tr>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;font-weight:600;color:#9a7a30">RAG</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">text chunks + index</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">nothing (just embed)</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57">yes</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57;font-weight:600">~100%</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">0.83µ$</td>
-            </tr>
-            <tr style="background:#f5f1fb">
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;font-weight:600;color:#6b4fa0">Cartridges <span style="font-weight:400;font-size:10.5px">(HazyResearch)</span></td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">trained KV cache</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f"><strong>offline gradient training</strong> per corpus</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">no — batch only</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#6b4fa0;font-weight:600">92%² <span style="font-weight:400;color:#9a9890">(measured)</span></td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">0.85µ$ + $43 train</td>
-            </tr>
-            <tr style="background:#ebf2fe">
-              <td style="padding:9px 8px;font-weight:700;color:#1e50c0">NapLoRA</td>
-              <td style="padding:9px 8px;color:#5c594f">LoRA adapter (weights)</td>
-              <td style="padding:9px 8px;color:#5c594f"><strong>one forward pass</strong> per segment</td>
-              <td style="padding:9px 8px;text-align:center;color:#2f7d57;font-weight:600">yes — real-time</td>
-              <td style="padding:9px 8px;text-align:center;color:#9a7a30;font-weight:600">~87% (lossy)</td>
-              <td style="padding:9px 8px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1e50c0">0.47µ$</td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
-          ² Cartridges recall measured on the same task with our own trained soft-prompt reimplementation (96 virtual tokens, 60 epochs/corpus); the paper's full KV-cache + distillation likely does better. 38.6× memory / 26.4× throughput vs ICL are cited from the paper (arXiv:2506.06266) · all numbers on gemma-2-2b-it · scripts/cartridge_eval.py
-        </div>
-        <p style="font-size:14.5px;line-height:1.6;color:#3a3832;margin:18px 0 0;max-width:80ch">
-          <strong>The takeaway:</strong> Cartridges wins on quality but needs expensive <em>offline</em> training and
-          can't update mid-conversation. NapLoRA is the <strong style="color:#2f6ae0">online / real-time</strong>
-          point — it builds memory in a single forward pass as the agent talks, at the lowest per-query cost —
-          and pays for that amortization with ~13% recall. Different tools for streaming agent memory (NapLoRA) vs
-          a fixed corpus queried millions of times (Cartridges).
-        </p>
-      </div>
-    </div>
-
-    <!-- ===== COST ===== -->
-    <div class="panel" style="margin-top:22px">
-      <div class="controlbar" style="justify-content:flex-start;gap:12px">
-        <span class="eyebrow">Cost (not just memory)</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">$ per query — with prefix-cache hits vs misses</span>
-      </div>
-      <div style="padding:18px 22px">
-        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:80ch">
-          "Memory used at inference" isn't the same as <strong>cost</strong> — modern APIs let you
-          <strong>prefix-cache</strong> a stable prompt and re-read it at ~10% price. So we price each method at
-          representative frontier rates (input $3, cached-read $0.30, output $15 per 1M tokens) for a
-          <strong>48k-token history queried 1,000 times</strong>.
-        </p>
-        <img src="/cost.png" alt="Cost per query and total cost by method"
-             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
-        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
-          <span>💾 <strong>prefix caching helps vanilla 10×</strong> (144µ$ → 14.9µ$ / query) — but it still re-reads the 48k prefix every query.</span>
-          <span>⚡ <strong>NapLoRA is cheapest per query</strong> (0.47µ$) — it only processes the question; the memory is a weight swap, not tokens.</span>
-          <span>🏗️ <strong>Cartridges' offline training dominates</strong> ($43 one-time) — cheap per query, but only worth it after ~50k queries on a fixed corpus.</span>
-        </div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
-          token cost is a proxy for compute; NapLoRA's adapter-apply and Cartridges'/NapLoRA's creation are compute, not API tokens (creation estimated) · scripts/cost_model.py
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== PLAIN-WORDS EXPLAINER ===== -->
-    <div class="panel" style="margin-top:22px;background:#faf9f6">
-      <div class="controlbar" style="justify-content:flex-start;gap:12px;background:#fff">
-        <span class="eyebrow">In plain words</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">What we actually did</span>
-      </div>
-      <div style="padding:20px 22px;font-size:15px;line-height:1.7;color:#3a3832;max-width:80ch">
-        <p style="margin:0 0 14px"><strong>The problem.</strong> When an AI agent has a long conversation, it eventually
-        can't fit the whole history in its prompt. The usual fixes (paste the recent text, or keep a notes file)
-        either forget old facts or make every future message bigger and slower.</p>
-        <p style="margin:0 0 14px"><strong>Our idea.</strong> Every <strong>4 turns</strong>, we take the oldest chunk
-        of the conversation and run it through a <em>hypernetwork</em> (Doc-to-LoRA) — a network that reads text and,
-        in <strong>one forward pass</strong>, writes a tiny patch to the model's weights (a "LoRA adapter"). That patch
-        stores the chunk's facts. We then delete the text from the prompt. The conversation lives in <strong>weights,
-        not words</strong>.</p>
-        <p style="margin:0 0 14px"><strong>Answering later.</strong> When you ask a question, we look up which chunk is
-        relevant (a quick keyword search), load just that chunk's patch into the model, and answer — with only the
-        question in the prompt. So the prompt stays tiny no matter how long the conversation gets.</p>
-        <p style="margin:0 0 14px"><strong>What we found, honestly.</strong> It recalls about <strong>87%</strong> of
-        facts and never gets worse as the chat grows to 48,000 tokens, while a plain model drops to <strong>0%</strong>
-        once it overflows. But classic retrieval (paste the text) gets <strong>100%</strong> — so storing memory in
-        weights instead of text <em>costs ~13% accuracy</em>, and what it buys back is the <strong>cheapest, smallest
-        prompt</strong> and the ability to build memory <strong>live, with no training</strong>. That last part is the
-        real niche: unlike Cartridges (which trains a memory offline), we adapt in real time as the agent talks.</p>
-        <p style="margin:0;color:#6b6862;font-size:14px"><em>Everything above is measured on a 2-billion-parameter model
-        (gemma-2-2b-it) with one Doc-to-LoRA hypernetwork. Every number has a script in the repo.</em></p>
-      </div>
-    </div>
-
     <!-- ===== JUDGING CRITERIA MAP ===== -->
     <div class="panel" style="margin-top:22px">
       <div class="controlbar" style="justify-content:flex-start;gap:12px">
@@ -519,7 +261,7 @@
 
   <!-- ===== DEMO 2 : PERSONALIZATION (live) ===== -->
   <section id="demo-1" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
-    <h3 class="demo-title">Permanent personalization — converse, internalize, then carry it into a fresh session <span id="liveBadge" class="badge-live">live</span></h3>
+    <h3 class="demo-title">Permanent personalization — converse, internalize, then carry it into a fresh session</h3>
 
     <!-- stepper -->
     <div class="panel" style="margin-bottom:18px">
@@ -586,9 +328,9 @@
     </div>
   </section>
 
-  <!-- ===== DEMO 3 : SKILLS (live self-refine) ===== -->
-  <section id="demo-2" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
-    <h3 class="demo-title">Iterative Recall — attempt, reflect, internalize, retry <span class="badge-live">live</span></h3>
+  <!-- ===== DEMO 4 : SELF-IMPROVEMENT (live self-refine, Product Q&A) ===== -->
+  <section id="demo-3" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
+    <h3 class="demo-title">Self-Improvement — attempt, reflect, internalize, retry</h3>
     <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-6px 0 18px;max-width:74ch">The agent faces held-out questions about a <strong>fictional</strong> product it can't possibly know — so it starts at ~0%. It then studies the reference doc, <strong>writes its own notes</strong>, internalizes them into a LoRA adapter, and retries. Each round it reflects on what it still got wrong, rewrites the notes, and re-internalizes. No prompt context at test time — the skill lives in the weights. The accuracy curve is the real run, dips and all.</p>
 
     <!-- stepper: the self-refine loop -->
@@ -630,9 +372,9 @@
     </div>
   </section>
 
-  <!-- ===== DEMO 4 : SKILLS (converse / document / internalize / converse again) ===== -->
-  <section id="demo-3" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
-    <h3 class="demo-title">Self-improving skills — converse, document, internalize, converse again <span class="badge-live">live</span></h3>
+  <!-- ===== DEMO 3 : SKILLS (converse / document / internalize / converse again) ===== -->
+  <section id="demo-2" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
+    <h3 class="demo-title">Skills — converse, document, internalize, converse again</h3>
     <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-6px 0 18px;max-width:72ch">Ask a physics word problem or a structured-output request cold. Classify it to surface the matching reference doc — a physics formula sheet or a format guide — internalize that doc into a D2L LoRA adapter, then ask the <strong>exact same question again</strong>: same bare prompt, new weights.</p>
 
     <!-- stepper -->
@@ -710,6 +452,275 @@
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
           measured on gemma-2-2b-it · 20 held-out problems · Newton's-laws formula sheet · skill-acquisition/make_physics_charts.py
         </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== EXPERIMENTS : long-horizon memory results (always visible) ===== -->
+  <section id="experiments" style="max-width:1080px;margin:0 auto;padding:64px 24px 0">
+    <h2 style="font-size:32px;font-weight:600;letter-spacing:-0.02em;margin:0 0 12px">Experiments — long-horizon memory</h2>
+    <p style="font-size:17px;line-height:1.6;color:#5c594f;margin:0 0 4px;max-width:66ch">How AgentHN's weight-based memory stacks up against raw context, markdown notes, retrieval (RAG), and a trained Cartridges soft-prompt — on recall, context cost, scaling, and price. Every number has a script in the repo.</p>
+    <!-- ===== SCALING RESULT: repeated naps beyond the single-encode limit ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Scaling result</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">Repeated naps push memory past the single-encode limit</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:74ch">
+          Doc-to-LoRA encodes a <em>bounded</em> document in one pass — chunk it into ≤8 pieces,
+          rank-concatenate, and you reach about <strong>4× the model's context window</strong> before the
+          chunk count goes out-of-distribution and recall degrades. We don't encode once. We
+          <strong style="color:#2f6ae0">nap repeatedly</strong> over the stream: every K turns the oldest
+          segment becomes its own in-distribution LoRA adapter, appended to a growing store and evicted
+          from context. At recall time we <strong>retrieve</strong> the relevant nap — so there is no
+          rank-concatenation ceiling, and the horizon is unbounded.
+        </p>
+        <img src="/scaling.png" alt="Recall and inference cost vs conversation length"
+             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
+          <span>📈 <strong>6 / 6 recall held to 48k tokens</strong> (410 naps) at a flat <strong>~10-token</strong> prompt</span>
+          <span>🟰 <strong>same retriever as text-RAG</strong>, but <strong>~13× less</strong> query context (RAG re-enters the chunk; AgentHN keeps it in weights) — recall trade-off quantified in the statistical study below</span>
+          <span>🧱 vanilla 8k context <strong>collapses to 0 / 6</strong> once the conversation overflows the window</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
+          measured on gemma-2-2b-it · 6 needles planted early, conversation grown to 48k tokens · scripts/scaling_sweep.py
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ABLATION LADDER ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Ablation study</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">Where does the recall actually come from?</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
+          Same task (6 facts planted early, conversation grown to <strong>12k tokens</strong> so it overflows the 8k
+          window). We remove <strong>one component at a time</strong> and watch recall + the context the model must
+          attend to at query. The decisive row is <strong style="color:#2f6ae0">text-RAG</strong> vs
+          <strong style="color:#2f6ae0">AgentHN</strong>: identical retriever, identical recall — the only
+          difference is whether the retrieved memory's tokens enter the prompt. That gap is exactly what the
+          hypernetwork (LoRA compaction) buys.
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+          <thead>
+            <tr style="text-align:left;color:#8a877f;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em">
+              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd">Condition</th>
+              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd">What's removed</th>
+              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd;text-align:center">Recall</th>
+              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd;text-align:center">Query context</th>
+              <th style="padding:8px 10px;border-bottom:1px solid #e7e4dd">Isolates</th>
+            </tr>
+          </thead>
+          <tbody style="font-family:'IBM Plex Sans'">
+            <tr>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6">vanilla</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">no memory</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0 / 6</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">8,498</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f">memory is needed</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6">naive-internalize</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">internalize, replace (no store)</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0 / 6</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">10</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f">a <strong>store</strong> is needed</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6">compose-all</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">rank-concat ALL (no retrieval)</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0 / 6</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">10</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f"><strong>retrieval</strong> is needed</td>
+            </tr>
+            <tr style="background:#fdf7ec">
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;font-weight:600;color:#9a7a30">text-RAG <span style="font-weight:400;font-size:11px">ablation</span></td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#8a877f">deliver retrieved chunk as <strong>text</strong></td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57;font-weight:600">6 / 6</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;text-align:center;font-family:'IBM Plex Mono',monospace">119</td>
+              <td style="padding:9px 10px;border-bottom:1px solid #f0ede6;color:#5c594f">← removes weight-injection</td>
+            </tr>
+            <tr style="background:#ebf2fe">
+              <td style="padding:9px 10px;font-weight:700;color:#1e50c0">AgentHN <span style="font-weight:400;font-size:11px">full</span></td>
+              <td style="padding:9px 10px;color:#8a877f">deliver retrieved chunk as <strong>LoRA</strong></td>
+              <td style="padding:9px 10px;text-align:center;color:#2f7d57;font-weight:700">6 / 6</td>
+              <td style="padding:9px 10px;text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1e50c0">10</td>
+              <td style="padding:9px 10px;color:#1e50c0;font-weight:600">~12× less context (recall cost quantified below)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
+          query context = tokens the model attends to at recall time (≈ KV-cache cost) · scripts/ablation_study.py
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATISTICAL VALIDATION ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Statistical validation</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">Does it hold up at scale, across seeds?</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
+          Beyond the curated 6-fact demo: <strong>20 randomly-generated facts × 5 seeds × 5 haystack
+          sizes</strong> (2k → 48k tokens) = <strong>100 trials per cell</strong>, reported as mean ± std with
+          Wilson 95% CIs. We <strong>trained a real Cartridges baseline</strong> (soft-prompt, our reimplementation)
+          and measured it on the same task. This is the honest, defensible picture.
+        </p>
+        <img src="/large_scale.png" alt="Recall and context vs haystack size, mean ± std over seeds"
+             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
+          <span>📊 <strong>AgentHN recall is flat across the horizon</strong> — 87 ± 6% at 2k <em>and</em> at 48k; it does not decay as the conversation grows. <strong>vanilla collapses</strong> 95% → 36% → <strong>0%</strong>.</span>
+          <span>🟣 <strong>measured Cartridges: 92% (CI 85–96) @ 96 ctx</strong> — a trained KV/soft-prompt cache lands between AgentHN and RAG, but needs <strong>offline training per corpus</strong> (~43s each) and can't update online.</span>
+          <span>⚖️ <strong>the recall ↔ context trade:</strong> RAG 100% @116t · Cartridges 92% @96t · <strong style="color:#2f6ae0">AgentHN 87% @ 7t</strong> — AgentHN gives up ~5–13% recall for <strong>~14× less context</strong> and the only <em>online, no-training</em> memory.</span>
+          <span>🔬 same retriever in AgentHN &amp; RAG → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
+        </div>
+        <div style="margin-top:16px;border:1px solid #d9cdf0;border-radius:10px;background:#f7f4fc;padding:14px 16px">
+          <div class="eyebrow" style="color:#6b4fa0;margin-bottom:8px">AgentHN vs Cartridges — head-to-head multipliers</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px 22px;font-size:13.5px;color:#3a3832">
+            <span>📉 <strong style="color:#2f6ae0">13.3× less</strong> query-time context (7.2 vs 96 tok)</span>
+            <span>💸 <strong style="color:#2f6ae0">1.8× cheaper</strong> per query (0.47 vs 0.85 µ$)</span>
+            <span>⚙️ <strong style="color:#2f6ae0">no training</strong> — one forward pass vs ~43 s gradient training / corpus</span>
+            <span>🟢 <strong style="color:#2f6ae0">online</strong> vs offline / batch-only</span>
+            <span>📊 cost: <strong style="color:#9a7a30">−5 pts recall</strong> (87% vs 92%)</span>
+          </div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
+          gemma-2-2b-it · n=100 trials/cell · Wilson 95% CIs · scripts/large_scale_eval.py
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== METHOD LANDSCAPE (incl. Cartridges) ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Where AgentHN sits</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">vs RAG and Cartridges — four ways to give a model memory</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:80ch">
+          The honest framing isn't "we beat everyone" — it's <em>which axis you optimize</em>.
+          <a href="https://arxiv.org/abs/2506.06266" target="_blank" rel="noopener" style="color:#7b61b8;font-weight:600">Cartridges</a>
+          (HazyResearch) trains a small KV cache offline per corpus and matches in-context quality; RAG pastes the
+          retrieved text; AgentHN predicts a LoRA in one forward pass. They trade off creation cost, whether they
+          can run <strong>online</strong>, recall, and per-query cost differently.
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="text-align:left;color:#8a877f;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">
+              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd">Method</th>
+              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd">Memory stored as</th>
+              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd">Built by</th>
+              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd;text-align:center">Online / streaming?</th>
+              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd;text-align:center">Recall</th>
+              <th style="padding:8px 8px;border-bottom:1px solid #e7e4dd;text-align:right">$/query (warm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;font-weight:600">vanilla</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">raw text in the prompt</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">nothing (just append)</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57">yes</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">0% past window</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">14.9µ$</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;font-weight:600;color:#9a7a30">RAG</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">text chunks + index</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">nothing (just embed)</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57">yes</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57;font-weight:600">~100%</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">0.83µ$</td>
+            </tr>
+            <tr style="background:#f5f1fb">
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;font-weight:600;color:#6b4fa0">Cartridges <span style="font-weight:400;font-size:10.5px">(HazyResearch)</span></td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">trained KV cache</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f"><strong>offline gradient training</strong> per corpus</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">no — batch only</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#6b4fa0;font-weight:600">92%² <span style="font-weight:400;color:#9a9890">(measured)</span></td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">0.85µ$ + $43 train</td>
+            </tr>
+            <tr style="background:#ebf2fe">
+              <td style="padding:9px 8px;font-weight:700;color:#1e50c0">AgentHN</td>
+              <td style="padding:9px 8px;color:#5c594f">LoRA adapter (weights)</td>
+              <td style="padding:9px 8px;color:#5c594f"><strong>one forward pass</strong> per segment</td>
+              <td style="padding:9px 8px;text-align:center;color:#2f7d57;font-weight:600">yes — real-time</td>
+              <td style="padding:9px 8px;text-align:center;color:#9a7a30;font-weight:600">~87% (lossy)</td>
+              <td style="padding:9px 8px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1e50c0">0.47µ$</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
+          ² Cartridges recall measured on the same task with our own trained soft-prompt reimplementation (96 virtual tokens, 60 epochs/corpus); the paper's full KV-cache + distillation likely does better. 38.6× memory / 26.4× throughput vs ICL are cited from the paper (arXiv:2506.06266) · all numbers on gemma-2-2b-it · scripts/cartridge_eval.py
+        </div>
+        <p style="font-size:14.5px;line-height:1.6;color:#3a3832;margin:18px 0 0;max-width:80ch">
+          <strong>The takeaway:</strong> Cartridges wins on quality but needs expensive <em>offline</em> training and
+          can't update mid-conversation. AgentHN is the <strong style="color:#2f6ae0">online / real-time</strong>
+          point — it builds memory in a single forward pass as the agent talks, at the lowest per-query cost —
+          and pays for that amortization with ~13% recall. Different tools for streaming agent memory (AgentHN) vs
+          a fixed corpus queried millions of times (Cartridges).
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== COST ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Cost (not just memory)</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">$ per query — with prefix-cache hits vs misses</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:80ch">
+          "Memory used at inference" isn't the same as <strong>cost</strong> — modern APIs let you
+          <strong>prefix-cache</strong> a stable prompt and re-read it at ~10% price. So we price each method at
+          representative frontier rates (input $3, cached-read $0.30, output $15 per 1M tokens) for a
+          <strong>48k-token history queried 1,000 times</strong>.
+        </p>
+        <img src="/cost.png" alt="Cost per query and total cost by method"
+             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
+          <span>💾 <strong>prefix caching helps vanilla 10×</strong> (144µ$ → 14.9µ$ / query) — but it still re-reads the 48k prefix every query.</span>
+          <span>⚡ <strong>AgentHN is cheapest per query</strong> (0.47µ$) — it only processes the question; the memory is a weight swap, not tokens.</span>
+          <span>🏗️ <strong>Cartridges' offline training dominates</strong> ($43 one-time) — cheap per query, but only worth it after ~50k queries on a fixed corpus.</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
+          token cost is a proxy for compute; AgentHN's adapter-apply and Cartridges'/AgentHN's creation are compute, not API tokens (creation estimated) · scripts/cost_model.py
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PLAIN-WORDS EXPLAINER ===== -->
+    <div class="panel" style="margin-top:22px;background:#faf9f6">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px;background:#fff">
+        <span class="eyebrow">In plain words</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">What we actually did</span>
+      </div>
+      <div style="padding:20px 22px;font-size:15px;line-height:1.7;color:#3a3832;max-width:80ch">
+        <p style="margin:0 0 14px"><strong>The problem.</strong> When an AI agent has a long conversation, it eventually
+        can't fit the whole history in its prompt. The usual fixes (paste the recent text, or keep a notes file)
+        either forget old facts or make every future message bigger and slower.</p>
+        <p style="margin:0 0 14px"><strong>Our idea.</strong> Every <strong>4 turns</strong>, we take the oldest chunk
+        of the conversation and run it through a <em>hypernetwork</em> (Doc-to-LoRA) — a network that reads text and,
+        in <strong>one forward pass</strong>, writes a tiny patch to the model's weights (a "LoRA adapter"). That patch
+        stores the chunk's facts. We then delete the text from the prompt. The conversation lives in <strong>weights,
+        not words</strong>.</p>
+        <p style="margin:0 0 14px"><strong>Answering later.</strong> When you ask a question, we look up which chunk is
+        relevant (a quick keyword search), load just that chunk's patch into the model, and answer — with only the
+        question in the prompt. So the prompt stays tiny no matter how long the conversation gets.</p>
+        <p style="margin:0 0 14px"><strong>What we found, honestly.</strong> It recalls about <strong>87%</strong> of
+        facts and never gets worse as the chat grows to 48,000 tokens, while a plain model drops to <strong>0%</strong>
+        once it overflows. But classic retrieval (paste the text) gets <strong>100%</strong> — so storing memory in
+        weights instead of text <em>costs ~13% accuracy</em>, and what it buys back is the <strong>cheapest, smallest
+        prompt</strong> and the ability to build memory <strong>live, with no training</strong>. That last part is the
+        real niche: unlike Cartridges (which trains a memory offline), we adapt in real time as the agent talks.</p>
+        <p style="margin:0;color:#6b6862;font-size:14px"><em>Everything above is measured on a 2-billion-parameter model
+        (gemma-2-2b-it) with one Doc-to-LoRA hypernetwork. Every number has a script in the repo.</em></p>
       </div>
     </div>
   </section>

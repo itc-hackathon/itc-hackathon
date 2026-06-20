@@ -1,5 +1,9 @@
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 html,body{margin:0;padding:0}
+/* anchor jumps (e.g. "Jump to live demos") land a little below the top edge */
+:target,#demos{scroll-margin-top:24px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{background:#fff;color:#1c1b19;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 ::selection{background:#d3e2fc}
 a{color:inherit}

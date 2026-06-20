@@ -1,8 +1,8 @@
 """Render results/scaling.json -> webapp static/scaling.png (two panels).
 
-Left:  recall vs conversation length (NapLoRA holds past the paper's ~4x-window
+Left:  recall vs conversation length (AgentHN holds past the paper's ~4x-window
        single-encode limit; vanilla collapses at the 8k window).
-Right: query-time prompt tokens (≈ KV-cache cost) — NapLoRA flat ~8 regardless of
+Right: query-time prompt tokens (≈ KV-cache cost) — AgentHN flat ~8 regardless of
        horizon; vanilla pinned to the full window.
 """
 
@@ -66,8 +66,8 @@ def main() -> None:
         ax.axvline(window, color=GREY, ls=":", lw=1.3)
         ax.axvline(paper, color=GOLD, ls=":", lw=1.3)
 
-    # --- left: recall ---  (NapLoRA and text-RAG overlap at 100% -> offset RAG for legibility)
-    axL.plot(x, nap_rec, "-o", color=BLUE, lw=2.4, ms=6, label="NapLoRA (weights)")
+    # --- left: recall ---  (AgentHN and text-RAG overlap at 100% -> offset RAG for legibility)
+    axL.plot(x, nap_rec, "-o", color=BLUE, lw=2.4, ms=6, label="AgentHN (weights)")
     axL.plot(x, [r - 2 for r in rag_rec], "--s", color=GOLD, lw=2.0, ms=5,
              label="text-RAG ablation (retrieve as text)")
     axL.plot(x, van_rec, "-o", color=GREY, lw=2.0, ms=5, label="Vanilla (8k window, no memory)")
@@ -77,17 +77,17 @@ def main() -> None:
     axL.text(window, 10, " 8k window", color=GREY, fontsize=9, rotation=90, va="bottom", ha="right")
     axL.text(paper, 10, " D2L single-encode ~4×window", color="#9a7a30", fontsize=9,
              rotation=90, va="bottom", ha="right")
-    axL.text(x[1], 92, "NapLoRA = text-RAG (both 6/6)", color="#6b6862", fontsize=9)
+    axL.text(x[1], 92, "AgentHN = text-RAG (both 6/6)", color="#6b6862", fontsize=9)
     axL.legend(loc="center left", frameon=True, fontsize=9.5, facecolor="white", edgecolor="#e7e4dd")
 
-    # --- right: cost ---  (the ablation gap: RAG re-enters the chunk's tokens, NapLoRA doesn't)
+    # --- right: cost ---  (the ablation gap: RAG re-enters the chunk's tokens, AgentHN doesn't)
     axR.plot(x, van_tok, "-o", color=GREY, lw=2.0, ms=5, label="Vanilla prompt")
     axR.plot(x, rag_tok, "--s", color=GOLD, lw=2.2, ms=5, label="text-RAG prompt")
-    axR.plot(x, nap_tok, "-o", color=BLUE, lw=2.6, ms=6, label="NapLoRA prompt (weights)")
+    axR.plot(x, nap_tok, "-o", color=BLUE, lw=2.6, ms=6, label="AgentHN prompt (weights)")
     axR.set_yscale("log")
     axR.set_ylim(5, 15000)
     axR.set_ylabel("query-time prompt tokens  (≈ KV-cache cost, log)", color=DIM)
-    axR.set_title("Inference cost: NapLoRA vs the real baseline (RAG)", color=INK)
+    axR.set_title("Inference cost: AgentHN vs the real baseline (RAG)", color=INK)
     xr, ny, gy = x[-1], nap_tok[-1], rag_tok[-1]
     if ny > 0 and gy > 0:
         axR.annotate(f"{gy/ny:.0f}× less\nthan text-RAG", xy=(xr, ny * 1.05),

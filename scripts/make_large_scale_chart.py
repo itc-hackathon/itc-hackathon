@@ -1,7 +1,7 @@
 """Render results/large_scale.json -> static/large_scale.png.
 
 Left:  recall vs haystack size, mean ± std across seeds (the statistical claim).
-Right: query-time context tokens (log) — the NapLoRA vs text-RAG vs vanilla gap.
+Right: query-time context tokens (log) — the AgentHN vs text-RAG vs vanilla gap.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def main():
         ax.axvline(window, color=GREY, ls=":", lw=1.3)
 
     # left: recall with ±std bands
-    for method, color, ls, lab in (("napora", BLUE, "-", "NapLoRA (weights)"),
+    for method, color, ls, lab in (("napora", BLUE, "-", "AgentHN (weights)"),
                                     ("rag", GOLD, "--", "text-RAG ablation"),
                                     ("vanilla", GREY, "-", "vanilla (no memory)")):
         m = series(method, "mean"); s = series(method, "std")
@@ -73,13 +73,13 @@ def main():
     # right: context tokens (log)
     for method, color, ls, lab in (("vanilla", GREY, "-", "vanilla"),
                                     ("rag", GOLD, "--", "text-RAG"),
-                                    ("napora", BLUE, "-", "NapLoRA")):
+                                    ("napora", BLUE, "-", "AgentHN")):
         axR.plot(x, series(method, "ctx_tokens"), ls, color=color, lw=2.4, marker="o", ms=5, label=lab)
     axR.set_yscale("log"); axR.set_ylim(5, 15000)
     axR.set_ylabel("query context tokens (≈ KV cost, log)", color=DIM)
     axR.set_title("Query-time context", color=INK)
     ny, gy = series("napora", "ctx_tokens")[-1], series("rag", "ctx_tokens")[-1]
-    # annotate NapLoRA's context advantage vs Cartridges (and RAG)
+    # annotate AgentHN's context advantage vs Cartridges (and RAG)
     cy = gy
     if cart_path.exists():
         cy = json.loads(cart_path.read_text())["ctx_tokens"]
