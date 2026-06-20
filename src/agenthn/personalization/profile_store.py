@@ -67,6 +67,14 @@ class PersonalizationStore:
         PROFILES_DIR.mkdir(parents=True, exist_ok=True)
         (PROFILES_DIR / f"{uid}.md").write_text(self.profile_doc(uid))
 
+    def forget(self, uid: str) -> None:
+        """Drop a user's profile and cached adapter (restart the demo)."""
+        self._profiles.pop(uid, None)
+        self._adapters.pop(uid, None)
+        doc = PROFILES_DIR / f"{uid}.md"
+        if doc.exists():
+            doc.unlink()
+
     # --- adapter cache / swap --------------------------------------------
     def repersonalize(self, uid: str) -> None:
         """Internalize the user's current doc into an adapter and cache it."""
