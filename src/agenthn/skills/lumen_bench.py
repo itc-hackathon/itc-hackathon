@@ -6,6 +6,8 @@ Fictional + specific, so base ~0 and there's room for studying to help. ~24
 questions so each is ~4% -> a smooth accuracy curve.
 """
 
+import re
+
 SOURCE = """Lumen is a cloud analytics platform, founded in 2021 and headquartered in Denver.
 
 Plans and pricing:
@@ -65,6 +67,14 @@ def _norm(s: str) -> str:
     return s.lower().replace("$", "").replace(",", "").replace("-", " ")
 
 
+# A bracketed placeholder ("[state the timeframe, e.g. 30 days]", "[Plan Name]")
+# means the model is emitting a template, not stating a fact -- don't let a phrase
+# that only appears inside such a placeholder count as a correct answer.
+_PLACEHOLDER = re.compile(r"\[[^\]]*\]")
+
+
 def is_correct(answer: str, accepts: list[str]) -> bool:
+    if _PLACEHOLDER.search(answer):
+        return False
     a = _norm(answer)
     return any(_norm(x) in a for x in accepts)
