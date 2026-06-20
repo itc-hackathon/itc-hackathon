@@ -115,6 +115,64 @@ a{color:inherit}
 .seg{font-family:'IBM Plex Sans';font-size:12.5px;font-weight:500;cursor:pointer;padding:6px 14px;border-radius:6px;border:none;background:transparent;color:#8a877f}
 .seg.seg-on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
+/* ===== live memory demo (demo-0) ===== */
+.subhead{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#a6a299;padding:9px 18px 7px;background:#fbfaf7;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.subhead .ctxtok{font-size:11px;letter-spacing:0;text-transform:none;font-weight:600}
+.memfeed{height:172px}
+.logfeed{height:118px;background:#fbfaf7}
+.respfeed{height:150px;background:#fff}
+.hayfeed{height:188px;background:#fcfbf9;gap:6px}
+
+/* haystack turn lines */
+.hturn{font-size:12.5px;line-height:1.45;display:flex;gap:9px;align-items:baseline;animation:fadeUp .2s ease both}
+.hturn .hn{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#bcb8af;flex-shrink:0;width:30px;text-align:right}
+.hturn .hrole{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0;width:64px;color:#a8a59c}
+.hturn .htext{color:#5c594f}
+.hturn.needle{background:#eef4ff;border-radius:6px;padding:5px 7px;margin:0 -7px}
+.hturn.needle .htext{color:#1a3f9e;font-weight:500}
+.hturn.needle .hrole{color:#2f6ae0}
+
+/* context-box rendered text (markdown notes / napora summary) */
+.ctxline{font-size:12.5px;line-height:1.5;color:#7a6326;padding:3px 0;border-bottom:1px dashed #f0e6cf}
+.napcompress{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:#1e50c0}
+.napcompress b{font-size:19px}
+.napcompress .dim{color:#8a877f}
+
+/* segmented size selector */
+.sizeseg{font-family:'IBM Plex Sans';font-size:12.5px;font-weight:500;cursor:pointer;padding:6px 13px;border-radius:6px;border:none;background:transparent;color:#8a877f}
+.sizeseg.on{background:#fff;color:#1e50c0;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* memory-feed entries */
+.mentry{font-size:12.5px;line-height:1.45;border-radius:7px;padding:7px 10px;animation:fadeUp .25s ease both;font-family:'IBM Plex Mono',monospace}
+.mentry .mtag{font-size:9px;letter-spacing:.1em;display:block;margin-bottom:2px}
+.mentry.evict{background:#ebf2fe;color:#1e50c0;border-left:2px solid #2f6ae0}
+.mentry.evict .mtag{color:#2f6ae0}
+.mentry.note{background:#fdf7ec;color:#9a7a30;border-left:2px solid #c79a3a}
+.mentry.note .mtag{color:#bd8f2f}
+.mentry.idle{background:transparent;color:#b8b4ab;border-left:2px solid #ece9e2;font-size:11.5px}
+.mentry.fact{background:#fdf7ec;color:#7a6326;border-left:2px solid #e0c074;font-family:'IBM Plex Sans';font-size:12.5px}
+
+/* response entries */
+.rentry{font-size:13px;line-height:1.5;border-radius:8px;padding:9px 12px;animation:fadeUp .3s ease both}
+.rentry .rq{font-size:11.5px;color:#8a877f;margin-bottom:4px;font-family:'IBM Plex Mono',monospace}
+.rentry.hit{background:#eef6f0;border-left:2px solid #3f9d72;color:#26241f}
+.rentry.hit .rtag{color:#2f7d57;font-weight:600}
+.rentry.miss{background:#fbeaea;border-left:2px solid #c2554d;color:#26241f}
+.rentry.miss .rtag{color:#b04a42;font-weight:600}
+
+/* fill bars (visualizer 1) */
+.fillrow{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.filllabel{font-family:'IBM Plex Mono',monospace;font-size:11.5px;width:118px;flex-shrink:0;display:flex;align-items:center;gap:7px}
+.filltrack{position:relative;flex:1;height:14px;background:#efece6;border-radius:99px;overflow:hidden}
+.fillbar{height:100%;border-radius:99px;transition:width .45s ease,background .3s;width:0}
+.fillval{font-family:'IBM Plex Mono',monospace;font-size:11.5px;width:112px;flex-shrink:0;text-align:right;color:#6b6862}
+
+/* cost cards (visualizer 2) */
+.costcard{border:1px solid #e7e4dd;border-radius:10px;padding:13px 15px;background:#fff}
+.costcard .cname{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.costcard .cbig{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;letter-spacing:-0.01em}
+.costcard .csub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#9a9890;margin-top:3px}
+
 @media(max-width:760px){
   .grid-3,.grid-2{grid-template-columns:1fr !important}
   h1{font-size:34px !important}

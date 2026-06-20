@@ -22,11 +22,15 @@ from .nap_memory import NapLoRAMemory
 
 
 class MemoryArena:
-    def __init__(self, model: D2LModel, nap_k: int = 4, baseline_budget: int = 256):
+    def __init__(self, model: D2LModel, nap_k: int = 4, baseline_budget: int = 256,
+                 md_k: int | None = None):
+        # md_k decouples the markdown baseline's summarization interval from the
+        # NapLoRA nap interval: a larger md_k keeps long runs tractable (fewer 2B
+        # summarization passes) without changing how NapLoRA naps.
         self.model = model
         self.napora = NapLoRAMemory(model, nap_every_k=nap_k, keep_recent_turns=0)
         self.vanilla = VanillaContextMemory(model, context_budget_tokens=baseline_budget)
-        self.markdown = MarkdownMemory(model, summarize_every_k=nap_k)
+        self.markdown = MarkdownMemory(model, summarize_every_k=md_k or nap_k)
         self.baseline_budget = baseline_budget
         self.step = 0
 
@@ -55,7 +59,7 @@ class MemoryArena:
                          "notes_lines": len(self.markdown.notes)},
         }
 
-    def ask(self, query: str, needle: str | None = None, max_new_tokens: int = 40) -> dict:
+    def ask(self, query: str, needle: str | None = None, max_new_tokens: int = 96) -> dict:
         """Ask all three the same question; return a side-by-side answer frame."""
         self.napora.flush()  # make sure all streamed turns are in weights
         frames = {}

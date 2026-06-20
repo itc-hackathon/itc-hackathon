@@ -1,81 +1,69 @@
 """Synthetic NIAH-over-trajectory scenarios for the long-horizon memory demo.
 
-Each scenario is a long agent conversation (a "haystack" of filler turns) with a
-handful of planted facts ("needles") inserted EARLY, then queried at the end —
-after the early turns have scrolled out of any fixed context window. This is the
-setting where a vanilla context model (truncates) and a markdown-notes baseline
+Each scenario is an agent conversation (a "haystack" of filler turns) with a few
+planted facts ("needles") inserted EARLY, then queried at the end — after the
+early turns have scrolled past a fixed context window. This is the setting where
+a vanilla context model (truncates at the window) and a markdown-notes baseline
 (lossy summary / bloated prompt) struggle, and weight memory shines.
+
+Sizes scale only the haystack length (needles stay in the first ~14 turns):
+  small   ~  fits well inside gemma's 8k window  (all methods should recall)
+  medium  ~  approaches the window               (baselines pay a growing cost)
+  large   ~  exceeds 8k                          (vanilla truncates the needles)
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+# gemma-2-2b-it context window; the vanilla baseline can hold at most this many.
+GEMMA_WINDOW = 8192
+
+# total turns per size (needles occupy the early turns, the rest is filler haystack)
+# large is sized to push the raw transcript past the 8k window so vanilla truncates.
+SIZES = {"small": 28, "medium": 80, "large": 320}
+
+# NapLoRA nap interval (K=4 keeps each needle in its own small segment -> clean
+# recall). The markdown baseline's summarization interval is decoupled (MD_K) so
+# long runs don't pay a 2B summarization pass every 4 turns.
+NAP_K = {"small": 4, "medium": 4, "large": 4}
+MD_K = {"small": 4, "medium": 6, "large": 12}
+
 
 @dataclass
 class Scenario:
     name: str
+    size: str
     turns: list[tuple[str, str]]          # (role, text), streamed in order
     probes: list[tuple[str, str]]         # (question, needle substring)
-    needle_positions: list[int] = field(default_factory=list)  # turn idx of each needle
+    needle_positions: list[int] = field(default_factory=list)
 
 
-# Generic project chatter used to pad the trajectory into a long haystack. None of
-# these collide with needle keywords, so retrieval stays clean.
+# Generic project chatter — each entry is a COMPLETE, self-contained turn (no
+# mid-sentence truncation) at ~18-30 words. None collide with needle keywords, so
+# retrieval stays clean and segments don't drown the planted fact.
 _FILLER = [
-    "Let's keep momentum on the sprint; standup looked good this morning.",
-    "I refactored the logging module, nothing user-facing changed.",
-    "Can you re-run the linter? I think there was a trailing-whitespace warning.",
-    "The flaky integration test passed on retry, I'll keep an eye on it.",
-    "Bumped the dev dependencies, CI is green again.",
-    "Reminder to update the changelog before the next tag.",
-    "The staging dashboard was a little slow but recovered on its own.",
-    "I closed three stale issues that were already fixed.",
-    "Let's avoid scope creep on this ticket and keep it focused.",
-    "Coffee break, back in ten. Ping me if the build breaks.",
-    "I rebased onto main, only a trivial conflict in the README.",
-    "The metrics look stable week over week, no regressions.",
-    "Added a couple of unit tests around the parser edge cases.",
-    "Docs preview built fine, the screenshots render correctly.",
-    "Nothing blocking from my side, proceeding as planned.",
-    "I tidied up the import ordering across the package.",
-    "The nightly job finished early today, no errors in the logs.",
-    "Let's sync briefly after lunch on the rollout plan.",
-    "I archived the old experiment branches we no longer need.",
-    "Small typo fix in the onboarding guide, merged already.",
+    "Quick standup recap: the sprint board looks healthy, most cards are in review, and nothing is blocked on my end right now.",
+    "I refactored the logging module to use structured fields instead of string concatenation, so the dashboards should be much easier to query now.",
+    "The flaky integration test passed on retry again; I think it's a timing issue with the test container starting up slowly.",
+    "Bumped the dev dependencies and regenerated the lockfile, and CI went green on the first try, which is always a pleasant surprise.",
+    "We still owe the changelog an entry before the next tag, so I jotted down the highlights to make that quick.",
+    "The staging dashboard was a little sluggish for a few minutes but recovered on its own; CPU and memory both looked normal.",
+    "I closed a handful of stale issues that were already fixed in earlier releases, and linked the duplicates to the canonical thread.",
+    "Let's try to avoid scope creep on this ticket and keep it focused on the one behavior we actually need to change.",
+    "Taking a short coffee break, back in ten; ping me if the build breaks or the reviewer has questions on the migration.",
+    "I rebased onto main and there was only a trivial conflict in the README, which I resolved by keeping both paragraphs.",
+    "The weekly metrics look stable with no regressions worth calling out; latency is flat and throughput ticked up slightly after the caching change.",
+    "I added a few unit tests around the parser edge cases we kept tripping over, especially the empty-input and trailing-delimiter paths.",
+    "The docs preview built fine and the screenshots render correctly on both light and dark themes, so it's just polish before we publish.",
+    "I tidied up the import ordering across the package and ran the formatter so the diff in future pull requests stays small.",
+    "The nightly job finished early today with no errors in the logs, and I archived the old experiment branches we no longer need.",
+    "Let's sync briefly after lunch on the rollout plan and who owns the on-call handoff, so we have a clean rollback path.",
 ]
 
 
-def _build(name: str, needle_turns: list[tuple[str, str]], probes, *, depth=3, spacing=4, total=48):
-    """Interleave needle turns into a filler haystack at increasing depth.
-
-    needle_turns: (role, text) facts to plant. They are inserted starting at
-    `depth`, every `spacing` turns, and the rest is filler up to `total` turns.
-    """
-    turns: list[tuple[str, str]] = []
-    positions: list[int] = []
-    fi = 0
-    needles = list(needle_turns)
-    next_needle_at = depth
-    while len(turns) < total:
-        if needles and len(turns) >= next_needle_at:
-            positions.append(len(turns))
-            turns.append(needles.pop(0))
-            next_needle_at = len(turns) + spacing
-        else:
-            role = "assistant" if len(turns) % 2 else "user"
-            turns.append((role, _FILLER[fi % len(_FILLER)]))
-            fi += 1
-    # ensure any leftover needles are placed before the end
-    for nt in needles:
-        positions.append(len(turns) - 1)
-        turns.insert(len(turns) - 1, nt)
-    return Scenario(name=name, turns=turns, probes=probes, needle_positions=positions)
-
-
-def apollo_migration() -> Scenario:
-    return _build(
-        "apollo_migration",
+_NEEDLE_SETS: dict[str, tuple[list[tuple[str, str]], list[tuple[str, str]]]] = {
+    "apollo_migration": (
         [
             ("user", "Decision for the record: the deployment region is set to eu-west-2."),
             ("user", "For the record: the on-call engineer for launch week is Priya."),
@@ -92,12 +80,8 @@ def apollo_migration() -> Scenario:
             ("What is the name of the feature flag for the new checkout?", "smooth_sailing"),
             ("Who owns QA sign-off?", "marcus"),
         ],
-    )
-
-
-def trip_planning() -> Scenario:
-    return _build(
-        "trip_planning",
+    ),
+    "trip_planning": (
         [
             ("user", "For the trip: my flight confirmation code is QX7P2R."),
             ("user", "Remember this: the hotel is the Marlowe on Pine Street, room 412."),
@@ -114,12 +98,8 @@ def trip_planning() -> Scenario:
             ("Whose name are the museum tickets under?", "okafor"),
             ("Which platform does the return train depart from?", "platform 9"),
         ],
-    )
-
-
-def research_assistant() -> Scenario:
-    return _build(
-        "research_assistant",
+    ),
+    "research_assistant": (
         [
             ("user", "Log: the baseline model checkpoint we use is run-4417."),
             ("user", "Record: the best learning rate from the sweep was 3e-4."),
@@ -136,8 +116,41 @@ def research_assistant() -> Scenario:
             ("Who is the lead reviewer for the paper?", "adeyemi"),
             ("When is the submission deadline?", "november 7"),
         ],
-    )
+    ),
+}
+
+SCENARIO_NAMES = list(_NEEDLE_SETS)
 
 
-def all_scenarios() -> list[Scenario]:
-    return [apollo_migration(), trip_planning(), research_assistant()]
+def make_scenario(name: str, size: str = "medium", *, depth: int = 2, spacing: int | None = None) -> Scenario:
+    """Build a scenario: needles planted early, then filler to size.
+
+    spacing defaults to the nap interval K, so each needle lands in its OWN nap
+    segment (one fact per adapter -> clean retrieval + recall).
+    """
+    needle_turns, probes = _NEEDLE_SETS[name]
+    total = SIZES[size]
+    if spacing is None:
+        spacing = NAP_K.get(size, 4)
+    turns: list[tuple[str, str]] = []
+    positions: list[int] = []
+    needles = list(needle_turns)
+    fi = 0
+    next_at = depth
+    while len(turns) < total:
+        if needles and len(turns) >= next_at:
+            positions.append(len(turns))
+            turns.append(needles.pop(0))
+            next_at = len(turns) + spacing
+        else:
+            role = "assistant" if len(turns) % 2 else "user"
+            turns.append((role, _FILLER[fi % len(_FILLER)]))  # complete turn, not truncated
+            fi += 1
+    for nt in needles:  # ensure all needles are planted even if total is tiny
+        positions.append(len(turns) - 1)
+        turns.insert(len(turns) - 1, nt)
+    return Scenario(name=name, size=size, turns=turns, probes=probes, needle_positions=positions)
+
+
+def all_scenarios(size: str = "medium") -> list[Scenario]:
+    return [make_scenario(n, size) for n in SCENARIO_NAMES]

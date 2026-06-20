@@ -23,7 +23,7 @@ const DEMO_META = [
   { num: "02", label: "Personalization" },
   { num: "03", label: "Self-improving skills" },
 ];
-let activeDemo = 1; // open on the live personalization demo
+let activeDemo = 0; // open on the live long-horizon memory demo
 
 function renderTabs() {
   const row = $("demoTabs");
@@ -40,158 +40,251 @@ function renderTabs() {
   });
 }
 
-/* ============================ DEMO 1: MEMORY (scripted) ============================ */
-const D1 = {
-  scenario: 0,
+/* ============================ DEMO 1: MEMORY (live, SSE) ============================ */
+const M1 = {
+  scenario: "apollo_migration",
+  size: "medium",
   running: false,
-  timer: null,
-  data: [
-    {
-      label: "Support · 8 turns",
-      needle: "Order A-2294 — the customer wants an exchange (not a refund) for a wrong-size jacket.",
-      turns: [
-        "My jacket (order A-2294) came in the wrong size — I'd like an exchange, not a refund.",
-        "Also, do you ship to Canada?",
-        "What's your return window?",
-        "Can I change the email on my account?",
-        "Do you have this jacket in green?",
-        "What's the status of my other order, B-1180?",
-        "Is there a student discount?",
-        "Remind me — what did I originally want done with order A-2294?",
-      ],
-      agentAnswer: "You asked for an exchange on the wrong-size jacket (A-2294) — not a refund. I can start that now.",
-      vanillaAnswer: "I'm sorry — the earlier details of this conversation are no longer in my context.",
-    },
-    {
-      label: "Research · 8 turns",
-      needle: "Hard constraint set first: training must fit in under 8GB of VRAM.",
-      turns: [
-        "Let's design the experiment. Hard rule: training has to fit in under 8GB of VRAM.",
-        "What optimizer should we use?",
-        "How many epochs is reasonable here?",
-        "Should we use mixed precision?",
-        "What learning-rate schedule do you suggest?",
-        "Recommend a data-augmentation strategy.",
-        "Which eval metrics should we report?",
-        "Before we finalize — what hardware budget did we lock in at the start?",
-      ],
-      agentAnswer: "Under 8GB of VRAM for training — the hard constraint we set first. Keep batch size and precision within it.",
-      vanillaAnswer: "The start of our discussion has dropped out of my context, so I can't recall that constraint.",
-    },
-    {
-      label: "Coding · 8 turns",
-      needle: "Team decision: every database column uses snake_case, never camelCase.",
-      turns: [
-        "Project rule before we start: every DB column must be snake_case, never camelCase.",
-        "Scaffold the users table.",
-        "Add an auth middleware.",
-        "Write the migration for orders.",
-        "Set up the test database.",
-        "Add an index on the email column.",
-        "Wire up the CI pipeline.",
-        "Quick check — what naming convention did we agree on for DB columns?",
-      ],
-      agentAnswer: "snake_case for every database column — the rule we set at the start, so the new tables follow it.",
-      vanillaAnswer: "That was early in our session and is no longer in my context window, so I can't say.",
-    },
-  ],
+  es: null,
+  meta: null,
+  scenarios: [],
+  sizes: [],
 };
-const K = 4;
-const ENTRY_TAG = { user: "USER", note: "· ", d2l: "↯ D2L", sys: "⚠ OVERFLOW", pass: "✓ RECALLED", fail: "✗ LOST" };
+const M1_SIZE_LABEL = { small: "Small", medium: "Medium", large: "Large" };
+const M1_SCEN_LABEL = {
+  apollo_migration: "Project log",
+  trip_planning: "Trip planning",
+  research_assistant: "Research notes",
+};
 
-function d1Entry(kind, text) {
-  const e = el("div", "entry " + kind);
-  if (ENTRY_TAG[kind] && kind !== "note") e.appendChild(el("span", "tag", ENTRY_TAG[kind]));
-  e.appendChild(document.createTextNode(text));
-  return e;
-}
-function d1RenderScenarioTabs() {
-  const row = $("d1ScenarioTabs");
-  row.innerHTML = "";
-  D1.data.forEach((d, i) => {
-    const b = el("button", "btn-sm" + (i === D1.scenario ? " on" : ""), d.label);
-    b.onclick = () => { d1Set(i); };
-    row.appendChild(b);
+function m1RenderControls() {
+  const st = $("m1ScenarioTabs");
+  st.innerHTML = "";
+  M1.scenarios.forEach((name) => {
+    const b = el("button", "btn-sm" + (name === M1.scenario ? " on" : ""), M1_SCEN_LABEL[name] || name);
+    b.onclick = () => { if (!M1.running) { M1.scenario = name; m1RenderControls(); m1Reset(); } };
+    st.appendChild(b);
+  });
+  const sz = $("m1Size");
+  sz.innerHTML = "";
+  M1.sizes.forEach((s) => {
+    const turns = M1.meta && M1.meta.turns_per_size ? M1.meta.turns_per_size[s] : null;
+    const b = el("button", "sizeseg" + (s === M1.size ? " on" : ""), M1_SIZE_LABEL[s] || s);
+    if (turns) b.title = turns + " turns";
+    b.onclick = () => { if (!M1.running) { M1.size = s; m1RenderControls(); m1Reset(); } };
+    sz.appendChild(b);
   });
 }
-function d1Reset() {
-  if (D1.timer) clearTimeout(D1.timer);
-  D1.timer = null;
-  D1.running = false;
-  $("d1Agent").innerHTML = "";
-  $("d1Vanilla").innerHTML = "";
-  $("d1Agent").appendChild(el("div", "empty", "press Run to start the trajectory"));
-  $("d1Vanilla").appendChild(el("div", "empty", "press Run to start the trajectory"));
-  $("d1Adapters").textContent = "0 adapters";
-  d1Meters(600, 600, false);
-  $("d1DotA").classList.remove("live");
-  $("d1DotB").classList.remove("live");
-  $("d1Run").textContent = "Run trajectory ▸";
-  $("d1Run").disabled = false;
+
+const m1mk = (cls, tag, text) => {
+  const e = el("div", cls);
+  if (tag) e.appendChild(el("span", "mtag", tag));
+  if (text != null) e.appendChild(document.createTextNode(text));
+  return e;
+};
+
+function m1Fills(nap, md, van) {
+  const rows = [
+    ["NapLoRA", "#2f6ae0", nap],
+    ["Markdown .md", "#c79a3a", md],
+    ["Vanilla (raw)", "#94908a", van],
+  ];
+  const box = $("m1Fills");
+  box.innerHTML = "";
+  rows.forEach(([name, color, m]) => {
+    const pct = m ? m.fill_pct : 0;
+    const tok = m ? m.context_tokens : 0;
+    const over = m && m.overflow;
+    const row = el("div", "fillrow");
+    row.innerHTML =
+      '<div class="filllabel"><span class="dot" style="background:' + color + '"></span>' + name + "</div>" +
+      '<div class="filltrack"><div class="fillbar" style="width:' + Math.min(100, pct) + "%;background:" + (over ? "#c2554d" : color) + '"></div></div>' +
+      '<div class="fillval" style="' + (over ? "color:#c2554d;font-weight:600" : "") + '">' + tok.toLocaleString() + " tok · " + pct + "%" + (over ? " ⚠ overflow" : "") + "</div>";
+    box.appendChild(row);
+  });
 }
-function d1Set(i) {
-  D1.scenario = i;
-  $("d1Needle").textContent = D1.data[i].needle;
-  d1RenderScenarioTabs();
-  d1Reset();
+
+function m1CostCards(methods) {
+  const order = [
+    ["napora", "NapLoRA", "#2f6ae0"],
+    ["markdown", "Markdown .md", "#c79a3a"],
+    ["vanilla", "Vanilla", "#94908a"],
+  ];
+  const box = $("m1Cost");
+  box.innerHTML = "";
+  order.forEach(([k, name, color]) => {
+    const m = methods[k];
+    const c = el("div", "costcard");
+    c.innerHTML =
+      '<div class="cname"><span class="dot" style="background:' + color + '"></span>' + name + "</div>" +
+      '<div class="cbig" style="color:' + color + '">' + m.kv_mb.toLocaleString() + ' <span style="font-size:13px;color:#9a9890">MB</span></div>' +
+      '<div class="csub">' + m.prompt_tokens.toLocaleString() + " prompt tokens</div>";
+    box.appendChild(c);
+  });
 }
-function d1Meters(aTok, vTok, overflow) {
-  $("d1AgentTok").textContent = `${aTok.toLocaleString()} tok · ${Math.round(aTok * 0.12)} MB KV`;
-  $("d1VanillaTok").textContent = `${vTok.toLocaleString()} tok · ${Math.round(vTok * 0.12)} MB KV`;
-  $("d1AgentBar").style.width = Math.min(100, Math.round((aTok / 8000) * 100)) + "%";
-  const vb = $("d1VanillaBar");
-  vb.style.width = Math.min(100, Math.round((vTok / 8000) * 100)) + "%";
-  vb.style.background = overflow ? "#c2554d" : "#94908a";
-  $("d1VanillaTok").style.color = overflow ? "#c2554d" : "#94908a";
+
+const M1_FEEDS = ["m1Hay", "m1NapCtx", "m1MdCtx", "m1NapLog", "m1MdLog", "m1NapResp", "m1MdResp"];
+
+function m1Reset() {
+  if (M1.es) { M1.es.close(); M1.es = null; }
+  M1.running = false;
+  M1_FEEDS.forEach((id) => ($(id).innerHTML = ""));
+  $("m1Hay").appendChild(el("div", "empty", "press Run — the full conversation streams in here"));
+  $("m1NapCtx").appendChild(el("div", "mentry idle", "the prompt context will appear here"));
+  $("m1MdCtx").appendChild(el("div", "mentry idle", "the .md note text will appear here"));
+  $("m1NapLog").appendChild(el("div", "mentry idle", "nap / evict events appear here"));
+  $("m1MdLog").appendChild(el("div", "mentry idle", "summarization events appear here"));
+  $("m1NapResp").appendChild(el("div", "empty", "answers appear after the trajectory"));
+  $("m1MdResp").appendChild(el("div", "empty", "answers appear after the trajectory"));
+  $("m1Progress").textContent = "";
+  $("m1NapStat").textContent = "0 adapters";
+  $("m1MdStat").textContent = "0 notes";
+  ["m1NapCtxTok", "m1MdCtxTok", "m1HayTok", "m1WindowLbl"].forEach((id) => ($(id).textContent = ""));
+  $("m1NapDot").classList.remove("live");
+  $("m1MdDot").classList.remove("live");
+  $("m1Run").textContent = "Run trajectory ▸";
+  $("m1Run").disabled = false;
+  m1Fills(null, null, null);
+  $("m1Cost").innerHTML = "";
 }
-function d1Run() {
-  if (D1.timer) clearTimeout(D1.timer);
-  const sc = D1.data[D1.scenario];
-  D1.running = true;
-  $("d1Run").textContent = "Running…";
-  $("d1Run").disabled = true;
-  $("d1Agent").innerHTML = "";
-  $("d1Vanilla").innerHTML = "";
-  $("d1DotA").classList.add("live");
-  $("d1DotB").classList.add("live");
-  let aTok = 600, vTok = 600, adapters = 0, i = 0;
-  d1Meters(aTok, vTok, false);
-  const agentFeed = $("d1Agent"), vanFeed = $("d1Vanilla");
-  const push = (feed, kind, text) => { feed.appendChild(d1Entry(kind, text)); feed.scrollTop = feed.scrollHeight; };
-  const step = () => {
-    const isLast = i === sc.turns.length - 1;
-    const userTxt = `${i + 1}. ${sc.turns[i]}`;
-    push(agentFeed, "user", userTxt);
-    push(vanFeed, "user", userTxt);
-    aTok += 1150; vTok += 1150;
-    let overflow = false;
-    if (isLast) {
-      push(agentFeed, "d2l", "Doc-to-LoRA: compacted remaining turns into the memory adapter before answering.");
-      adapters += 1; aTok = 950;
-      push(agentFeed, "pass", sc.agentAnswer);
-      vTok = 8000; overflow = true;
-      push(vanFeed, "fail", sc.vanillaAnswer);
-    } else {
-      if ((i + 1) % K === 0) {
-        push(agentFeed, "d2l", "Doc-to-LoRA: compacted turns into adapter r=8 · rank-concat with memory adapter · evicted from context");
-        adapters += 1; aTok = 950;
-      } else {
-        push(agentFeed, "note", "internalized");
-      }
-      if (vTok > 8000) { push(vanFeed, "sys", "Context window full (8k) — evicting oldest turn (the original request)."); vTok = 8000; overflow = true; }
-      else push(vanFeed, "note", "appended to context");
-    }
-    $("d1Adapters").textContent = adapters + " adapters";
-    d1Meters(aTok, vTok, overflow);
-    i += 1;
-    if (i < sc.turns.length) D1.timer = setTimeout(step, 800);
-    else {
-      D1.timer = null; D1.running = false;
-      $("d1Run").textContent = "Run trajectory ▸"; $("d1Run").disabled = false;
-      $("d1DotA").classList.remove("live"); $("d1DotB").classList.remove("live");
-    }
+
+function m1OnMeta(f) {
+  M1.meta = Object.assign(M1.meta || {}, f);
+  $("m1Needle").textContent = f.probes.map((p) => p.needle).join("  ·  ");
+  $("m1Questions").textContent = f.probes.map((p) => p.q).join("   ");
+  $("m1WindowLbl").textContent = "window 8,192 tok · " + f.total_turns + " turns · nap every K=" + f.nap_k;
+  M1_FEEDS.forEach((id) => ($(id).innerHTML = ""));
+}
+
+function m1NeedleAt(step) {
+  const pos = (M1.meta && M1.meta.needle_positions) || [];
+  return pos.includes(step - 1);
+}
+
+function m1OnTurn(f) {
+  const isNeedle = m1NeedleAt(f.step);
+  $("m1Progress").textContent = "streaming turn " + f.step + " / " + M1.meta.total_turns + " …";
+
+  // --- full haystack: append the exact turn text ---
+  const hay = $("m1Hay");
+  if (hay.querySelector(".empty")) hay.innerHTML = "";
+  const h = el("div", "hturn" + (isNeedle ? " needle" : ""));
+  h.innerHTML =
+    '<span class="hn">' + f.step + "</span>" +
+    '<span class="hrole">' + (isNeedle ? "🔑 " : "") + f.role + "</span>" +
+    '<span class="htext"></span>';
+  h.querySelector(".htext").textContent = f.text;
+  hay.appendChild(h);
+  hay.scrollTop = hay.scrollHeight;
+  $("m1HayTok").textContent = f.raw_tokens.toLocaleString() + " tokens so far";
+
+  // --- NapLoRA: context (compression summary) + activity log ---
+  const nap = f.napora;
+  $("m1NapCtx").innerHTML =
+    '<div class="napcompress">' +
+    "<b>" + nap.context_tokens + "</b> tokens of conversation in prompt<br>" +
+    '<span class="dim">' + f.raw_tokens.toLocaleString() + " tokens of raw text →</span> " +
+    nap.segments + " LoRA adapters <b style=\"font-size:13px\">≈ " + nap.adapter_mb + " MB</b> weights<br>" +
+    '<span class="dim">rank ' + nap.adapter_rank + " · all history lives in Δweights, not tokens</span>" +
+    "</div>";
+  if (nap.napped) {
+    const log = $("m1NapLog");
+    if (log.querySelector(".idle")) log.innerHTML = "";
+    log.appendChild(m1mk("mentry evict", "↯ EVICT → WEIGHTS", nap.event));
+    log.scrollTop = log.scrollHeight;
+  }
+  $("m1NapStat").textContent = nap.segments + " adapters · rank " + nap.adapter_rank;
+  $("m1NapCtxTok").textContent = nap.context_tokens + " tok in prompt";
+
+  // --- Markdown: context (full .md notes) + activity log ---
+  const md = f.markdown;
+  if (md.notes) {
+    const feed = $("m1MdCtx");
+    feed.innerHTML = "";
+    md.notes.forEach((n) => {
+      const line = el("div", "ctxline");
+      line.textContent = "• " + n;
+      feed.appendChild(line);
+    });
+    feed.scrollTop = feed.scrollHeight;
+    const log = $("m1MdLog");
+    if (log.querySelector(".idle")) log.innerHTML = "";
+    log.appendChild(m1mk("mentry note", "✎ SUMMARIZE → .md", md.event));
+    log.scrollTop = log.scrollHeight;
+  }
+  $("m1MdStat").textContent = md.notes_lines + " notes";
+  $("m1MdCtxTok").textContent = md.context_tokens.toLocaleString() + " tok in prompt";
+
+  m1Fills(nap, md, f.vanilla);
+}
+
+function m1OnQuery(f) {
+  $("m1Progress").textContent = "querying — needles now live only in weights / .md notes …";
+  const napFeed = $("m1NapResp"), mdFeed = $("m1MdResp");
+  if (napFeed.querySelector(".empty")) napFeed.innerHTML = "";
+  if (mdFeed.querySelector(".empty")) mdFeed.innerHTML = "";
+  const row = (feed, m) => {
+    const e = el("div", "rentry " + (m.hit ? "hit" : "miss"));
+    e.innerHTML = '<div class="rq">Q: ' + f.query + "</div>";
+    e.appendChild(el("span", "rtag", m.hit ? "✓ RECALLED  " : "✗ LOST  "));
+    e.appendChild(document.createTextNode(m.answer));
+    e.appendChild(el("div", "csub", m.prompt_tokens + " prompt tok · " + m.kv_mb + " MB KV"));
+    feed.appendChild(e);
+    feed.scrollTop = feed.scrollHeight;
   };
-  D1.timer = setTimeout(step, 350);
+  row(napFeed, f.methods.napora);
+  row(mdFeed, f.methods.markdown);
+  m1CostCards(f.methods);
+}
+
+function m1Run() {
+  if (M1.running) return;
+  m1Reset();
+  M1.running = true;
+  $("m1Run").textContent = "Running…";
+  $("m1Run").disabled = true;
+  $("m1NapDot").classList.add("live");
+  $("m1MdDot").classList.add("live");
+  $("m1NapResp").innerHTML = "";
+  $("m1MdResp").innerHTML = "";
+  const url = "/api/memory/run?scenario=" + encodeURIComponent(M1.scenario) + "&size=" + encodeURIComponent(M1.size);
+  const es = new EventSource(url);
+  M1.es = es;
+  es.onmessage = (ev) => {
+    const f = JSON.parse(ev.data);
+    if (f.type === "meta") m1OnMeta(f);
+    else if (f.type === "turn") m1OnTurn(f);
+    else if (f.type === "query") m1OnQuery(f);
+    else if (f.type === "done") m1Done(false);
+  };
+  es.onerror = () => { m1Done(true); };
+}
+
+function m1Done(err) {
+  if (M1.es) { M1.es.close(); M1.es = null; }
+  M1.running = false;
+  $("m1Run").textContent = "Run trajectory ▸";
+  $("m1Run").disabled = false;
+  $("m1NapDot").classList.remove("live");
+  $("m1MdDot").classList.remove("live");
+  $("m1Progress").textContent = err ? "stream ended" : "done — needles recalled from weights with an ~8-token prompt";
+}
+
+async function m1Init() {
+  try {
+    const meta = await (await fetch("/api/memory/meta")).json();
+    M1.scenarios = meta.scenarios;
+    M1.sizes = meta.sizes;
+    M1.meta = { turns_per_size: meta.turns_per_size };
+    if (!M1.scenarios.includes(M1.scenario)) M1.scenario = M1.scenarios[0];
+  } catch (e) {
+    M1.scenarios = ["apollo_migration"];
+    M1.sizes = ["small", "medium", "large"];
+  }
+  m1RenderControls();
+  m1Reset();
+  $("m1Run").onclick = m1Run;
+  $("m1Reset").onclick = () => { if (!M1.running) m1Reset(); };
 }
 
 /* ============================ DEMO 2: PERSONALIZATION (live) ============================ */
@@ -506,10 +599,8 @@ async function init() {
   renderTabs();
   [0, 1, 2].forEach((j) => ($(`demo-${j}`).style.display = j === activeDemo ? "" : "none"));
 
-  // demo 1
-  d1Set(0);
-  $("d1Run").onclick = d1Run;
-  $("d1Reset").onclick = d1Reset;
+  // demo 1 (live memory)
+  await m1Init();
 
   // demo 2
   pInitSuggest();

@@ -10,20 +10,23 @@ Run (on the GPU box):
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from .memory_service import build_memory_service
 from .service import build_service
 
 STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="AgentHN")
 service = build_service()
+memory_service = build_memory_service()
 
 
 class ObserveBody(BaseModel):
@@ -74,6 +77,26 @@ def reset(body: ResetBody) -> dict:
 @app.get("/api/personalization/profile")
 def profile(uid: str = "demo") -> dict:
     return {"profile": service.profile(uid)}
+
+
+@app.get("/api/memory/meta")
+def memory_meta() -> dict:
+    return memory_service.meta()
+
+
+@app.get("/api/memory/run")
+def memory_run(scenario: str = "apollo_migration", size: str = "medium") -> StreamingResponse:
+    """Server-Sent Events stream of the live memory run (one frame per turn/query)."""
+
+    def gen():
+        for frame in memory_service.run(scenario, size):
+            yield f"data: {json.dumps(frame)}\n\n"
+
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.get("/")

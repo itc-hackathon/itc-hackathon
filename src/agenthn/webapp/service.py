@@ -50,15 +50,17 @@ class LiveService:
     """
 
     def __init__(self) -> None:
-        self._lock = threading.Lock()
+        from .runtime import MODEL_LOCK
+
+        self._lock = MODEL_LOCK  # shared with the memory demo (one model, one lock)
         self._store = None  # built on first use
 
     def _ensure_store(self):
         if self._store is None:
-            from ..core.model import D2LModel
             from ..personalization.profile_store import PersonalizationStore
+            from .runtime import get_model
 
-            self._store = PersonalizationStore(D2LModel.load())
+            self._store = PersonalizationStore(get_model())
         return self._store
 
     def observe(self, uid: str, message: str) -> Turn:

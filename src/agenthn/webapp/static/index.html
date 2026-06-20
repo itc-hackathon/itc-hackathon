@@ -90,58 +90,100 @@
   <section id="demos" style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
     <div>
       <h2 style="font-size:32px;font-weight:600;letter-spacing:-0.02em;margin:0 0 12px">See the weights change in real time</h2>
-      <p style="font-size:17px;line-height:1.6;color:#5c594f;margin:0;max-width:60ch">Three scenarios. <strong>Personalization is live</strong> — wired to the Doc-to-LoRA hook. Memory and skills are scripted previews of the same UI.</p>
+      <p style="font-size:17px;line-height:1.6;color:#5c594f;margin:0;max-width:62ch">Three scenarios. <strong>Memory and personalization are live</strong> — wired to the Doc-to-LoRA hook on gemma-2-2b-it. Skills is a scripted preview of the same UI.</p>
     </div>
     <div id="demoTabs" class="tabrow" style="margin-top:28px"></div>
   </section>
 
-  <!-- ===== DEMO 1 : MEMORY (scripted) ===== -->
+  <!-- ===== DEMO 1 : MEMORY (live) ===== -->
   <section id="demo-0" style="max-width:1080px;margin:0 auto;padding:16px 24px 0">
-    <h3 class="demo-title">Long-horizon memory — needle-in-a-haystack over a trajectory <span class="badge-script">scripted preview</span></h3>
+    <h3 class="demo-title">Long-horizon memory — needle-in-a-haystack over a trajectory <span class="badge-live">live</span></h3>
+    <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-6px 0 18px;max-width:72ch">A few facts (<strong>needles</strong>) are dropped early into a long conversation, then asked about at the very end. <strong style="color:#2f6ae0">NapLoRA</strong> naps the oldest turns into LoRA weights and evicts them from the prompt; the <strong style="color:#9a7a30">markdown (.md)</strong> baseline keeps a growing text note. Watch the context window and inference cost diverge.</p>
     <div class="panel">
+      <!-- controls -->
       <div class="controlbar">
-        <div id="d1ScenarioTabs" style="display:flex;gap:7px;flex-wrap:wrap"></div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299">K = 4</span>
-          <button id="d1Run" class="btn-primary">Run trajectory ▸</button>
-          <button id="d1Reset" class="btn-ghost">Reset</button>
+        <div id="m1ScenarioTabs" style="display:flex;gap:7px;flex-wrap:wrap"></div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="eyebrow">Haystack</span>
+            <div id="m1Size" style="display:inline-flex;background:#efece6;border-radius:8px;padding:3px"></div>
+          </div>
+          <button id="m1Run" class="btn-primary">Run trajectory ▸</button>
+          <button id="m1Reset" class="btn-ghost">Reset</button>
         </div>
       </div>
-      <div style="padding:13px 20px;background:#ebf2fe;border-bottom:1px solid #cdddfb;display:flex;gap:10px;align-items:flex-start">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#2f6ae0;white-space:nowrap;padding-top:1px">Needle ▸</span>
-        <span id="d1Needle" style="font-size:14px;line-height:1.5;color:#1a3f9e"></span>
+
+      <!-- needles + questions -->
+      <div style="padding:13px 20px;background:#ebf2fe;border-bottom:1px solid #cdddfb">
+        <div style="display:flex;gap:10px;align-items:baseline;margin-bottom:7px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#2f6ae0;white-space:nowrap">🔑 Needles ▸</span>
+          <span id="m1Needle" style="font-size:13px;line-height:1.55;color:#1a3f9e"></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:baseline">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5c7fc7;white-space:nowrap">Questions ▸</span>
+          <span id="m1Questions" style="font-size:12.5px;line-height:1.55;color:#3a5fa8"></span>
+        </div>
+        <div id="m1Progress" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5c7fc7;margin-top:8px"></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr" class="grid-2">
+
+      <!-- full haystack: the exact conversation streamed in -->
+      <div class="subhead" style="border-bottom:1px solid #eceae3">
+        Haystack — the full conversation (raw context that exists)
+        <span id="m1HayTok" class="ctxtok" style="color:#6b6862"></span>
+      </div>
+      <div id="m1Hay" class="feed hayfeed"></div>
+
+      <!-- two model columns: NapLoRA vs Markdown -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #eceae3" class="grid-2">
+        <!-- NapLoRA -->
         <div style="border-right:1px solid #eceae3">
           <div class="colhead">
             <div style="display:flex;align-items:center;gap:9px">
-              <span id="d1DotA" class="dot" style="background:#2f6ae0"></span>
-              <span style="font-size:14px;font-weight:600">AgentHN <span style="font-weight:400;color:#9a9890">· D2L</span></span>
+              <span id="m1NapDot" class="dot" style="background:#2f6ae0"></span>
+              <span style="font-size:14px;font-weight:600;color:#1e50c0">NapLoRA <span style="font-weight:400;color:#9a9890">· memory in weights</span></span>
             </div>
-            <span id="d1Adapters" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0">0 adapters</span>
+            <span id="m1NapStat" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0">0 adapters</span>
           </div>
-          <div id="d1Agent" class="feed"></div>
+          <div class="subhead">① Context — text actually in the prompt <span id="m1NapCtxTok" class="ctxtok" style="color:#2f6ae0"></span></div>
+          <div id="m1NapCtx" class="feed memfeed"></div>
+          <div class="subhead" style="border-top:1px solid #eceae3">② Activity log</div>
+          <div id="m1NapLog" class="feed logfeed"></div>
+          <div class="subhead" style="border-top:1px solid #eceae3">③ Response</div>
+          <div id="m1NapResp" class="feed respfeed"></div>
         </div>
+        <!-- Markdown -->
         <div>
           <div class="colhead">
             <div style="display:flex;align-items:center;gap:9px">
-              <span id="d1DotB" class="dot" style="background:#94908a"></span>
-              <span style="font-size:14px;font-weight:600;color:#3a3832">Vanilla LLM <span style="font-weight:400;color:#9a9890">· 8k ctx</span></span>
+              <span id="m1MdDot" class="dot" style="background:#c79a3a"></span>
+              <span style="font-size:14px;font-weight:600;color:#9a7a30">Markdown .md <span style="font-weight:400;color:#9a9890">· memory in text</span></span>
             </div>
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94908a">no weight edits</span>
+            <span id="m1MdStat" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#9a7a30">0 notes</span>
           </div>
-          <div id="d1Vanilla" class="feed"></div>
+          <div class="subhead">① Context — text actually in the prompt <span id="m1MdCtxTok" class="ctxtok" style="color:#9a7a30"></span></div>
+          <div id="m1MdCtx" class="feed memfeed"></div>
+          <div class="subhead" style="border-top:1px solid #eceae3">② Activity log</div>
+          <div id="m1MdLog" class="feed logfeed"></div>
+          <div class="subhead" style="border-top:1px solid #eceae3">③ Response</div>
+          <div id="m1MdResp" class="feed respfeed"></div>
         </div>
       </div>
-      <div id="d1Metrics" style="border-top:1px solid #eceae3;padding:18px 20px;background:#faf9f6;display:grid;grid-template-columns:1fr 1fr;gap:28px" class="grid-2">
-        <div>
-          <div class="meterhead"><span class="eyebrow">AgentHN context</span><span id="d1AgentTok" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#2f6ae0"></span></div>
-          <div class="meter"><div id="d1AgentBar" style="height:100%;background:#2f6ae0;border-radius:99px;transition:width .5s ease;width:8%"></div></div>
+
+      <!-- VISUALIZER 1: context-window fill -->
+      <div style="border-top:1px solid #eceae3;padding:18px 20px;background:#faf9f6">
+        <div class="meterhead" style="margin-bottom:12px">
+          <span class="eyebrow">① Context window fill <span style="text-transform:none;letter-spacing:0;color:#b0aca2">— share of gemma's 8,192-token window held as prompt</span></span>
+          <span id="m1WindowLbl" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299"></span>
         </div>
-        <div>
-          <div class="meterhead"><span class="eyebrow">Vanilla context</span><span id="d1VanillaTok" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#94908a"></span></div>
-          <div class="meter"><div id="d1VanillaBar" style="height:100%;background:#94908a;border-radius:99px;transition:width .5s ease,background .3s;width:8%"></div></div>
+        <div id="m1Fills"></div>
+      </div>
+
+      <!-- VISUALIZER 2: inference cost / memory -->
+      <div style="border-top:1px solid #eceae3;padding:18px 20px;background:#faf9f6">
+        <div class="meterhead" style="margin-bottom:12px">
+          <span class="eyebrow">② Inference cost — KV cache at query time <span style="text-transform:none;letter-spacing:0;color:#b0aca2">— memory the GPU spends to answer</span></span>
         </div>
+        <div id="m1Cost" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" class="grid-3"></div>
       </div>
     </div>
   </section>
