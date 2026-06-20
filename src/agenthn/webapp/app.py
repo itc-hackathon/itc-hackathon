@@ -15,6 +15,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -28,6 +29,18 @@ from .skills_service_router import build_skills_router_service
 STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="AgentHN")
+
+# The static UI is hosted on Vercel (a different origin) and talks to this
+# backend over a tunnel. Allow any origin so the cross-origin fetches + SSE
+# (EventSource) from the deployed page reach the live model. Hackathon scope —
+# tighten allow_origins if this ever serves real users.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 service = build_service()
 memory_service = build_memory_service()
 SKILLS_SERVICES = {

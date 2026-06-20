@@ -7,8 +7,16 @@ const el = (tag, cls, html) => {
   if (html != null) n.innerHTML = html;
   return n;
 };
+/* ---- backend wiring + health-gated fixture fallback ----
+ * Live: calls go to CFG.backend (the GPU box over a tunnel), or same-origin.
+ * Fallback: when the backend is unreachable — or the hard cutoff has passed —
+ * the demos replay recorded fixtures from /fixtures instead. See config.js. */
+const CFG = window.AGENTHN_CONFIG || { backend: "", cutoff: null };
+const BACKEND = CFG.backend || "";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const api = async (path, body) => {
-  const res = await fetch(path, {
+  const res = await fetch(BACKEND + path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -16,6 +24,52 @@ const api = async (path, body) => {
   if (!res.ok) throw new Error(path + " -> " + res.status);
   return res.json();
 };
+
+// Past the hard cutoff we never even ping — straight to fixtures.
+function pastCutoff() {
+  return CFG.cutoff != null && !Number.isNaN(CFG.cutoff) && Date.now() >= CFG.cutoff;
+}
+
+// Primary trigger: is the live backend reachable right now? (re-checked before
+// each demo action, so the site degrades the instant the server goes away.)
+async function isLive() {
+  if (pastCutoff()) return false;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 2500);
+    const r = await fetch(BACKEND + "/api/health", { signal: ctrl.signal });
+    clearTimeout(t);
+    return r.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Load a recorded fixture (always same-origin / bundled with the static site).
+const loadFixture = (name) => fetch("/fixtures/" + name).then((r) => {
+  if (!r.ok) throw new Error("no fixture " + name);
+  return r.json();
+});
+
+// Replay a recorded SSE stream: a list of { t, f } (ms offset + frame). Each
+// frame is handed to `dispatch`; inter-frame gaps are clamped so a long real
+// run still replays at a watchable pace. Returns a {cancel} handle.
+function replayStream(frames, dispatch, onDone) {
+  let cancelled = false;
+  (async () => {
+    let prev = frames.length ? frames[0].t : 0;
+    for (const item of frames) {
+      if (cancelled) return;
+      const gap = Math.min(900, Math.max(40, (item.t || 0) - prev));
+      prev = item.t || 0;
+      await sleep(gap);
+      if (cancelled) return;
+      dispatch(item.f);
+    }
+    if (!cancelled && onDone) onDone();
+  })();
+  return { cancel: () => { cancelled = true; } };
+}
 
 /* ============================ DEMO TABS ============================ */
 const DEMO_META = [
@@ -47,6 +101,7 @@ const M1 = {
   size: "medium",
   running: false,
   es: null,
+  replay: null,
   meta: null,
   scenarios: [],
   sizes: [],
@@ -128,6 +183,7 @@ const M1_FEEDS = ["m1Hay", "m1NapCtx", "m1MdCtx", "m1NapLog", "m1MdLog", "m1NapR
 
 function m1Reset() {
   if (M1.es) { M1.es.close(); M1.es = null; }
+  if (M1.replay) { M1.replay.cancel(); M1.replay = null; }
   M1.running = false;
   M1_FEEDS.forEach((id) => ($(id).innerHTML = ""));
   $("m1Hay").appendChild(el("div", "empty", "press Run — the full conversation streams in here"));
@@ -238,7 +294,14 @@ function m1OnQuery(f) {
   m1CostCards(f.methods);
 }
 
-function m1Run() {
+function m1Dispatch(f) {
+  if (f.type === "meta") m1OnMeta(f);
+  else if (f.type === "turn") m1OnTurn(f);
+  else if (f.type === "query") m1OnQuery(f);
+  else if (f.type === "done") m1Done(false);
+}
+
+async function m1Run() {
   if (M1.running) return;
   m1Reset();
   M1.running = true;
@@ -248,21 +311,30 @@ function m1Run() {
   $("m1MdDot").classList.add("live");
   $("m1NapResp").innerHTML = "";
   $("m1MdResp").innerHTML = "";
-  const url = "/api/memory/run?scenario=" + encodeURIComponent(M1.scenario) + "&size=" + encodeURIComponent(M1.size);
-  const es = new EventSource(url);
-  M1.es = es;
-  es.onmessage = (ev) => {
-    const f = JSON.parse(ev.data);
-    if (f.type === "meta") m1OnMeta(f);
-    else if (f.type === "turn") m1OnTurn(f);
-    else if (f.type === "query") m1OnQuery(f);
-    else if (f.type === "done") m1Done(false);
-  };
-  es.onerror = () => { m1Done(true); };
+
+  if (await isLive()) {
+    const url = BACKEND + "/api/memory/run?scenario=" + encodeURIComponent(M1.scenario) + "&size=" + encodeURIComponent(M1.size);
+    const es = new EventSource(url);
+    M1.es = es;
+    es.onmessage = (ev) => m1Dispatch(JSON.parse(ev.data));
+    es.onerror = () => { m1Done(true); };
+    return;
+  }
+
+  // Recorded fallback: replay the captured trajectory for this scenario/size.
+  $("m1Progress").textContent = "replaying recorded run…";
+  try {
+    const frames = await loadFixture("memory_" + M1.scenario + "_" + M1.size + ".json");
+    M1.replay = replayStream(frames, m1Dispatch, () => m1Done(false));
+  } catch (e) {
+    m1Done(true);
+    $("m1Progress").textContent = "no recorded run for this scenario/size yet";
+  }
 }
 
 function m1Done(err) {
   if (M1.es) { M1.es.close(); M1.es = null; }
+  if (M1.replay) { M1.replay.cancel(); M1.replay = null; }
   M1.running = false;
   $("m1Run").textContent = "Run trajectory ▸";
   $("m1Run").disabled = false;
@@ -273,7 +345,11 @@ function m1Done(err) {
 
 async function m1Init() {
   try {
-    const meta = await (await fetch("/api/memory/meta")).json();
+    // Live backend first, then the bundled fixture, then a hard-coded default.
+    const meta = await (BACKEND || !pastCutoff()
+      ? fetch(BACKEND + "/api/memory/meta").then((r) => { if (!r.ok) throw 0; return r.json(); })
+      : Promise.reject(0)
+    ).catch(() => loadFixture("memory_meta.json"));
     M1.scenarios = meta.scenarios;
     M1.sizes = meta.sizes;
     M1.meta = { turns_per_size: meta.turns_per_size };
@@ -304,6 +380,19 @@ const SUGGEST_PROBE = [
   "Plan a fun weekend for me.",
 ];
 const SYM = { added: "+", changed: "~", removed: "-", none: "·" };
+
+// Recorded-fallback support for the personalization demo. The fixture holds the
+// real captured responses for the suggestion chips, keyed by message text.
+let PFIX = null;
+let pLastProfile = {};
+async function pFixtures() {
+  if (!PFIX) {
+    PFIX = await loadFixture("personalization.json").catch(
+      () => ({ observe: {}, chat: {}, repersonalize: null })
+    );
+  }
+  return PFIX;
+}
 
 function pStepper() {
   const labels = ["Converse", "Internalize", "New session"];
@@ -367,7 +456,18 @@ async function pSendTeach(text) {
   pAddMsg("pChat", "user", text);
   const typing = pAddMsg("pChat", "bot", "…", true);
   try {
-    const r = await api("/api/personalization/observe", { uid: UID, message: text });
+    let r;
+    if (await isLive()) {
+      r = await api("/api/personalization/observe", { uid: UID, message: text });
+    } else {
+      const fx = await pFixtures();
+      r = (fx.observe || {})[text] || {
+        reply: "(recorded demo — pick one of the suggested messages above to see a real captured response.)",
+        diff: [],
+        profile: pLastProfile,
+      };
+    }
+    pLastProfile = r.profile || pLastProfile;
     typing.classList.remove("typing");
     typing.textContent = r.reply;
     pAddDiff(r.diff);
@@ -393,7 +493,13 @@ async function pRepersonalize() {
   status.appendChild(el("span", "", "internalizing profile → forging LoRA…"));
   $("pRepersonalize").disabled = true;
   try {
-    const r = await api("/api/personalization/repersonalize", { uid: UID });
+    let r;
+    if (await isLive()) {
+      r = await api("/api/personalization/repersonalize", { uid: UID });
+    } else {
+      const fx = await pFixtures();
+      r = fx.repersonalize || { name: "demo.lora", num_facts: P.facts };
+    }
     $("pAdapterName").textContent = r.name;
     status.style.background = "#eef6f0";
     status.style.borderColor = "#b5ddc6";
@@ -424,7 +530,15 @@ async function pSendProbe(text) {
   pAddMsg("pChat2", "user", text);
   const typing = pAddMsg("pChat2", "bot", "…", true);
   try {
-    const r = await api("/api/personalization/chat", { uid: UID, message: text, adapter });
+    let r;
+    if (await isLive()) {
+      r = await api("/api/personalization/chat", { uid: UID, message: text, adapter });
+    } else {
+      const fx = await pFixtures();
+      const rec = (fx.chat || {})[text];
+      const reply = rec ? rec[adapter ? "true" : "false"] : null;
+      r = { reply: reply || "(recorded demo — pick one of the suggested questions above to see a real captured response.)" };
+    }
     typing.classList.remove("typing");
     typing.textContent = r.reply;
     const tag = el("div", "", `↳ adapter ${adapter ? "ON · " + $("pAdapterName").textContent : "OFF · base model"}`);
@@ -477,7 +591,7 @@ function pInitSuggest() {
 
 /* ============================ DEMO 3: SKILLS (self-refine rounds, SSE) ============================ */
 const SK_PHASES = ["Attempt", "Reflect", "Internalize", "Retry"];
-const SK = { es: null, running: false, rounds: [], n: 0, curRound: 0, curCorrect: 0 };
+const SK = { es: null, replay: null, running: false, rounds: [], n: 0, curRound: 0, curCorrect: 0 };
 const SK_MONO = "'IBM Plex Mono',monospace";
 
 function skStepper(active) {
@@ -614,21 +728,36 @@ function skFrame(f) {
   }
 }
 
-function skRun() {
+async function skRun() {
   if (SK.running) return;
   skReset(true);
   SK.running = true;
   $("skRun").textContent = "Running…";
   $("skRun").disabled = true;
   $("skDot").classList.add("live");
-  const es = new EventSource("/api/skills/product/run");
-  SK.es = es;
-  es.onmessage = (ev) => skFrame(JSON.parse(ev.data));
-  es.onerror = () => skDone(true);
+
+  if (await isLive()) {
+    const es = new EventSource(BACKEND + "/api/skills/product/run");
+    SK.es = es;
+    es.onmessage = (ev) => skFrame(JSON.parse(ev.data));
+    es.onerror = () => skDone(true);
+    return;
+  }
+
+  // Recorded fallback: replay the captured self-refine run.
+  $("skStatus").textContent = "— replaying recorded run…";
+  try {
+    const frames = await loadFixture("skills_product.json");
+    SK.replay = replayStream(frames, skFrame, () => { if (SK.running) skDone(false); });
+  } catch (e) {
+    skDone(true);
+    $("skStatus").textContent = "— no recorded run yet";
+  }
 }
 
 function skDone(err, f) {
   if (SK.es) { SK.es.close(); SK.es = null; }
+  if (SK.replay) { SK.replay.cancel(); SK.replay = null; }
   SK.running = false;
   $("skRun").textContent = "Run self-improvement ▸";
   $("skRun").disabled = false;
@@ -640,6 +769,7 @@ function skDone(err, f) {
 
 function skReset(soft) {
   if (SK.es) { SK.es.close(); SK.es = null; }
+  if (SK.replay) { SK.replay.cancel(); SK.replay = null; }
   SK.running = false;
   SK.rounds = [];
   SK.curRound = 0;
@@ -864,13 +994,18 @@ async function init() {
   $("rcInternalizeBtn").onclick = rcInternalize;
   $("rcAskAgainBtn").onclick = rcAskAgain;
 
-  // health badge
-  try {
-    const h = await (await fetch("/api/health")).json();
-    $("liveBadge").textContent = "live · D2L";
-    $("modeBadge").textContent = "backend: Doc-to-LoRA" + (h.model_loaded ? " (loaded)" : " (lazy)");
-  } catch (e) {
-    $("modeBadge").textContent = "backend: unreachable";
+  // health badge — reflects whether demos are hitting the live model or
+  // replaying recorded fixtures (backend down / past the cutoff).
+  if (await isLive()) {
+    const live = $("liveBadge");
+    if (live) live.textContent = "live · D2L";
+    $("modeBadge").textContent = "backend: Doc-to-LoRA (live)";
+  } else {
+    const live = $("liveBadge");
+    if (live) live.textContent = "recorded";
+    $("modeBadge").textContent = pastCutoff()
+      ? "backend: offline — replaying recorded runs"
+      : "backend: unreachable — replaying recorded runs";
   }
 }
 init();
