@@ -53,6 +53,18 @@ def main():
         axL.plot(x, m, ls, color=color, lw=2.3, marker="o", ms=5, label=lab)
         axL.fill_between(x, [a - b for a, b in zip(m, s)], [a + b for a, b in zip(m, s)],
                          color=color, alpha=0.15)
+    # optional measured Cartridges overlay (trained soft-prompt) — flat across sizes
+    PURPLE = "#7b61b8"
+    cart_path = DATA.parent / "cartridge.json"
+    if cart_path.exists():
+        c = json.loads(cart_path.read_text())
+        axL.plot(x, [c["recall_mean"]] * len(x), ":", color=PURPLE, lw=2.3, marker="D", ms=5,
+                 label=f"Cartridges (trained, ours)")
+        axL.fill_between(x, [c["recall_mean"] - c["recall_std"]] * len(x),
+                         [c["recall_mean"] + c["recall_std"]] * len(x), color=PURPLE, alpha=0.12)
+        axR.plot(x, [c["ctx_tokens"]] * len(x), ":", color=PURPLE, lw=2.3, marker="D", ms=5,
+                 label="Cartridges")
+
     axL.set_ylim(-5, 108); axL.set_ylabel("needle recall (%)", color=DIM)
     axL.set_title(f"Recall: mean ± std over {seeds} seeds × {nf} facts", color=INK)
     axL.text(window, 8, " 8k window", color=GREY, fontsize=9, rotation=90, va="bottom", ha="right")

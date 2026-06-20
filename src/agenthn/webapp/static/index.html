@@ -300,16 +300,16 @@
         <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
           Beyond the curated 6-fact demo: <strong>20 randomly-generated facts × 5 seeds × 5 haystack
           sizes</strong> (2k → 48k tokens) = <strong>100 trials per cell</strong>, reported as mean ± std with
-          Wilson 95% CIs. This is the honest, defensible picture — and it surfaces a real trade-off the clean
-          demo hides.
+          Wilson 95% CIs. We <strong>trained a real Cartridges baseline</strong> (soft-prompt, our reimplementation)
+          and measured it on the same task. This is the honest, defensible picture.
         </p>
         <img src="/large_scale.png" alt="Recall and context vs haystack size, mean ± std over seeds"
              style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
         <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
-          <span>📊 <strong>NapLoRA recall is flat across the horizon</strong> — 87 ± 6% at 2k <em>and</em> at 48k; it does not decay as the conversation grows.</span>
-          <span>🧱 <strong>vanilla collapses</strong> — 95% in-window → 36% at the 8k boundary → <strong>0%</strong> beyond.</span>
-          <span>⚖️ <strong>weight-injection is lossy:</strong> NapLoRA 87% (CI 79–92) vs text-RAG 100% (CI 96–100) — a real ~13% recall cost, bought for <strong>~16× less query context</strong> (7 vs 116 tok).</span>
-          <span>🔬 same retriever in both → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
+          <span>📊 <strong>NapLoRA recall is flat across the horizon</strong> — 87 ± 6% at 2k <em>and</em> at 48k; it does not decay as the conversation grows. <strong>vanilla collapses</strong> 95% → 36% → <strong>0%</strong>.</span>
+          <span>🟣 <strong>measured Cartridges: 92% (CI 85–96) @ 96 ctx</strong> — a trained KV/soft-prompt cache lands between NapLoRA and RAG, but needs <strong>offline training per corpus</strong> (~43s each) and can't update online.</span>
+          <span>⚖️ <strong>the recall ↔ context trade:</strong> RAG 100% @116t · Cartridges 92% @96t · <strong style="color:#2f6ae0">NapLoRA 87% @ 7t</strong> — NapLoRA gives up ~5–13% recall for <strong>~14× less context</strong> and the only <em>online, no-training</em> memory.</span>
+          <span>🔬 same retriever in NapLoRA &amp; RAG → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
         </div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
           gemma-2-2b-it · n=100 trials/cell · Wilson 95% CIs · scripts/large_scale_eval.py
@@ -364,7 +364,7 @@
               <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f">trained KV cache</td>
               <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;color:#5c594f"><strong>offline gradient training</strong> per corpus</td>
               <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#b04a42;font-weight:600">no — batch only</td>
-              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#2f7d57">matches ICL¹</td>
+              <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:center;color:#6b4fa0;font-weight:600">92%² <span style="font-weight:400;color:#9a9890">(measured)</span></td>
               <td style="padding:9px 8px;border-bottom:1px solid #f0ede6;text-align:right;font-family:'IBM Plex Mono',monospace">0.85µ$ + $43 train</td>
             </tr>
             <tr style="background:#ebf2fe">
@@ -378,7 +378,7 @@
           </tbody>
         </table>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
-          ¹ Cartridges quality + 38.6× memory / 26.4× throughput vs ICL are from the paper (arXiv:2506.06266), not re-measured here · our methods measured on gemma-2-2b-it
+          ² Cartridges recall measured on the same task with our own trained soft-prompt reimplementation (96 virtual tokens, 60 epochs/corpus); the paper's full KV-cache + distillation likely does better. 38.6× memory / 26.4× throughput vs ICL are cited from the paper (arXiv:2506.06266) · all numbers on gemma-2-2b-it · scripts/cartridge_eval.py
         </div>
         <p style="font-size:14.5px;line-height:1.6;color:#3a3832;margin:18px 0 0;max-width:80ch">
           <strong>The takeaway:</strong> Cartridges wins on quality but needs expensive <em>offline</em> training and

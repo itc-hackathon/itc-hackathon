@@ -1,0 +1,24 @@
+{
+  "base": "unsloth/gemma-2-2b-it",
+  "num_virtual_tokens": 96,
+  "epochs": 60,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "n_facts": 20,
+  "n": 100,
+  "recall_mean": 92.0,
+  "recall_std": 2.4,
+  "recall_pooled": 92.0,
+  "ci95": [
+    85.0,
+    95.9
+  ],
+  "ctx_tokens": 96,
+  "method": "prefix-tuning cartridge (reimpl)",
+  "runtime_sec": 215.2
+}
