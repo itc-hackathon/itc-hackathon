@@ -89,7 +89,16 @@ class D2LModel:
         return self.model.generated_loras
 
     def restore(self, adapter) -> None:
-        """Make a previously snapshotted adapter active (swap per user)."""
+        """Make a previously snapshotted adapter active (swap per user).
+
+        generate() only *binds* per-call A/B onto already-patched lora forwards
+        (it doesn't install them), so we must re-establish the clean patched
+        state here: reset reverts any prior binding, patch_lora_forward installs
+        fresh lora_forward partials, then we set the adapter. This makes each
+        swap idempotent and avoids stacking partials across repeated calls.
+        """
+        self.model.reset()
+        self.model.patch_lora_forward()
         self.model.generated_loras = adapter
 
     # --- generation -------------------------------------------------------
@@ -104,4 +113,5 @@ class D2LModel:
             return_tensors="pt",
         ).to(self.model.device)
         out = self.model.generate(input_ids=input_ids, max_new_tokens=max_new_tokens)
-        return self.tokenizer.decode(out[0], skip_special_tokens=True)
+        completion = out[0][input_ids.shape[1] :]  # drop the echoed prompt
+        return self.tokenizer.decode(completion, skip_special_tokens=True).strip()
