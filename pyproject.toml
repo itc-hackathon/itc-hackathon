@@ -8,7 +8,10 @@ requires-python = ">=3.10"
 # doc-to-lora/.venv this package is installed into — do NOT re-declare them here,
 # or a fresh resolve would rebuild the multi-GB GPU stack. Add only agenthn-only,
 # light deps below as we need them (e.g. the web framework, anthropic SDK).
-dependencies = []
+dependencies = [
+    "fastapi>=0.115,<0.116",
+    "uvicorn[standard]>=0.32,<0.33",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -16,3 +19,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"agenthn.webapp" = ["static/*"]
