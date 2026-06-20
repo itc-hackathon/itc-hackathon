@@ -97,7 +97,7 @@ class NapLoRAMemory:
         self.segments.append(
             Segment(id=sid, text=doc, adapter=adapter, n_turns=len(chunk), tokens=tokens)
         )
-        msg = f"napped {len(chunk)} turns -> segment #{sid} ({tokens} tok -> weights)"
+        msg = f"compacted {len(chunk)} turns -> adapter #{sid} ({tokens} tok -> weights)"
         self.events.append({"step": self._step, "type": "nap", "segment": sid, "tokens": tokens})
         return msg
 

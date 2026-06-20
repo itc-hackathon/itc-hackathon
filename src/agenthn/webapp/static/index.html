@@ -121,19 +121,19 @@
       </p>
       <p style="font-size:15.5px;line-height:1.62;color:#26241f;margin:0;max-width:74ch">
         <strong style="color:#2f6ae0">AgentHN puts the agent's memory in its weights.</strong> Every K steps it
-        "naps" the oldest slice of the trajectory into a tiny LoRA adapter in <strong>one forward pass — no
-        training</strong> — and evicts it from context. To recall an old fact it loads the relevant adapter and
+        <strong>compacts</strong> the oldest slice of the trajectory into a tiny LoRA adapter in <strong>one forward
+        pass — no training</strong> — and evicts it from context. To recall an old fact it loads the relevant adapter and
         answers with <strong>only the current step in the prompt</strong>. Per-step context stays <strong>flat no
         matter how long the agent runs</strong>, and memory is built <strong>online, in real time</strong> as the
         agent works — the part a trained method (Cartridges) structurally can't do.
       </p>
     </div>
 
-    <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-2px 0 14px;max-width:74ch"><strong>How we test it below:</strong> a needle-in-a-haystack over a trajectory — a few facts (<strong>needles</strong>) are dropped early into a long conversation, then asked about at the very end. <strong style="color:#2f6ae0">AgentHN</strong> naps the oldest turns into LoRA weights and evicts them; baselines (<strong style="color:#9a7a30">markdown .md</strong>, RAG, vanilla, a trained Cartridges cache) are run side-by-side. Watch the context window and inference cost diverge.</p>
+    <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-2px 0 14px;max-width:74ch"><strong>How we test it below:</strong> a needle-in-a-haystack over a trajectory — a few facts (<strong>needles</strong>) are dropped early into a long conversation, then asked about at the very end. <strong style="color:#2f6ae0">AgentHN</strong> compacts the oldest turns into LoRA weights and evicts them; baselines (<strong style="color:#9a7a30">markdown .md</strong>, RAG, vanilla, a trained Cartridges cache) are run side-by-side. Watch the context window and inference cost diverge.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px">
       <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#f2efe9;border:1px solid #e2ded6;border-radius:7px;padding:5px 11px;color:#5c594f"><strong style="color:#26241f">Base model:</strong> 1 × gemma-2-2b-it (2B params, 8k window)</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#ebf2fe;border:1px solid #cdddfb;border-radius:7px;padding:5px 11px;color:#1e50c0"><strong>Hypernetwork:</strong> 1 × Doc-to-LoRA — context → rank-8 LoRA in one forward pass</span>
-      <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#eef6f0;border:1px solid #b5ddc6;border-radius:7px;padding:5px 11px;color:#2f7d57"><strong>Nap interval:</strong> K = 4 turns → 1 adapter</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:#eef6f0;border:1px solid #b5ddc6;border-radius:7px;padding:5px 11px;color:#2f7d57"><strong>Compaction interval:</strong> K = 4 turns → 1 adapter</span>
     </div>
     <div class="panel">
       <!-- controls -->
@@ -460,31 +460,29 @@
   <section id="experiments" style="max-width:1080px;margin:0 auto;padding:64px 24px 0">
     <h2 style="font-size:32px;font-weight:600;letter-spacing:-0.02em;margin:0 0 12px">Experiments — long-horizon memory</h2>
     <p style="font-size:17px;line-height:1.6;color:#5c594f;margin:0 0 4px;max-width:66ch">How AgentHN's weight-based memory stacks up against raw context, markdown notes, retrieval (RAG), and a trained Cartridges soft-prompt — on recall, context cost, scaling, and price. Every number has a script in the repo.</p>
-    <!-- ===== SCALING RESULT: repeated naps beyond the single-encode limit ===== -->
+    <!-- ===== SCALING RESULT: repeated compaction beyond the single-encode limit ===== -->
     <div class="panel" style="margin-top:22px">
       <div class="controlbar" style="justify-content:flex-start;gap:12px">
         <span class="eyebrow">Scaling result</span>
-        <span style="font-size:14px;font-weight:600;color:#26241f">Repeated naps push memory past the single-encode limit</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">Memory holds past the single-encode limit, at flat cost</span>
       </div>
       <div style="padding:18px 22px">
         <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:74ch">
-          Doc-to-LoRA encodes a <em>bounded</em> document in one pass — chunk it into ≤8 pieces,
-          rank-concatenate, and you reach about <strong>4× the model's context window</strong> before the
-          chunk count goes out-of-distribution and recall degrades. We don't encode once. We
-          <strong style="color:#2f6ae0">nap repeatedly</strong> over the stream: every K turns the oldest
-          segment becomes its own in-distribution LoRA adapter, appended to a growing store and evicted
-          from context. At recall time we <strong>retrieve</strong> the relevant nap — so there is no
-          rank-concatenation ceiling, and the horizon is unbounded.
+          Doc-to-LoRA encodes a <em>bounded</em> document in one pass (chunk into ≤8 pieces, rank-concatenate) —
+          good for about <strong>4× the context window</strong> before the chunk count goes out-of-distribution and
+          recall degrades. We instead <strong style="color:#2f6ae0">compact repeatedly</strong>: every K turns the
+          oldest segment becomes its own adapter in a growing store, then is evicted from context. At query time we
+          <strong>retrieve</strong> the relevant adapter — so there's no rank-concatenation ceiling, and the horizon
+          is unbounded.
         </p>
         <img src="/scaling.png" alt="Recall and inference cost vs conversation length"
              style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
         <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
-          <span>📈 <strong>6 / 6 recall held to 48k tokens</strong> (410 naps) at a flat <strong>~10-token</strong> prompt</span>
-          <span>🟰 <strong>same retriever as text-RAG</strong>, but <strong>~13× less</strong> query context (RAG re-enters the chunk; AgentHN keeps it in weights) — recall trade-off quantified in the statistical study below</span>
-          <span>🧱 vanilla 8k context <strong>collapses to 0 / 6</strong> once the conversation overflows the window</span>
+          <span>📈 <strong>6 / 6 recall, flat to 48k tokens</strong> (410 compactions) from a <strong>~10-token</strong> prompt — recall doesn't decay as the conversation grows.</span>
+          <span>🧱 a plain 8k-window model <strong>collapses to 0 / 6</strong> once the conversation overflows its window.</span>
         </div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
-          measured on gemma-2-2b-it · 6 needles planted early, conversation grown to 48k tokens · scripts/scaling_sweep.py
+          gemma-2-2b-it · 6 facts planted early, conversation grown to 48k tokens · scripts/scaling_sweep.py
         </div>
       </div>
     </div>
@@ -497,12 +495,11 @@
       </div>
       <div style="padding:18px 22px">
         <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
-          Same task (6 facts planted early, conversation grown to <strong>12k tokens</strong> so it overflows the 8k
-          window). We remove <strong>one component at a time</strong> and watch recall + the context the model must
-          attend to at query. The decisive row is <strong style="color:#2f6ae0">text-RAG</strong> vs
-          <strong style="color:#2f6ae0">AgentHN</strong>: identical retriever, identical recall — the only
-          difference is whether the retrieved memory's tokens enter the prompt. That gap is exactly what the
-          hypernetwork (LoRA compaction) buys.
+          Same task, grown to <strong>12k tokens</strong> (overflows the 8k window). We remove
+          <strong>one component at a time</strong> and watch recall and query context. The decisive pair is the last
+          two rows — <strong style="color:#2f6ae0">text-RAG vs AgentHN</strong>: identical retriever, identical recall,
+          differing only in whether the retrieved memory enters the prompt as <strong>tokens or a weight patch</strong>.
+          That gap is exactly what the hypernetwork buys.
         </p>
         <table style="width:100%;border-collapse:collapse;font-size:13.5px">
           <thead>
@@ -566,18 +563,16 @@
       </div>
       <div style="padding:18px 22px">
         <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
-          Beyond the curated 6-fact demo: <strong>20 randomly-generated facts × 5 seeds × 5 haystack
-          sizes</strong> (2k → 48k tokens) = <strong>100 trials per cell</strong>, reported as mean ± std with
-          Wilson 95% CIs. We <strong>trained a real Cartridges baseline</strong> (soft-prompt, our reimplementation)
-          and measured it on the same task. This is the honest, defensible picture.
+          Beyond the curated demo: <strong>20 random facts × 5 seeds × 5 haystack sizes</strong> (2k → 48k tokens) =
+          <strong>100 trials per cell</strong>, as mean ± std with Wilson 95% CIs. We also <strong>trained a real
+          Cartridges baseline</strong> and measured it on the same task. The honest, defensible picture:
         </p>
         <img src="/large_scale.png" alt="Recall and context vs haystack size, mean ± std over seeds"
              style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
         <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
-          <span>📊 <strong>AgentHN recall is flat across the horizon</strong> — 87 ± 6% at 2k <em>and</em> at 48k; it does not decay as the conversation grows. <strong>vanilla collapses</strong> 95% → 36% → <strong>0%</strong>.</span>
-          <span>🟣 <strong>measured Cartridges: 92% (CI 85–96) @ 96 ctx</strong> — a trained KV/soft-prompt cache lands between AgentHN and RAG, but needs <strong>offline training per corpus</strong> (~43s each) and can't update online.</span>
-          <span>⚖️ <strong>the recall ↔ context trade:</strong> RAG 100% @116t · Cartridges 92% @96t · <strong style="color:#2f6ae0">AgentHN 87% @ 7t</strong> — AgentHN gives up ~5–13% recall for <strong>~14× less context</strong> and the only <em>online, no-training</em> memory.</span>
-          <span>🔬 same retriever in AgentHN &amp; RAG → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
+          <span>📊 <strong>AgentHN recall is flat across the horizon</strong> — 87 ± 6% at both 2k and 48k; a plain model <strong>collapses</strong> 95% → 36% → <strong>0%</strong>.</span>
+          <span>⚖️ <strong>recall ↔ context trade:</strong> RAG 100% @116t · Cartridges 92% @96t · <strong style="color:#2f6ae0">AgentHN 87% @ 7t</strong>.</span>
+          <span>🔬 AgentHN and RAG share a retriever → the 13% gap is the <strong>LoRA encoding</strong>, not retrieval.</span>
         </div>
         <div style="margin-top:16px;border:1px solid #d9cdf0;border-radius:10px;background:#f7f4fc;padding:14px 16px">
           <div class="eyebrow" style="color:#6b4fa0;margin-bottom:8px">AgentHN vs Cartridges — head-to-head multipliers</div>
@@ -605,9 +600,8 @@
         <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:80ch">
           The honest framing isn't "we beat everyone" — it's <em>which axis you optimize</em>.
           <a href="https://arxiv.org/abs/2506.06266" target="_blank" rel="noopener" style="color:#7b61b8;font-weight:600">Cartridges</a>
-          (HazyResearch) trains a small KV cache offline per corpus and matches in-context quality; RAG pastes the
-          retrieved text; AgentHN predicts a LoRA in one forward pass. They trade off creation cost, whether they
-          can run <strong>online</strong>, recall, and per-query cost differently.
+          (HazyResearch) trains a KV cache offline and matches in-context quality; RAG pastes retrieved text;
+          AgentHN predicts a LoRA in one forward pass. They differ on creation cost, online use, recall, and price:
         </p>
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <thead>
@@ -659,11 +653,10 @@
           ² Cartridges recall measured on the same task with our own trained soft-prompt reimplementation (96 virtual tokens, 60 epochs/corpus); the paper's full KV-cache + distillation likely does better. 38.6× memory / 26.4× throughput vs ICL are cited from the paper (arXiv:2506.06266) · all numbers on gemma-2-2b-it · scripts/cartridge_eval.py
         </div>
         <p style="font-size:14.5px;line-height:1.6;color:#3a3832;margin:18px 0 0;max-width:80ch">
-          <strong>The takeaway:</strong> Cartridges wins on quality but needs expensive <em>offline</em> training and
-          can't update mid-conversation. AgentHN is the <strong style="color:#2f6ae0">online / real-time</strong>
-          point — it builds memory in a single forward pass as the agent talks, at the lowest per-query cost —
-          and pays for that amortization with ~13% recall. Different tools for streaming agent memory (AgentHN) vs
-          a fixed corpus queried millions of times (Cartridges).
+          <strong>The takeaway:</strong> Cartridges wins on quality but trains <em>offline</em> and can't update
+          mid-conversation. AgentHN is the <strong style="color:#2f6ae0">online / real-time</strong> point — memory
+          built in one forward pass as the agent talks, at the lowest per-query cost, paying ~13% recall for it.
+          Different tools: streaming agent memory (AgentHN) vs a fixed corpus queried millions of times (Cartridges).
         </p>
       </div>
     </div>
@@ -713,11 +706,11 @@
         relevant (a quick keyword search), load just that chunk's patch into the model, and answer — with only the
         question in the prompt. So the prompt stays tiny no matter how long the conversation gets.</p>
         <p style="margin:0 0 14px"><strong>What we found, honestly.</strong> It recalls about <strong>87%</strong> of
-        facts and never gets worse as the chat grows to 48,000 tokens, while a plain model drops to <strong>0%</strong>
-        once it overflows. But classic retrieval (paste the text) gets <strong>100%</strong> — so storing memory in
-        weights instead of text <em>costs ~13% accuracy</em>, and what it buys back is the <strong>cheapest, smallest
-        prompt</strong> and the ability to build memory <strong>live, with no training</strong>. That last part is the
-        real niche: unlike Cartridges (which trains a memory offline), we adapt in real time as the agent talks.</p>
+        facts and never degrades as the chat grows to 48,000 tokens, while a plain model drops to <strong>0%</strong>
+        once it overflows. Classic retrieval (paste the text) gets <strong>100%</strong> — so storing memory in weights
+        <em>costs ~13% accuracy</em>, and buys back the <strong>cheapest, smallest prompt</strong> and memory built
+        <strong>live, with no training</strong>. That's the niche: unlike Cartridges (trained offline), AgentHN adapts
+        in real time as the agent works.</p>
         <p style="margin:0;color:#6b6862;font-size:14px"><em>Everything above is measured on a 2-billion-parameter model
         (gemma-2-2b-it) with one Doc-to-LoRA hypernetwork. Every number has a script in the repo.</em></p>
       </div>

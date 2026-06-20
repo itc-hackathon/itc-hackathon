@@ -96,7 +96,7 @@ def main() -> None:
                      arrowprops=dict(arrowstyle="->", color=BLUE, lw=1.4))
     axR.legend(loc="lower left", frameon=True, fontsize=9.5, facecolor="white", edgecolor="#e7e4dd")
 
-    fig.suptitle("Repeated naps scale long-horizon memory past the single-encode limit",
+    fig.suptitle("Repeated compaction scales long-horizon memory past the single-encode limit",
                  fontsize=14, fontweight="bold", color=INK, y=1.02)
     fig.tight_layout()
     OUT.parent.mkdir(parents=True, exist_ok=True)
