@@ -629,7 +629,7 @@ function rcReset() {
   RC.lastBaseReply = "";
   RC.lastSkill = null;
   $("rcChat").innerHTML = "";
-  rcAddMsg("rcChat", "bot", "Hi — ask me a physics word problem, or ask for structured output (JSON / YAML / protobuf / bullets). I'll answer cold first; then we'll classify, internalize, and ask again.");
+  rcAddMsg("rcChat", "bot", "Ask me a question...");
   $("rcClassifyBtn").disabled = true;
   $("rcClassifyStatus").style.display = "none";
   $("rcDoc").style.display = "none";

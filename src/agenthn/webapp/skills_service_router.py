@@ -23,8 +23,24 @@ from .runtime import MODEL_LOCK, get_model
 from .skills_common import generate_with_prefill
 
 SKILLS = {
-    "physics": {"doc": physics_bench.DOC, "label": "Physics"},
-    "formatting": {"doc": formatting_bench.DOC, "label": "Formatting"},
+    "physics": {
+        "doc": physics_bench.DOC,
+        "label": "Physics",
+        # Matches the chain-of-thought style the doc's worked examples use --
+        # without it the model free-styles a verbose, header/bullet-heavy
+        # preamble and clips before the arithmetic under the token budget.
+        "prefill": "Let's think step by step. ",
+        # Multi-step problems (e.g. acceleration -> force) need more room
+        # than the single-step ones even with the prefill.
+        "max_new_tokens": 320,
+    },
+    "formatting": {
+        "doc": formatting_bench.DOC,
+        "label": "Formatting",
+        # No chain-of-thought before raw JSON/YAML/proto/bullets.
+        "prefill": "",
+        "max_new_tokens": 200,
+    },
 }
 
 CLASSIFY_PROMPT = (
@@ -64,13 +80,31 @@ def _classify(model, message: str) -> tuple[str, float]:
 class SkillsRouterService:
     def __init__(self) -> None:
         self._lock = MODEL_LOCK
+        # Step 1 classifies silently before generating (see converse()) so it
+        # can apply the right skill's prefill/token budget; cached here so
+        # step 2's explicit "Classify" click reuses that result instead of
+        # re-running the tiny generation.
+        self._last_classify: dict | None = None
 
     def converse(self, message: str) -> dict:
-        """Step 1: bare question straight to the base model."""
+        """Step 1: bare question straight to the base model.
+
+        Classifies first (silently -- the UI still presents this as a cold,
+        unrouted answer) purely to pick the right prefill/token budget for
+        the skill. Without it, physics questions lose the "Let's think step
+        by step." cue the doc's worked examples use, ramble through a
+        verbose unprefixed preamble, and clip before the arithmetic.
+        """
         with self._lock:
             model = get_model()
             model.reset()
-            answer, elapsed = generate_with_prefill(model, message, prefill="")
+            skill, classify_elapsed = _classify(model, message)
+            self._last_classify = {"message": message, "skill": skill, "elapsed": classify_elapsed}
+            spec = SKILLS[skill]
+            model.reset()
+            answer, elapsed = generate_with_prefill(
+                model, message, prefill=spec["prefill"], max_new_tokens=spec["max_new_tokens"]
+            )
             return {
                 "reply": answer,
                 "elapsed": round(elapsed, 2),
@@ -81,8 +115,12 @@ class SkillsRouterService:
         """Step 2: classify the question and surface its reference doc."""
         with self._lock:
             model = get_model()
-            model.reset()
-            skill, elapsed = _classify(model, message)
+            cached = self._last_classify
+            if cached and cached["message"] == message:
+                skill, elapsed = cached["skill"], cached["elapsed"]
+            else:
+                model.reset()
+                skill, elapsed = _classify(model, message)
             spec = SKILLS[skill]
             return {
                 "skill": skill,
@@ -111,13 +149,16 @@ class SkillsRouterService:
         """Step 4: the same question again, this time with the adapter restored."""
         if skill not in SKILLS:
             raise ValueError(f"unknown skill {skill!r}; have {list(SKILLS)}")
+        spec = SKILLS[skill]
         with self._lock:
             model = get_model()
             if skill not in _ADAPTERS:
                 model.reset()
-                _ADAPTERS[skill] = model.internalize_segment(SKILLS[skill]["doc"])
+                _ADAPTERS[skill] = model.internalize_segment(spec["doc"])
             model.restore(_ADAPTERS[skill])
-            answer, elapsed = generate_with_prefill(model, message, prefill="")
+            answer, elapsed = generate_with_prefill(
+                model, message, prefill=spec["prefill"], max_new_tokens=spec["max_new_tokens"]
+            )
             model.reset()
             return {
                 "reply": answer,

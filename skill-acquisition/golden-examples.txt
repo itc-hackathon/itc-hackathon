@@ -1,4 +1,5 @@
-MAKE SURE QWEN-4B GREEDY TURNED ON (do_sample=False)
+MAKE SURE GREEDY SAMPLING TURNED ON (do_sample=False)
+MAKE TOKEN BUDGET IS EQUAL TO 200
 
 1.
     question=(
@@ -52,8 +53,28 @@ MAKE SURE QWEN-4B GREEDY TURNED ON (do_sample=False)
     expected=4.9,
     formula="F_friction = mu*m*g, a = F/m (mass cancels)",
 
-8. 
+8.
 
     question="A 1400 kg car accelerates from 5 m/s to 25 m/s in 5 seconds. What net force acted on the car?",
     expected=5600.0,
+    formula="a = (v-v0)/t, F = m*a",
+
+9.
+    question="A 18 kg crate sits on a horizontal floor with a coefficient of friction of 0.28. What is the maximum friction force?",
+    expected=49.392,
+    formula="F_friction = mu*N, N = m*g",
+
+10.
+    question="A 1100 kg car traveling at 22 m/s skids to a stop on a horizontal road with a coefficient of friction of 0.45. What is the magnitude of the deceleration caused by friction?",
+    expected=4.41,
+    formula="F_friction = mu*m*g, a = F/m (mass cancels)",
+
+11.
+    question="A 1600 kg car accelerates from rest to 22 m/s in 4 seconds. What net force acted on the car?",
+    expected=8800.0,
+    formula="a = (v-v0)/t, F = m*a",
+
+12.
+    question="A 2200 kg car accelerates from rest to 16 m/s in 8 seconds. What net force acted on the car?",
+    expected=4400.0,
     formula="a = (v-v0)/t, F = m*a",
