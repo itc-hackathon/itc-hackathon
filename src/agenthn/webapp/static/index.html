@@ -212,7 +212,7 @@
              style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
         <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
           <span>📈 <strong>6 / 6 recall held to 48k tokens</strong> (410 naps) at a flat <strong>~10-token</strong> prompt</span>
-          <span>🟰 <strong>matches text-RAG on recall</strong> — same retriever, but <strong>~13× less</strong> query context (RAG re-enters the chunk; NapLoRA keeps it in weights)</span>
+          <span>🟰 <strong>same retriever as text-RAG</strong>, but <strong>~13× less</strong> query context (RAG re-enters the chunk; NapLoRA keeps it in weights) — recall trade-off quantified in the statistical study below</span>
           <span>🧱 vanilla 8k context <strong>collapses to 0 / 6</strong> once the conversation overflows the window</span>
         </div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
@@ -280,12 +280,39 @@
               <td style="padding:9px 10px;color:#8a877f">deliver retrieved chunk as <strong>LoRA</strong></td>
               <td style="padding:9px 10px;text-align:center;color:#2f7d57;font-weight:700">6 / 6</td>
               <td style="padding:9px 10px;text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#1e50c0">10</td>
-              <td style="padding:9px 10px;color:#1e50c0;font-weight:600">same recall, ~12× less context</td>
+              <td style="padding:9px 10px;color:#1e50c0;font-weight:600">~12× less context (recall cost quantified below)</td>
             </tr>
           </tbody>
         </table>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
           query context = tokens the model attends to at recall time (≈ KV-cache cost) · scripts/ablation_study.py
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STATISTICAL VALIDATION ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Statistical validation</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">Does it hold up at scale, across seeds?</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:78ch">
+          Beyond the curated 6-fact demo: <strong>20 randomly-generated facts × 5 seeds × 5 haystack
+          sizes</strong> (2k → 48k tokens) = <strong>100 trials per cell</strong>, reported as mean ± std with
+          Wilson 95% CIs. This is the honest, defensible picture — and it surfaces a real trade-off the clean
+          demo hides.
+        </p>
+        <img src="/large_scale.png" alt="Recall and context vs haystack size, mean ± std over seeds"
+             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
+          <span>📊 <strong>NapLoRA recall is flat across the horizon</strong> — 87 ± 6% at 2k <em>and</em> at 48k; it does not decay as the conversation grows.</span>
+          <span>🧱 <strong>vanilla collapses</strong> — 95% in-window → 36% at the 8k boundary → <strong>0%</strong> beyond.</span>
+          <span>⚖️ <strong>weight-injection is lossy:</strong> NapLoRA 87% (CI 79–92) vs text-RAG 100% (CI 96–100) — a real ~13% recall cost, bought for <strong>~16× less query context</strong> (7 vs 116 tok).</span>
+          <span>🔬 same retriever in both → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
+          gemma-2-2b-it · n=100 trials/cell · Wilson 95% CIs · scripts/large_scale_eval.py
         </div>
       </div>
     </div>
