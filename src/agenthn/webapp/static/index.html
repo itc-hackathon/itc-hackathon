@@ -106,28 +106,18 @@
     <h3 class="demo-title">Constant-cost memory for long-running agents</h3>
 
     <!-- ===== USE-CASE NARRATIVE ===== -->
-    <div style="border:1px solid #cdddfb;border-radius:14px;background:#f5f9ff;padding:22px 24px;margin:4px 0 18px">
-      <div class="eyebrow" style="color:#2f6ae0;margin-bottom:11px">The bigger picture · why agent memory is a cost problem</div>
-      <p style="font-size:17px;line-height:1.62;color:#26241f;margin:0 0 13px;max-width:74ch">
-        Coding agents (<strong>Claude Code, Devin, Cursor</strong>), computer-use agents, and research agents run
-        for hours: reading files, running tools, accumulating observations. Their context explodes to hundreds of
-        thousands of tokens. Often the loop <strong>re-reads its entire context (or a summary of it) on every single tool call</strong>:
-        a 100-step task over a 100k-token history pays ~100k × 100 token-reads. So context is not just a window, it is a dominant, compounding cost of agentic work. 
-      </p>
-      <p style="font-size:15px;line-height:1.6;color:#3a3832;margin:0 0 13px;max-width:74ch">
-        Today you either keep it all in context (slow, expensive, overflows), <strong>compact / summarize</strong>
-        it (what Claude Code does on long sessions is lossy; forgets the one path or decision you need 50 steps
-        later), or bolt on <strong>RAG</strong> (re-injects chunks into the prompt every call, needs a vector store).
-      </p>
-      <p style="font-size:15.5px;line-height:1.62;color:#26241f;margin:0;max-width:74ch">
-        <strong style="color:#2f6ae0">AgentHN puts the agent's memory in its weights.</strong> Every K steps it
-        <strong>compacts</strong> the oldest slice of the trajectory into a tiny LoRA adapter in <strong>one forward
-        pass — no training</strong> — and evicts it from context. To recall an old fact it loads the relevant adapter and
-        answers with <strong>only the current step in the prompt</strong>. Per-step context stays <strong>flat no
-        matter how long the agent runs</strong>, and memory is built <strong>online, in real time</strong> as the
-        agent works — the part a trained method (Cartridges) structurally can't do.
-      </p>
-    </div>
+    <p style="font-size:16px;line-height:1.62;color:#3a3832;margin:0 0 12px;max-width:74ch">
+      Agents like <strong>Claude Code</strong> and Devin run for hours, and the loop <strong>re-reads its whole
+      context — or a summary of it — on every tool call</strong>. A 100-step task over a 100k-token history pays
+      that cost a hundred times over. Context isn't just a window limit; it's the <strong>dominant, compounding
+      cost of agentic work</strong>.
+    </p>
+    <p style="font-size:16px;line-height:1.62;color:#3a3832;margin:0 0 18px;max-width:74ch">
+      <strong style="color:#2f6ae0">AgentHN puts memory in the weights instead.</strong> Every K turns it compacts
+      the oldest slice of the trajectory into a tiny LoRA adapter — <strong>one forward pass, no training</strong> —
+      and evicts it from context, loading the relevant adapter back only when asked. Per-step context stays
+      <strong>flat no matter how long the agent runs</strong>, and memory is built <strong>online, in real time</strong>.
+    </p>
 
     <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:-2px 0 14px;max-width:74ch"><strong>How we test it below:</strong> a needle-in-a-haystack over a trajectory — a few facts (<strong>needles</strong>) are dropped early into a long conversation, then asked about at the very end. <strong style="color:#2f6ae0">AgentHN</strong> compacts the oldest turns into LoRA weights and evicts them; baselines (<strong style="color:#9a7a30">markdown .md</strong>, RAG, vanilla, a trained Cartridges cache) are run side-by-side. Watch the context window and inference cost diverge.</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px">
