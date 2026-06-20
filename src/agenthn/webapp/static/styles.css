@@ -25,7 +25,6 @@ a{color:inherit}
 
 .demo-title{font-size:23px;font-weight:600;letter-spacing:-0.015em;margin:0 0 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .badge-live{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#2f7d57;background:#eef6f0;border:1px solid #b5ddc6;border-radius:99px;padding:3px 10px}
-.badge-live.mock{color:#9a7b1e;background:#fbf3df;border-color:#e8d59a}
 .badge-script{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#9a9890;background:#f2efe9;border:1px solid #e2ded6;border-radius:99px;padding:3px 10px}
 
 .panel{border:1px solid #e7e4dd;border-radius:14px;overflow:hidden;background:#fff}

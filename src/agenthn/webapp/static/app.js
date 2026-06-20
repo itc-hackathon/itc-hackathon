@@ -537,15 +537,8 @@ async function init() {
   // health badge
   try {
     const h = await (await fetch("/api/health")).json();
-    const badge = $("liveBadge");
-    if (h.mock) {
-      badge.textContent = "live · mock";
-      badge.classList.add("mock");
-      $("modeBadge").textContent = "backend: mock (no GPU)";
-    } else {
-      badge.textContent = "live · D2L";
-      $("modeBadge").textContent = "backend: Doc-to-LoRA" + (h.model_loaded ? " (loaded)" : " (lazy)");
-    }
+    $("liveBadge").textContent = "live · D2L";
+    $("modeBadge").textContent = "backend: Doc-to-LoRA" + (h.model_loaded ? " (loaded)" : " (lazy)");
   } catch (e) {
     $("modeBadge").textContent = "backend: unreachable";
   }

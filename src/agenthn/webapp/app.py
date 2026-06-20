@@ -1,14 +1,11 @@
 """FastAPI app for the AgentHN demo page.
 
 Serves the static single-page UI and the personalization API wired to the
-Doc-to-LoRA hook (or the mock fallback — see ``service.build_service``).
+Doc-to-LoRA hook (see ``service.py``).
 
-Run (on the GPU box, real model):
+Run (on the GPU box):
     /home/ubuntu/doc-to-lora/.venv/bin/python -m uvicorn agenthn.webapp.app:app \\
         --host 0.0.0.0 --port 8000
-
-Run (anywhere, mock — no GPU needed):
-    AGENTHN_MOCK=1 python -m uvicorn agenthn.webapp.app:app --port 8000
 """
 
 from __future__ import annotations
