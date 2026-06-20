@@ -79,10 +79,14 @@ def main():
     axR.set_ylabel("query context tokens (≈ KV cost, log)", color=DIM)
     axR.set_title("Query-time context", color=INK)
     ny, gy = series("napora", "ctx_tokens")[-1], series("rag", "ctx_tokens")[-1]
-    if ny > 0 and gy > 0:
-        axR.annotate(f"{gy/ny:.0f}× less\nthan text-RAG", xy=(x[-1], ny * 1.1),
-                     xytext=(x[-1] * 0.4, (ny * gy) ** 0.5),
-                     color=BLUE, fontsize=10, ha="center", fontweight="bold",
+    # annotate NapLoRA's context advantage vs Cartridges (and RAG)
+    cy = gy
+    if cart_path.exists():
+        cy = json.loads(cart_path.read_text())["ctx_tokens"]
+    if ny > 0:
+        axR.annotate(f"{cy/ny:.0f}× less context\nthan Cartridges\n({gy/ny:.0f}× less than RAG)",
+                     xy=(x[-1], ny * 1.1), xytext=(x[-1] * 0.45, (ny * cy) ** 0.5 * 0.9),
+                     color=BLUE, fontsize=9.5, ha="center", fontweight="bold",
                      arrowprops=dict(arrowstyle="->", color=BLUE, lw=1.4))
     axR.legend(loc="lower left", frameon=True, fontsize=9.5, facecolor="white", edgecolor="#e7e4dd")
 

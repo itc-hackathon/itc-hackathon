@@ -311,6 +311,16 @@
           <span>⚖️ <strong>the recall ↔ context trade:</strong> RAG 100% @116t · Cartridges 92% @96t · <strong style="color:#2f6ae0">NapLoRA 87% @ 7t</strong> — NapLoRA gives up ~5–13% recall for <strong>~14× less context</strong> and the only <em>online, no-training</em> memory.</span>
           <span>🔬 same retriever in NapLoRA &amp; RAG → the 13% gap is isolated to the <strong>LoRA encoding</strong>, not retrieval (RAG retrieves identically and scores 100%).</span>
         </div>
+        <div style="margin-top:16px;border:1px solid #d9cdf0;border-radius:10px;background:#f7f4fc;padding:14px 16px">
+          <div class="eyebrow" style="color:#6b4fa0;margin-bottom:8px">NapLoRA vs Cartridges — head-to-head multipliers</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px 22px;font-size:13.5px;color:#3a3832">
+            <span>📉 <strong style="color:#2f6ae0">13.3× less</strong> query-time context (7.2 vs 96 tok)</span>
+            <span>💸 <strong style="color:#2f6ae0">1.8× cheaper</strong> per query (0.47 vs 0.85 µ$)</span>
+            <span>⚙️ <strong style="color:#2f6ae0">no training</strong> — one forward pass vs ~43 s gradient training / corpus</span>
+            <span>🟢 <strong style="color:#2f6ae0">online</strong> vs offline / batch-only</span>
+            <span>📊 cost: <strong style="color:#9a7a30">−5 pts recall</strong> (87% vs 92%)</span>
+          </div>
+        </div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:12px">
           gemma-2-2b-it · n=100 trials/cell · Wilson 95% CIs · scripts/large_scale_eval.py
         </div>
