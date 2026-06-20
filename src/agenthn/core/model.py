@@ -84,6 +84,88 @@ class D2LModel:
     def reset(self) -> None:
         self.model.reset()
 
+    def internalize_segment(self, doc: str):
+        """Internalize a doc and return its adapter as a detached snapshot.
+
+        Single-chunk adapter of shape {module: {A,B: [1, n_layers, r, dim]}}.
+        These are the per-segment "memory" deltas the long-horizon memory stacks
+        along the chunk dimension (rank-concatenation) — see compose().
+        """
+        self.reset()
+        self.internalize(doc)
+        snap = self.model.generated_loras
+        # clone so the next internalize() (which overwrites generated_loras)
+        # cannot mutate adapters we've already stored.
+        return {
+            mod: {k: v.clone() for k, v in mats.items()} for mod, mats in snap.items()
+        }
+
+    @staticmethod
+    def compose(segments: list):
+        """Rank-concatenate per-segment adapters into one composed adapter.
+
+        Each segment is {module: {A,B: [1, n_layers, r, dim]}}; we concat along
+        the chunk dim (0) -> [n_seg, n_layers, r, dim]. Paired with
+        n_ctx_chunks=[n_seg] at generate time, combine_lora() flattens this into a
+        single rank-(n_seg*r) adapter whose delta is the SUM of the per-segment
+        deltas — i.e. all memories active at once. This is exactly D2L's trained
+        long-context chunking mechanism, reused for independently-encoded memories.
+        """
+        if not segments:
+            return None
+        modules = segments[0].keys()
+        return {
+            mod: {
+                "A": torch.cat([s[mod]["A"] for s in segments], dim=0),
+                "B": torch.cat([s[mod]["B"] for s in segments], dim=0),
+            }
+            for mod in modules
+        }
+
+    @torch.inference_mode()
+    def respond(
+        self,
+        messages: list,
+        composed=None,
+        n_segments: int = 1,
+        max_new_tokens: int = 256,
+    ) -> str:
+        """Deterministic (greedy) generation over a chat `messages` list.
+
+        One generation path for every memory strategy:
+          - NapLoRA: tiny `messages` (recent turns + query) + a composed memory
+            adapter (rank-concatenated segments) -> set composed, n_segments.
+          - text baselines (vanilla / markdown): full context inside `messages`,
+            composed=None -> plain base-model behavior.
+        """
+        self.model.reset()
+        input_ids = self.tokenizer.apply_chat_template(
+            messages,
+            add_special_tokens=False,
+            return_attention_mask=False,
+            add_generation_prompt=True,
+            return_tensors="pt",
+        ).to(self.model.device)
+        gen_kwargs = dict(
+            input_ids=input_ids,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
+            num_beams=1,
+        )
+        if composed is not None:
+            self.model.patch_lora_forward()
+            self.model.generated_loras = composed
+            gen_kwargs["n_ctx_chunks"] = torch.tensor(
+                [n_segments], device=self.model.device
+            )
+        out = self.model.generate(**gen_kwargs)
+        completion = out[0][input_ids.shape[1] :]
+        return self.tokenizer.decode(completion, skip_special_tokens=True).strip()
+
+    def count_tokens(self, text: str) -> int:
+        """Token count under the base tokenizer (for context-budget accounting)."""
+        return len(self.tokenizer(text, add_special_tokens=False)["input_ids"])
+
     def snapshot(self):
         """Return the currently active generated adapter (to cache per user)."""
         return self.model.generated_loras

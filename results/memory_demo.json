@@ -1,0 +1,3069 @@
+{
+  "config": {
+    "nap_k": 4,
+    "baseline_budget": 256,
+    "base_model": "google/gemma-2-2b-it"
+  },
+  "scenarios": [
+    {
+      "name": "apollo_migration",
+      "needle_positions": [
+        3,
+        8,
+        13,
+        18,
+        23,
+        28
+      ],
+      "methods": {
+        "napora": {
+          "method": "napora",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 16,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 2,
+              "context_tokens": 30,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 3,
+              "context_tokens": 49,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 4,
+              "context_tokens": 0,
+              "evicted_tokens": 77,
+              "segments": 1
+            },
+            {
+              "step": 5,
+              "context_tokens": 17,
+              "evicted_tokens": 77,
+              "segments": 1
+            },
+            {
+              "step": 6,
+              "context_tokens": 28,
+              "evicted_tokens": 77,
+              "segments": 1
+            },
+            {
+              "step": 7,
+              "context_tokens": 38,
+              "evicted_tokens": 77,
+              "segments": 1
+            },
+            {
+              "step": 8,
+              "context_tokens": 0,
+              "evicted_tokens": 139,
+              "segments": 2
+            },
+            {
+              "step": 9,
+              "context_tokens": 15,
+              "evicted_tokens": 139,
+              "segments": 2
+            },
+            {
+              "step": 10,
+              "context_tokens": 25,
+              "evicted_tokens": 139,
+              "segments": 2
+            },
+            {
+              "step": 11,
+              "context_tokens": 39,
+              "evicted_tokens": 139,
+              "segments": 2
+            },
+            {
+              "step": 12,
+              "context_tokens": 0,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 13,
+              "context_tokens": 14,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 14,
+              "context_tokens": 26,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 15,
+              "context_tokens": 37,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 16,
+              "context_tokens": 0,
+              "evicted_tokens": 263,
+              "segments": 4
+            },
+            {
+              "step": 17,
+              "context_tokens": 10,
+              "evicted_tokens": 263,
+              "segments": 4
+            },
+            {
+              "step": 18,
+              "context_tokens": 20,
+              "evicted_tokens": 263,
+              "segments": 4
+            },
+            {
+              "step": 19,
+              "context_tokens": 33,
+              "evicted_tokens": 263,
+              "segments": 4
+            },
+            {
+              "step": 20,
+              "context_tokens": 0,
+              "evicted_tokens": 318,
+              "segments": 5
+            },
+            {
+              "step": 21,
+              "context_tokens": 13,
+              "evicted_tokens": 318,
+              "segments": 5
+            },
+            {
+              "step": 22,
+              "context_tokens": 25,
+              "evicted_tokens": 318,
+              "segments": 5
+            },
+            {
+              "step": 23,
+              "context_tokens": 36,
+              "evicted_tokens": 318,
+              "segments": 5
+            },
+            {
+              "step": 24,
+              "context_tokens": 0,
+              "evicted_tokens": 381,
+              "segments": 6
+            },
+            {
+              "step": 25,
+              "context_tokens": 11,
+              "evicted_tokens": 381,
+              "segments": 6
+            },
+            {
+              "step": 26,
+              "context_tokens": 27,
+              "evicted_tokens": 381,
+              "segments": 6
+            },
+            {
+              "step": 27,
+              "context_tokens": 41,
+              "evicted_tokens": 381,
+              "segments": 6
+            },
+            {
+              "step": 28,
+              "context_tokens": 0,
+              "evicted_tokens": 452,
+              "segments": 7
+            },
+            {
+              "step": 29,
+              "context_tokens": 12,
+              "evicted_tokens": 452,
+              "segments": 7
+            },
+            {
+              "step": 30,
+              "context_tokens": 29,
+              "evicted_tokens": 452,
+              "segments": 7
+            },
+            {
+              "step": 31,
+              "context_tokens": 40,
+              "evicted_tokens": 452,
+              "segments": 7
+            },
+            {
+              "step": 32,
+              "context_tokens": 0,
+              "evicted_tokens": 513,
+              "segments": 8
+            },
+            {
+              "step": 33,
+              "context_tokens": 13,
+              "evicted_tokens": 513,
+              "segments": 8
+            },
+            {
+              "step": 34,
+              "context_tokens": 23,
+              "evicted_tokens": 513,
+              "segments": 8
+            },
+            {
+              "step": 35,
+              "context_tokens": 37,
+              "evicted_tokens": 513,
+              "segments": 8
+            },
+            {
+              "step": 36,
+              "context_tokens": 0,
+              "evicted_tokens": 575,
+              "segments": 9
+            },
+            {
+              "step": 37,
+              "context_tokens": 14,
+              "evicted_tokens": 575,
+              "segments": 9
+            },
+            {
+              "step": 38,
+              "context_tokens": 25,
+              "evicted_tokens": 575,
+              "segments": 9
+            },
+            {
+              "step": 39,
+              "context_tokens": 37,
+              "evicted_tokens": 575,
+              "segments": 9
+            },
+            {
+              "step": 40,
+              "context_tokens": 0,
+              "evicted_tokens": 633,
+              "segments": 10
+            },
+            {
+              "step": 41,
+              "context_tokens": 10,
+              "evicted_tokens": 633,
+              "segments": 10
+            },
+            {
+              "step": 42,
+              "context_tokens": 21,
+              "evicted_tokens": 633,
+              "segments": 10
+            },
+            {
+              "step": 43,
+              "context_tokens": 34,
+              "evicted_tokens": 633,
+              "segments": 10
+            },
+            {
+              "step": 44,
+              "context_tokens": 0,
+              "evicted_tokens": 690,
+              "segments": 11
+            },
+            {
+              "step": 45,
+              "context_tokens": 11,
+              "evicted_tokens": 690,
+              "segments": 11
+            },
+            {
+              "step": 46,
+              "context_tokens": 22,
+              "evicted_tokens": 690,
+              "segments": 11
+            },
+            {
+              "step": 47,
+              "context_tokens": 38,
+              "evicted_tokens": 690,
+              "segments": 11
+            },
+            {
+              "step": 48,
+              "context_tokens": 0,
+              "evicted_tokens": 753,
+              "segments": 12
+            }
+          ],
+          "results": [
+            {
+              "query": "Which region was the deployment set to?",
+              "answer": "eu-west-2",
+              "raw_prompt": "<bos><start_of_turn>user\nWhich region was the deployment set to?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 0,
+                  "score": 0.3431
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 8,
+              "hit": true,
+              "needle": "eu-west-2"
+            },
+            {
+              "query": "Who is the on-call engineer for launch week?",
+              "answer": "Priya",
+              "raw_prompt": "<bos><start_of_turn>user\nWho is the on-call engineer for launch week?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 2,
+                  "score": 0.4179
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 11,
+              "hit": true,
+              "needle": "priya"
+            },
+            {
+              "query": "What is the release codename?",
+              "answer": "Blue Falcon",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat is the release codename?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 3,
+                  "score": 0.2585
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 7,
+              "hit": true,
+              "needle": "blue falcon"
+            },
+            {
+              "query": "What date was the launch moved to?",
+              "answer": "October 19.",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat date was the launch moved to?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 4,
+                  "score": 0.357
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 8,
+              "hit": true,
+              "needle": "october 19"
+            },
+            {
+              "query": "What is the name of the feature flag for the new checkout?",
+              "answer": "smooth_sailing",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat is the name of the feature flag for the new checkout?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 5,
+                  "score": 0.4081
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 13,
+              "hit": true,
+              "needle": "smooth_sailing"
+            },
+            {
+              "query": "Who owns QA sign-off?",
+              "answer": "The QA sign-off is owned by Marcus.",
+              "raw_prompt": "<bos><start_of_turn>user\nWho owns QA sign-off?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 7,
+                  "score": 0.2258
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 7,
+              "hit": true,
+              "needle": "marcus"
+            }
+          ],
+          "segments": 12,
+          "evicted_tokens": 753,
+          "recall": "6/6",
+          "avg_prompt_tokens": 9.0
+        },
+        "vanilla": {
+          "method": "vanilla",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 18,
+              "turns_in_window": 1
+            },
+            {
+              "step": 2,
+              "context_tokens": 34,
+              "turns_in_window": 2
+            },
+            {
+              "step": 3,
+              "context_tokens": 55,
+              "turns_in_window": 3
+            },
+            {
+              "step": 4,
+              "context_tokens": 74,
+              "turns_in_window": 4
+            },
+            {
+              "step": 5,
+              "context_tokens": 93,
+              "turns_in_window": 5
+            },
+            {
+              "step": 6,
+              "context_tokens": 106,
+              "turns_in_window": 6
+            },
+            {
+              "step": 7,
+              "context_tokens": 118,
+              "turns_in_window": 7
+            },
+            {
+              "step": 8,
+              "context_tokens": 133,
+              "turns_in_window": 8
+            },
+            {
+              "step": 9,
+              "context_tokens": 150,
+              "turns_in_window": 9
+            },
+            {
+              "step": 10,
+              "context_tokens": 162,
+              "turns_in_window": 10
+            },
+            {
+              "step": 11,
+              "context_tokens": 178,
+              "turns_in_window": 11
+            },
+            {
+              "step": 12,
+              "context_tokens": 194,
+              "turns_in_window": 12
+            },
+            {
+              "step": 13,
+              "context_tokens": 210,
+              "turns_in_window": 13
+            },
+            {
+              "step": 14,
+              "context_tokens": 224,
+              "turns_in_window": 14
+            },
+            {
+              "step": 15,
+              "context_tokens": 237,
+              "turns_in_window": 15
+            },
+            {
+              "step": 16,
+              "context_tokens": 251,
+              "turns_in_window": 16
+            },
+            {
+              "step": 17,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 18,
+              "context_tokens": 241,
+              "turns_in_window": 16
+            },
+            {
+              "step": 19,
+              "context_tokens": 256,
+              "turns_in_window": 17
+            },
+            {
+              "step": 20,
+              "context_tokens": 248,
+              "turns_in_window": 17
+            },
+            {
+              "step": 21,
+              "context_tokens": 244,
+              "turns_in_window": 17
+            },
+            {
+              "step": 22,
+              "context_tokens": 239,
+              "turns_in_window": 17
+            },
+            {
+              "step": 23,
+              "context_tokens": 252,
+              "turns_in_window": 18
+            },
+            {
+              "step": 24,
+              "context_tokens": 245,
+              "turns_in_window": 17
+            },
+            {
+              "step": 25,
+              "context_tokens": 243,
+              "turns_in_window": 17
+            },
+            {
+              "step": 26,
+              "context_tokens": 244,
+              "turns_in_window": 17
+            },
+            {
+              "step": 27,
+              "context_tokens": 248,
+              "turns_in_window": 17
+            },
+            {
+              "step": 28,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 29,
+              "context_tokens": 251,
+              "turns_in_window": 17
+            },
+            {
+              "step": 30,
+              "context_tokens": 254,
+              "turns_in_window": 17
+            },
+            {
+              "step": 31,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 32,
+              "context_tokens": 252,
+              "turns_in_window": 17
+            },
+            {
+              "step": 33,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 34,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 35,
+              "context_tokens": 242,
+              "turns_in_window": 16
+            },
+            {
+              "step": 36,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 37,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 38,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 39,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 40,
+              "context_tokens": 240,
+              "turns_in_window": 16
+            },
+            {
+              "step": 41,
+              "context_tokens": 252,
+              "turns_in_window": 17
+            },
+            {
+              "step": 42,
+              "context_tokens": 252,
+              "turns_in_window": 17
+            },
+            {
+              "step": 43,
+              "context_tokens": 249,
+              "turns_in_window": 17
+            },
+            {
+              "step": 44,
+              "context_tokens": 247,
+              "turns_in_window": 17
+            },
+            {
+              "step": 45,
+              "context_tokens": 239,
+              "turns_in_window": 17
+            },
+            {
+              "step": 46,
+              "context_tokens": 252,
+              "turns_in_window": 18
+            },
+            {
+              "step": 47,
+              "context_tokens": 256,
+              "turns_in_window": 18
+            },
+            {
+              "step": 48,
+              "context_tokens": 253,
+              "turns_in_window": 18
+            }
+          ],
+          "results": [
+            {
+              "query": "Which region was the deployment set to?",
+              "answer": "The conversation doesn't mention the deployment region.",
+              "prompt_tokens": 286,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "eu-west-2"
+            },
+            {
+              "query": "Who is the on-call engineer for launch week?",
+              "answer": "The conversation doesn't provide information about who the on-call engineer for launch week is. \n\nIt's likely that this information is:\n\n* **Not discussed in this conversation:** The",
+              "prompt_tokens": 289,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "priya"
+            },
+            {
+              "query": "What is the release codename?",
+              "answer": "The conversation doesn't provide any information about the release codename.",
+              "prompt_tokens": 285,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "blue falcon"
+            },
+            {
+              "query": "What date was the launch moved to?",
+              "answer": "The conversation doesn't provide any information about a launch date being moved.",
+              "prompt_tokens": 286,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "october 19"
+            },
+            {
+              "query": "What is the name of the feature flag for the new checkout?",
+              "answer": "The conversation doesn't provide the name of the feature flag for the new checkout.",
+              "prompt_tokens": 291,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "smooth_sailing"
+            },
+            {
+              "query": "Who owns QA sign-off?",
+              "answer": "Based on the conversation, it's **impossible to determine who owns QA sign-off** with the information provided. \n\nHere's why:\n\n* **No mention of QA:** The",
+              "prompt_tokens": 285,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "marcus"
+            }
+          ],
+          "recall": "0/6",
+          "avg_prompt_tokens": 287.0
+        },
+        "markdown": {
+          "method": "markdown",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 2,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 3,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 4,
+              "context_tokens": 13,
+              "notes_lines": 1
+            },
+            {
+              "step": 5,
+              "context_tokens": 13,
+              "notes_lines": 1
+            },
+            {
+              "step": 6,
+              "context_tokens": 13,
+              "notes_lines": 1
+            },
+            {
+              "step": 7,
+              "context_tokens": 13,
+              "notes_lines": 1
+            },
+            {
+              "step": 8,
+              "context_tokens": 39,
+              "notes_lines": 5
+            },
+            {
+              "step": 9,
+              "context_tokens": 39,
+              "notes_lines": 5
+            },
+            {
+              "step": 10,
+              "context_tokens": 39,
+              "notes_lines": 5
+            },
+            {
+              "step": 11,
+              "context_tokens": 39,
+              "notes_lines": 5
+            },
+            {
+              "step": 12,
+              "context_tokens": 52,
+              "notes_lines": 6
+            },
+            {
+              "step": 13,
+              "context_tokens": 52,
+              "notes_lines": 6
+            },
+            {
+              "step": 14,
+              "context_tokens": 52,
+              "notes_lines": 6
+            },
+            {
+              "step": 15,
+              "context_tokens": 52,
+              "notes_lines": 6
+            },
+            {
+              "step": 16,
+              "context_tokens": 97,
+              "notes_lines": 12
+            },
+            {
+              "step": 17,
+              "context_tokens": 97,
+              "notes_lines": 12
+            },
+            {
+              "step": 18,
+              "context_tokens": 97,
+              "notes_lines": 12
+            },
+            {
+              "step": 19,
+              "context_tokens": 97,
+              "notes_lines": 12
+            },
+            {
+              "step": 20,
+              "context_tokens": 106,
+              "notes_lines": 13
+            },
+            {
+              "step": 21,
+              "context_tokens": 106,
+              "notes_lines": 13
+            },
+            {
+              "step": 22,
+              "context_tokens": 106,
+              "notes_lines": 13
+            },
+            {
+              "step": 23,
+              "context_tokens": 106,
+              "notes_lines": 13
+            },
+            {
+              "step": 24,
+              "context_tokens": 130,
+              "notes_lines": 16
+            },
+            {
+              "step": 25,
+              "context_tokens": 130,
+              "notes_lines": 16
+            },
+            {
+              "step": 26,
+              "context_tokens": 130,
+              "notes_lines": 16
+            },
+            {
+              "step": 27,
+              "context_tokens": 130,
+              "notes_lines": 16
+            },
+            {
+              "step": 28,
+              "context_tokens": 177,
+              "notes_lines": 22
+            },
+            {
+              "step": 29,
+              "context_tokens": 177,
+              "notes_lines": 22
+            },
+            {
+              "step": 30,
+              "context_tokens": 177,
+              "notes_lines": 22
+            },
+            {
+              "step": 31,
+              "context_tokens": 177,
+              "notes_lines": 22
+            },
+            {
+              "step": 32,
+              "context_tokens": 211,
+              "notes_lines": 26
+            },
+            {
+              "step": 33,
+              "context_tokens": 211,
+              "notes_lines": 26
+            },
+            {
+              "step": 34,
+              "context_tokens": 211,
+              "notes_lines": 26
+            },
+            {
+              "step": 35,
+              "context_tokens": 211,
+              "notes_lines": 26
+            },
+            {
+              "step": 36,
+              "context_tokens": 227,
+              "notes_lines": 29
+            },
+            {
+              "step": 37,
+              "context_tokens": 227,
+              "notes_lines": 29
+            },
+            {
+              "step": 38,
+              "context_tokens": 227,
+              "notes_lines": 29
+            },
+            {
+              "step": 39,
+              "context_tokens": 227,
+              "notes_lines": 29
+            },
+            {
+              "step": 40,
+              "context_tokens": 275,
+              "notes_lines": 36
+            },
+            {
+              "step": 41,
+              "context_tokens": 275,
+              "notes_lines": 36
+            },
+            {
+              "step": 42,
+              "context_tokens": 275,
+              "notes_lines": 36
+            },
+            {
+              "step": 43,
+              "context_tokens": 275,
+              "notes_lines": 36
+            },
+            {
+              "step": 44,
+              "context_tokens": 289,
+              "notes_lines": 38
+            },
+            {
+              "step": 45,
+              "context_tokens": 289,
+              "notes_lines": 38
+            },
+            {
+              "step": 46,
+              "context_tokens": 289,
+              "notes_lines": 38
+            },
+            {
+              "step": 47,
+              "context_tokens": 289,
+              "notes_lines": 38
+            },
+            {
+              "step": 48,
+              "context_tokens": 310,
+              "notes_lines": 41
+            }
+          ],
+          "results": [
+            {
+              "query": "Which region was the deployment set to?",
+              "answer": "The deployment region was **eu-west-2**.",
+              "prompt_tokens": 327,
+              "notes_lines": 41,
+              "notes_tokens": 310,
+              "hit": true,
+              "needle": "eu-west-2"
+            },
+            {
+              "query": "Who is the on-call engineer for launch week?",
+              "answer": "Priya is the on-call engineer for launch week.",
+              "prompt_tokens": 330,
+              "notes_lines": 41,
+              "notes_tokens": 310,
+              "hit": true,
+              "needle": "priya"
+            },
+            {
+              "query": "What is the release codename?",
+              "answer": "The release codename is **Blue Falcon**.",
+              "prompt_tokens": 326,
+              "notes_lines": 41,
+              "notes_tokens": 310,
+              "hit": true,
+              "needle": "blue falcon"
+            },
+            {
+              "query": "What date was the launch moved to?",
+              "answer": "The launch date was moved to **October 19**.",
+              "prompt_tokens": 327,
+              "notes_lines": 41,
+              "notes_tokens": 310,
+              "hit": true,
+              "needle": "october 19"
+            },
+            {
+              "query": "What is the name of the feature flag for the new checkout?",
+              "answer": "The feature flag for the new checkout is called **smooth_sailing**.",
+              "prompt_tokens": 332,
+              "notes_lines": 41,
+              "notes_tokens": 310,
+              "hit": true,
+              "needle": "smooth_sailing"
+            },
+            {
+              "query": "Who owns QA sign-off?",
+              "answer": "Marcus owns the QA sign-off.",
+              "prompt_tokens": 326,
+              "notes_lines": 41,
+              "notes_tokens": 310,
+              "hit": true,
+              "needle": "marcus"
+            }
+          ],
+          "recall": "6/6",
+          "avg_prompt_tokens": 328.0
+        }
+      }
+    },
+    {
+      "name": "trip_planning",
+      "needle_positions": [
+        3,
+        8,
+        13,
+        18,
+        23,
+        28
+      ],
+      "methods": {
+        "napora": {
+          "method": "napora",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 16,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 2,
+              "context_tokens": 30,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 3,
+              "context_tokens": 49,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 4,
+              "context_tokens": 0,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 5,
+              "context_tokens": 17,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 6,
+              "context_tokens": 28,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 7,
+              "context_tokens": 38,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 8,
+              "context_tokens": 0,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 9,
+              "context_tokens": 18,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 10,
+              "context_tokens": 28,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 11,
+              "context_tokens": 42,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 12,
+              "context_tokens": 0,
+              "evicted_tokens": 205,
+              "segments": 3
+            },
+            {
+              "step": 13,
+              "context_tokens": 14,
+              "evicted_tokens": 205,
+              "segments": 3
+            },
+            {
+              "step": 14,
+              "context_tokens": 33,
+              "evicted_tokens": 205,
+              "segments": 3
+            },
+            {
+              "step": 15,
+              "context_tokens": 44,
+              "evicted_tokens": 205,
+              "segments": 3
+            },
+            {
+              "step": 16,
+              "context_tokens": 0,
+              "evicted_tokens": 272,
+              "segments": 4
+            },
+            {
+              "step": 17,
+              "context_tokens": 10,
+              "evicted_tokens": 272,
+              "segments": 4
+            },
+            {
+              "step": 18,
+              "context_tokens": 20,
+              "evicted_tokens": 272,
+              "segments": 4
+            },
+            {
+              "step": 19,
+              "context_tokens": 40,
+              "evicted_tokens": 272,
+              "segments": 4
+            },
+            {
+              "step": 20,
+              "context_tokens": 0,
+              "evicted_tokens": 334,
+              "segments": 5
+            },
+            {
+              "step": 21,
+              "context_tokens": 13,
+              "evicted_tokens": 334,
+              "segments": 5
+            },
+            {
+              "step": 22,
+              "context_tokens": 25,
+              "evicted_tokens": 334,
+              "segments": 5
+            },
+            {
+              "step": 23,
+              "context_tokens": 36,
+              "evicted_tokens": 334,
+              "segments": 5
+            },
+            {
+              "step": 24,
+              "context_tokens": 0,
+              "evicted_tokens": 396,
+              "segments": 6
+            },
+            {
+              "step": 25,
+              "context_tokens": 11,
+              "evicted_tokens": 396,
+              "segments": 6
+            },
+            {
+              "step": 26,
+              "context_tokens": 27,
+              "evicted_tokens": 396,
+              "segments": 6
+            },
+            {
+              "step": 27,
+              "context_tokens": 41,
+              "evicted_tokens": 396,
+              "segments": 6
+            },
+            {
+              "step": 28,
+              "context_tokens": 0,
+              "evicted_tokens": 467,
+              "segments": 7
+            },
+            {
+              "step": 29,
+              "context_tokens": 18,
+              "evicted_tokens": 467,
+              "segments": 7
+            },
+            {
+              "step": 30,
+              "context_tokens": 35,
+              "evicted_tokens": 467,
+              "segments": 7
+            },
+            {
+              "step": 31,
+              "context_tokens": 46,
+              "evicted_tokens": 467,
+              "segments": 7
+            },
+            {
+              "step": 32,
+              "context_tokens": 0,
+              "evicted_tokens": 534,
+              "segments": 8
+            },
+            {
+              "step": 33,
+              "context_tokens": 13,
+              "evicted_tokens": 534,
+              "segments": 8
+            },
+            {
+              "step": 34,
+              "context_tokens": 23,
+              "evicted_tokens": 534,
+              "segments": 8
+            },
+            {
+              "step": 35,
+              "context_tokens": 37,
+              "evicted_tokens": 534,
+              "segments": 8
+            },
+            {
+              "step": 36,
+              "context_tokens": 0,
+              "evicted_tokens": 596,
+              "segments": 9
+            },
+            {
+              "step": 37,
+              "context_tokens": 14,
+              "evicted_tokens": 596,
+              "segments": 9
+            },
+            {
+              "step": 38,
+              "context_tokens": 25,
+              "evicted_tokens": 596,
+              "segments": 9
+            },
+            {
+              "step": 39,
+              "context_tokens": 37,
+              "evicted_tokens": 596,
+              "segments": 9
+            },
+            {
+              "step": 40,
+              "context_tokens": 0,
+              "evicted_tokens": 654,
+              "segments": 10
+            },
+            {
+              "step": 41,
+              "context_tokens": 10,
+              "evicted_tokens": 654,
+              "segments": 10
+            },
+            {
+              "step": 42,
+              "context_tokens": 21,
+              "evicted_tokens": 654,
+              "segments": 10
+            },
+            {
+              "step": 43,
+              "context_tokens": 34,
+              "evicted_tokens": 654,
+              "segments": 10
+            },
+            {
+              "step": 44,
+              "context_tokens": 0,
+              "evicted_tokens": 711,
+              "segments": 11
+            },
+            {
+              "step": 45,
+              "context_tokens": 11,
+              "evicted_tokens": 711,
+              "segments": 11
+            },
+            {
+              "step": 46,
+              "context_tokens": 22,
+              "evicted_tokens": 711,
+              "segments": 11
+            },
+            {
+              "step": 47,
+              "context_tokens": 38,
+              "evicted_tokens": 711,
+              "segments": 11
+            },
+            {
+              "step": 48,
+              "context_tokens": 0,
+              "evicted_tokens": 774,
+              "segments": 12
+            }
+          ],
+          "results": [
+            {
+              "query": "What is my flight confirmation code?",
+              "answer": "QX7P2R",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat is my flight confirmation code?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 0,
+                  "score": 0.313
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 7,
+              "hit": true,
+              "needle": "qx7p2r"
+            },
+            {
+              "query": "Which hotel and room am I staying in?",
+              "answer": "The Marlowe on Pine Street, room 412.",
+              "raw_prompt": "<bos><start_of_turn>user\nWhich hotel and room am I staying in?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 2,
+                  "score": 0.2042
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 9,
+              "hit": true,
+              "needle": "412"
+            },
+            {
+              "query": "What is the rental car license plate?",
+              "answer": "8KZL990",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat is the rental car license plate?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 3,
+                  "score": 0.2544
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 8,
+              "hit": true,
+              "needle": "8kzl990"
+            },
+            {
+              "query": "Where and when is the dinner reservation?",
+              "answer": "The dinner reservation is at Casa Lupe on Friday at 7:30pm.",
+              "raw_prompt": "<bos><start_of_turn>user\nWhere and when is the dinner reservation?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 4,
+                  "score": 0.2075
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 8,
+              "hit": true,
+              "needle": "casa lupe"
+            },
+            {
+              "query": "Whose name are the museum tickets under?",
+              "answer": "Dr. Okafor",
+              "raw_prompt": "<bos><start_of_turn>user\nWhose name are the museum tickets under?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 5,
+                  "score": 0.3971
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 8,
+              "hit": true,
+              "needle": "okafor"
+            },
+            {
+              "query": "Which platform does the return train depart from?",
+              "answer": "Platform 9",
+              "raw_prompt": "<bos><start_of_turn>user\nWhich platform does the return train depart from?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 7,
+                  "score": 0.2619
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 9,
+              "hit": true,
+              "needle": "platform 9"
+            }
+          ],
+          "segments": 12,
+          "evicted_tokens": 774,
+          "recall": "6/6",
+          "avg_prompt_tokens": 8.2
+        },
+        "vanilla": {
+          "method": "vanilla",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 18,
+              "turns_in_window": 1
+            },
+            {
+              "step": 2,
+              "context_tokens": 34,
+              "turns_in_window": 2
+            },
+            {
+              "step": 3,
+              "context_tokens": 55,
+              "turns_in_window": 3
+            },
+            {
+              "step": 4,
+              "context_tokens": 73,
+              "turns_in_window": 4
+            },
+            {
+              "step": 5,
+              "context_tokens": 92,
+              "turns_in_window": 5
+            },
+            {
+              "step": 6,
+              "context_tokens": 105,
+              "turns_in_window": 6
+            },
+            {
+              "step": 7,
+              "context_tokens": 117,
+              "turns_in_window": 7
+            },
+            {
+              "step": 8,
+              "context_tokens": 132,
+              "turns_in_window": 8
+            },
+            {
+              "step": 9,
+              "context_tokens": 152,
+              "turns_in_window": 9
+            },
+            {
+              "step": 10,
+              "context_tokens": 164,
+              "turns_in_window": 10
+            },
+            {
+              "step": 11,
+              "context_tokens": 180,
+              "turns_in_window": 11
+            },
+            {
+              "step": 12,
+              "context_tokens": 196,
+              "turns_in_window": 12
+            },
+            {
+              "step": 13,
+              "context_tokens": 212,
+              "turns_in_window": 13
+            },
+            {
+              "step": 14,
+              "context_tokens": 233,
+              "turns_in_window": 14
+            },
+            {
+              "step": 15,
+              "context_tokens": 246,
+              "turns_in_window": 15
+            },
+            {
+              "step": 16,
+              "context_tokens": 242,
+              "turns_in_window": 15
+            },
+            {
+              "step": 17,
+              "context_tokens": 254,
+              "turns_in_window": 16
+            },
+            {
+              "step": 18,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 19,
+              "context_tokens": 251,
+              "turns_in_window": 16
+            },
+            {
+              "step": 20,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 21,
+              "context_tokens": 242,
+              "turns_in_window": 16
+            },
+            {
+              "step": 22,
+              "context_tokens": 256,
+              "turns_in_window": 17
+            },
+            {
+              "step": 23,
+              "context_tokens": 256,
+              "turns_in_window": 17
+            },
+            {
+              "step": 24,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 25,
+              "context_tokens": 239,
+              "turns_in_window": 16
+            },
+            {
+              "step": 26,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 27,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 28,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 29,
+              "context_tokens": 254,
+              "turns_in_window": 16
+            },
+            {
+              "step": 30,
+              "context_tokens": 252,
+              "turns_in_window": 16
+            },
+            {
+              "step": 31,
+              "context_tokens": 252,
+              "turns_in_window": 16
+            },
+            {
+              "step": 32,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 33,
+              "context_tokens": 253,
+              "turns_in_window": 16
+            },
+            {
+              "step": 34,
+              "context_tokens": 253,
+              "turns_in_window": 16
+            },
+            {
+              "step": 35,
+              "context_tokens": 247,
+              "turns_in_window": 16
+            },
+            {
+              "step": 36,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 37,
+              "context_tokens": 251,
+              "turns_in_window": 16
+            },
+            {
+              "step": 38,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 39,
+              "context_tokens": 251,
+              "turns_in_window": 16
+            },
+            {
+              "step": 40,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 41,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 42,
+              "context_tokens": 240,
+              "turns_in_window": 16
+            },
+            {
+              "step": 43,
+              "context_tokens": 255,
+              "turns_in_window": 17
+            },
+            {
+              "step": 44,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 45,
+              "context_tokens": 245,
+              "turns_in_window": 17
+            },
+            {
+              "step": 46,
+              "context_tokens": 238,
+              "turns_in_window": 17
+            },
+            {
+              "step": 47,
+              "context_tokens": 256,
+              "turns_in_window": 18
+            },
+            {
+              "step": 48,
+              "context_tokens": 253,
+              "turns_in_window": 18
+            }
+          ],
+          "results": [
+            {
+              "query": "What is my flight confirmation code?",
+              "answer": "The conversation you provided is about a software development project and doesn't contain any information about a flight confirmation code. \n\nIt seems you're trying to ask a question unrelated to the context of",
+              "prompt_tokens": 285,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "qx7p2r"
+            },
+            {
+              "query": "Which hotel and room am I staying in?",
+              "answer": "The assistant is a chatbot and doesn't have access to your personal information, including your hotel and room details. \n\nThis conversation is about a software development project, and the assistant is providing updates",
+              "prompt_tokens": 287,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "412"
+            },
+            {
+              "query": "What is the rental car license plate?",
+              "answer": "This conversation is about software development and progress updates. There is no mention of a rental car license plate. \n\nIt seems like you're trying to ask a question unrelated to the context.",
+              "prompt_tokens": 286,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "8kzl990"
+            },
+            {
+              "query": "Where and when is the dinner reservation?",
+              "answer": "The conversation doesn't mention anything about a dinner reservation.",
+              "prompt_tokens": 286,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "casa lupe"
+            },
+            {
+              "query": "Whose name are the museum tickets under?",
+              "answer": "This conversation is about software development and doesn't contain any information about museum tickets.  Therefore, it's impossible to answer your question based on the provided text.",
+              "prompt_tokens": 286,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "okafor"
+            },
+            {
+              "query": "Which platform does the return train depart from?",
+              "answer": "This conversation is about software development and doesn't contain any information about train schedules or platforms. \n\nTo answer your question, you'll need to provide more context or ask a different question.",
+              "prompt_tokens": 287,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "platform 9"
+            }
+          ],
+          "recall": "0/6",
+          "avg_prompt_tokens": 286.2
+        },
+        "markdown": {
+          "method": "markdown",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 2,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 3,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 4,
+              "context_tokens": 11,
+              "notes_lines": 1
+            },
+            {
+              "step": 5,
+              "context_tokens": 11,
+              "notes_lines": 1
+            },
+            {
+              "step": 6,
+              "context_tokens": 11,
+              "notes_lines": 1
+            },
+            {
+              "step": 7,
+              "context_tokens": 11,
+              "notes_lines": 1
+            },
+            {
+              "step": 8,
+              "context_tokens": 37,
+              "notes_lines": 5
+            },
+            {
+              "step": 9,
+              "context_tokens": 37,
+              "notes_lines": 5
+            },
+            {
+              "step": 10,
+              "context_tokens": 37,
+              "notes_lines": 5
+            },
+            {
+              "step": 11,
+              "context_tokens": 37,
+              "notes_lines": 5
+            },
+            {
+              "step": 12,
+              "context_tokens": 50,
+              "notes_lines": 7
+            },
+            {
+              "step": 13,
+              "context_tokens": 50,
+              "notes_lines": 7
+            },
+            {
+              "step": 14,
+              "context_tokens": 50,
+              "notes_lines": 7
+            },
+            {
+              "step": 15,
+              "context_tokens": 50,
+              "notes_lines": 7
+            },
+            {
+              "step": 16,
+              "context_tokens": 105,
+              "notes_lines": 14
+            },
+            {
+              "step": 17,
+              "context_tokens": 105,
+              "notes_lines": 14
+            },
+            {
+              "step": 18,
+              "context_tokens": 105,
+              "notes_lines": 14
+            },
+            {
+              "step": 19,
+              "context_tokens": 105,
+              "notes_lines": 14
+            },
+            {
+              "step": 20,
+              "context_tokens": 122,
+              "notes_lines": 15
+            },
+            {
+              "step": 21,
+              "context_tokens": 122,
+              "notes_lines": 15
+            },
+            {
+              "step": 22,
+              "context_tokens": 122,
+              "notes_lines": 15
+            },
+            {
+              "step": 23,
+              "context_tokens": 122,
+              "notes_lines": 15
+            },
+            {
+              "step": 24,
+              "context_tokens": 150,
+              "notes_lines": 19
+            },
+            {
+              "step": 25,
+              "context_tokens": 150,
+              "notes_lines": 19
+            },
+            {
+              "step": 26,
+              "context_tokens": 150,
+              "notes_lines": 19
+            },
+            {
+              "step": 27,
+              "context_tokens": 150,
+              "notes_lines": 19
+            },
+            {
+              "step": 28,
+              "context_tokens": 197,
+              "notes_lines": 25
+            },
+            {
+              "step": 29,
+              "context_tokens": 197,
+              "notes_lines": 25
+            },
+            {
+              "step": 30,
+              "context_tokens": 197,
+              "notes_lines": 25
+            },
+            {
+              "step": 31,
+              "context_tokens": 197,
+              "notes_lines": 25
+            },
+            {
+              "step": 32,
+              "context_tokens": 222,
+              "notes_lines": 27
+            },
+            {
+              "step": 33,
+              "context_tokens": 222,
+              "notes_lines": 27
+            },
+            {
+              "step": 34,
+              "context_tokens": 222,
+              "notes_lines": 27
+            },
+            {
+              "step": 35,
+              "context_tokens": 222,
+              "notes_lines": 27
+            },
+            {
+              "step": 36,
+              "context_tokens": 238,
+              "notes_lines": 30
+            },
+            {
+              "step": 37,
+              "context_tokens": 238,
+              "notes_lines": 30
+            },
+            {
+              "step": 38,
+              "context_tokens": 238,
+              "notes_lines": 30
+            },
+            {
+              "step": 39,
+              "context_tokens": 238,
+              "notes_lines": 30
+            },
+            {
+              "step": 40,
+              "context_tokens": 286,
+              "notes_lines": 37
+            },
+            {
+              "step": 41,
+              "context_tokens": 286,
+              "notes_lines": 37
+            },
+            {
+              "step": 42,
+              "context_tokens": 286,
+              "notes_lines": 37
+            },
+            {
+              "step": 43,
+              "context_tokens": 286,
+              "notes_lines": 37
+            },
+            {
+              "step": 44,
+              "context_tokens": 300,
+              "notes_lines": 39
+            },
+            {
+              "step": 45,
+              "context_tokens": 300,
+              "notes_lines": 39
+            },
+            {
+              "step": 46,
+              "context_tokens": 300,
+              "notes_lines": 39
+            },
+            {
+              "step": 47,
+              "context_tokens": 300,
+              "notes_lines": 39
+            },
+            {
+              "step": 48,
+              "context_tokens": 321,
+              "notes_lines": 42
+            }
+          ],
+          "results": [
+            {
+              "query": "What is my flight confirmation code?",
+              "answer": "The project memory does not contain any information about flight confirmation codes.",
+              "prompt_tokens": 337,
+              "notes_lines": 42,
+              "notes_tokens": 321,
+              "hit": false,
+              "needle": "qx7p2r"
+            },
+            {
+              "query": "Which hotel and room am I staying in?",
+              "answer": "The project memory doesn't mention anything about your hotel or room. \n\nIt only mentions:\n\n* **Marlowe on Pine Street** (This is a location, not a hotel)",
+              "prompt_tokens": 339,
+              "notes_lines": 42,
+              "notes_tokens": 321,
+              "hit": false,
+              "needle": "412"
+            },
+            {
+              "query": "What is the rental car license plate?",
+              "answer": "The rental car license plate is **8KZL990**.",
+              "prompt_tokens": 338,
+              "notes_lines": 42,
+              "notes_tokens": 321,
+              "hit": true,
+              "needle": "8kzl990"
+            },
+            {
+              "query": "Where and when is the dinner reservation?",
+              "answer": "The dinner reservation is at **Casa Lupe** at **7:30pm on Friday**.",
+              "prompt_tokens": 338,
+              "notes_lines": 42,
+              "notes_tokens": 321,
+              "hit": true,
+              "needle": "casa lupe"
+            },
+            {
+              "query": "Whose name are the museum tickets under?",
+              "answer": "The museum tickets are under **Dr. Okafor**.",
+              "prompt_tokens": 338,
+              "notes_lines": 42,
+              "notes_tokens": 321,
+              "hit": true,
+              "needle": "okafor"
+            },
+            {
+              "query": "Which platform does the return train depart from?",
+              "answer": "The return train departs from **platform 9**.",
+              "prompt_tokens": 339,
+              "notes_lines": 42,
+              "notes_tokens": 321,
+              "hit": true,
+              "needle": "platform 9"
+            }
+          ],
+          "recall": "4/6",
+          "avg_prompt_tokens": 338.2
+        }
+      }
+    },
+    {
+      "name": "research_assistant",
+      "needle_positions": [
+        3,
+        8,
+        13,
+        18,
+        23,
+        28
+      ],
+      "methods": {
+        "napora": {
+          "method": "napora",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 16,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 2,
+              "context_tokens": 30,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 3,
+              "context_tokens": 49,
+              "evicted_tokens": 0,
+              "segments": 0
+            },
+            {
+              "step": 4,
+              "context_tokens": 0,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 5,
+              "context_tokens": 17,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 6,
+              "context_tokens": 28,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 7,
+              "context_tokens": 38,
+              "evicted_tokens": 76,
+              "segments": 1
+            },
+            {
+              "step": 8,
+              "context_tokens": 0,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 9,
+              "context_tokens": 16,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 10,
+              "context_tokens": 26,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 11,
+              "context_tokens": 40,
+              "evicted_tokens": 138,
+              "segments": 2
+            },
+            {
+              "step": 12,
+              "context_tokens": 0,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 13,
+              "context_tokens": 14,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 14,
+              "context_tokens": 28,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 15,
+              "context_tokens": 39,
+              "evicted_tokens": 203,
+              "segments": 3
+            },
+            {
+              "step": 16,
+              "context_tokens": 0,
+              "evicted_tokens": 265,
+              "segments": 4
+            },
+            {
+              "step": 17,
+              "context_tokens": 10,
+              "evicted_tokens": 265,
+              "segments": 4
+            },
+            {
+              "step": 18,
+              "context_tokens": 20,
+              "evicted_tokens": 265,
+              "segments": 4
+            },
+            {
+              "step": 19,
+              "context_tokens": 36,
+              "evicted_tokens": 265,
+              "segments": 4
+            },
+            {
+              "step": 20,
+              "context_tokens": 0,
+              "evicted_tokens": 323,
+              "segments": 5
+            },
+            {
+              "step": 21,
+              "context_tokens": 13,
+              "evicted_tokens": 323,
+              "segments": 5
+            },
+            {
+              "step": 22,
+              "context_tokens": 25,
+              "evicted_tokens": 323,
+              "segments": 5
+            },
+            {
+              "step": 23,
+              "context_tokens": 36,
+              "evicted_tokens": 323,
+              "segments": 5
+            },
+            {
+              "step": 24,
+              "context_tokens": 0,
+              "evicted_tokens": 384,
+              "segments": 6
+            },
+            {
+              "step": 25,
+              "context_tokens": 11,
+              "evicted_tokens": 384,
+              "segments": 6
+            },
+            {
+              "step": 26,
+              "context_tokens": 27,
+              "evicted_tokens": 384,
+              "segments": 6
+            },
+            {
+              "step": 27,
+              "context_tokens": 41,
+              "evicted_tokens": 384,
+              "segments": 6
+            },
+            {
+              "step": 28,
+              "context_tokens": 0,
+              "evicted_tokens": 455,
+              "segments": 7
+            },
+            {
+              "step": 29,
+              "context_tokens": 18,
+              "evicted_tokens": 455,
+              "segments": 7
+            },
+            {
+              "step": 30,
+              "context_tokens": 35,
+              "evicted_tokens": 455,
+              "segments": 7
+            },
+            {
+              "step": 31,
+              "context_tokens": 46,
+              "evicted_tokens": 455,
+              "segments": 7
+            },
+            {
+              "step": 32,
+              "context_tokens": 0,
+              "evicted_tokens": 522,
+              "segments": 8
+            },
+            {
+              "step": 33,
+              "context_tokens": 13,
+              "evicted_tokens": 522,
+              "segments": 8
+            },
+            {
+              "step": 34,
+              "context_tokens": 23,
+              "evicted_tokens": 522,
+              "segments": 8
+            },
+            {
+              "step": 35,
+              "context_tokens": 37,
+              "evicted_tokens": 522,
+              "segments": 8
+            },
+            {
+              "step": 36,
+              "context_tokens": 0,
+              "evicted_tokens": 584,
+              "segments": 9
+            },
+            {
+              "step": 37,
+              "context_tokens": 14,
+              "evicted_tokens": 584,
+              "segments": 9
+            },
+            {
+              "step": 38,
+              "context_tokens": 25,
+              "evicted_tokens": 584,
+              "segments": 9
+            },
+            {
+              "step": 39,
+              "context_tokens": 37,
+              "evicted_tokens": 584,
+              "segments": 9
+            },
+            {
+              "step": 40,
+              "context_tokens": 0,
+              "evicted_tokens": 642,
+              "segments": 10
+            },
+            {
+              "step": 41,
+              "context_tokens": 10,
+              "evicted_tokens": 642,
+              "segments": 10
+            },
+            {
+              "step": 42,
+              "context_tokens": 21,
+              "evicted_tokens": 642,
+              "segments": 10
+            },
+            {
+              "step": 43,
+              "context_tokens": 34,
+              "evicted_tokens": 642,
+              "segments": 10
+            },
+            {
+              "step": 44,
+              "context_tokens": 0,
+              "evicted_tokens": 699,
+              "segments": 11
+            },
+            {
+              "step": 45,
+              "context_tokens": 11,
+              "evicted_tokens": 699,
+              "segments": 11
+            },
+            {
+              "step": 46,
+              "context_tokens": 22,
+              "evicted_tokens": 699,
+              "segments": 11
+            },
+            {
+              "step": 47,
+              "context_tokens": 38,
+              "evicted_tokens": 699,
+              "segments": 11
+            },
+            {
+              "step": 48,
+              "context_tokens": 0,
+              "evicted_tokens": 762,
+              "segments": 12
+            }
+          ],
+          "results": [
+            {
+              "query": "Which checkpoint is the baseline model?",
+              "answer": "run-4417",
+              "raw_prompt": "<bos><start_of_turn>user\nWhich checkpoint is the baseline model?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 0,
+                  "score": 0.3138
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 7,
+              "hit": true,
+              "needle": "run-4417"
+            },
+            {
+              "query": "What was the best learning rate from the sweep?",
+              "answer": "3e-4",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat was the best learning rate from the sweep?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 2,
+                  "score": 0.4002
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 10,
+              "hit": true,
+              "needle": "3e-4"
+            },
+            {
+              "query": "What is the held-out evaluation set called?",
+              "answer": "The held-out evaluation set is called **gorilla-hard**.",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat is the held-out evaluation set called?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 3,
+                  "score": 0.3892
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 10,
+              "hit": true,
+              "needle": "gorilla-hard"
+            },
+            {
+              "query": "What license is the dataset under?",
+              "answer": "The dataset is CC-BY-NC.",
+              "raw_prompt": "<bos><start_of_turn>user\nWhat license is the dataset under?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 4,
+                  "score": 0.2323
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 7,
+              "hit": true,
+              "needle": "cc-by-nc"
+            },
+            {
+              "query": "Who is the lead reviewer for the paper?",
+              "answer": "Professor Ayemi",
+              "raw_prompt": "<bos><start_of_turn>user\nWho is the lead reviewer for the paper?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 5,
+                  "score": 0.4196
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 9,
+              "hit": false,
+              "needle": "adeyemi"
+            },
+            {
+              "query": "When is the submission deadline?",
+              "answer": "November 7 at 23:59 AoE.",
+              "raw_prompt": "<bos><start_of_turn>user\nWhen is the submission deadline?<end_of_turn>\n<start_of_turn>model\n",
+              "retrieved": [
+                {
+                  "segment": 7,
+                  "score": 0.2901
+                }
+              ],
+              "n_segments_active": 1,
+              "adapter_rank": 8,
+              "prompt_tokens": 6,
+              "hit": true,
+              "needle": "november 7"
+            }
+          ],
+          "segments": 12,
+          "evicted_tokens": 762,
+          "recall": "5/6",
+          "avg_prompt_tokens": 8.2
+        },
+        "vanilla": {
+          "method": "vanilla",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 18,
+              "turns_in_window": 1
+            },
+            {
+              "step": 2,
+              "context_tokens": 34,
+              "turns_in_window": 2
+            },
+            {
+              "step": 3,
+              "context_tokens": 55,
+              "turns_in_window": 3
+            },
+            {
+              "step": 4,
+              "context_tokens": 73,
+              "turns_in_window": 4
+            },
+            {
+              "step": 5,
+              "context_tokens": 92,
+              "turns_in_window": 5
+            },
+            {
+              "step": 6,
+              "context_tokens": 105,
+              "turns_in_window": 6
+            },
+            {
+              "step": 7,
+              "context_tokens": 117,
+              "turns_in_window": 7
+            },
+            {
+              "step": 8,
+              "context_tokens": 132,
+              "turns_in_window": 8
+            },
+            {
+              "step": 9,
+              "context_tokens": 150,
+              "turns_in_window": 9
+            },
+            {
+              "step": 10,
+              "context_tokens": 162,
+              "turns_in_window": 10
+            },
+            {
+              "step": 11,
+              "context_tokens": 178,
+              "turns_in_window": 11
+            },
+            {
+              "step": 12,
+              "context_tokens": 194,
+              "turns_in_window": 12
+            },
+            {
+              "step": 13,
+              "context_tokens": 210,
+              "turns_in_window": 13
+            },
+            {
+              "step": 14,
+              "context_tokens": 226,
+              "turns_in_window": 14
+            },
+            {
+              "step": 15,
+              "context_tokens": 239,
+              "turns_in_window": 15
+            },
+            {
+              "step": 16,
+              "context_tokens": 253,
+              "turns_in_window": 16
+            },
+            {
+              "step": 17,
+              "context_tokens": 247,
+              "turns_in_window": 16
+            },
+            {
+              "step": 18,
+              "context_tokens": 243,
+              "turns_in_window": 16
+            },
+            {
+              "step": 19,
+              "context_tokens": 240,
+              "turns_in_window": 16
+            },
+            {
+              "step": 20,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 21,
+              "context_tokens": 250,
+              "turns_in_window": 17
+            },
+            {
+              "step": 22,
+              "context_tokens": 245,
+              "turns_in_window": 17
+            },
+            {
+              "step": 23,
+              "context_tokens": 245,
+              "turns_in_window": 17
+            },
+            {
+              "step": 24,
+              "context_tokens": 249,
+              "turns_in_window": 17
+            },
+            {
+              "step": 25,
+              "context_tokens": 247,
+              "turns_in_window": 17
+            },
+            {
+              "step": 26,
+              "context_tokens": 247,
+              "turns_in_window": 17
+            },
+            {
+              "step": 27,
+              "context_tokens": 251,
+              "turns_in_window": 17
+            },
+            {
+              "step": 28,
+              "context_tokens": 256,
+              "turns_in_window": 17
+            },
+            {
+              "step": 29,
+              "context_tokens": 244,
+              "turns_in_window": 16
+            },
+            {
+              "step": 30,
+              "context_tokens": 247,
+              "turns_in_window": 16
+            },
+            {
+              "step": 31,
+              "context_tokens": 247,
+              "turns_in_window": 16
+            },
+            {
+              "step": 32,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 33,
+              "context_tokens": 248,
+              "turns_in_window": 16
+            },
+            {
+              "step": 34,
+              "context_tokens": 248,
+              "turns_in_window": 16
+            },
+            {
+              "step": 35,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 36,
+              "context_tokens": 249,
+              "turns_in_window": 16
+            },
+            {
+              "step": 37,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 38,
+              "context_tokens": 249,
+              "turns_in_window": 16
+            },
+            {
+              "step": 39,
+              "context_tokens": 250,
+              "turns_in_window": 16
+            },
+            {
+              "step": 40,
+              "context_tokens": 246,
+              "turns_in_window": 16
+            },
+            {
+              "step": 41,
+              "context_tokens": 245,
+              "turns_in_window": 16
+            },
+            {
+              "step": 42,
+              "context_tokens": 240,
+              "turns_in_window": 16
+            },
+            {
+              "step": 43,
+              "context_tokens": 255,
+              "turns_in_window": 17
+            },
+            {
+              "step": 44,
+              "context_tokens": 253,
+              "turns_in_window": 17
+            },
+            {
+              "step": 45,
+              "context_tokens": 245,
+              "turns_in_window": 17
+            },
+            {
+              "step": 46,
+              "context_tokens": 238,
+              "turns_in_window": 17
+            },
+            {
+              "step": 47,
+              "context_tokens": 256,
+              "turns_in_window": 18
+            },
+            {
+              "step": 48,
+              "context_tokens": 253,
+              "turns_in_window": 18
+            }
+          ],
+          "results": [
+            {
+              "query": "Which checkpoint is the baseline model?",
+              "answer": "The baseline model for this conversation is the **\"Nothing blocking from my side, proceeding as planned.\"** checkpoint. \n\nHere's why:\n\n* **Clear Progress:** This statement indicates the",
+              "prompt_tokens": 285,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "run-4417"
+            },
+            {
+              "query": "What was the best learning rate from the sweep?",
+              "answer": "The conversation doesn't provide any information about a learning rate sweep. \n\nIt seems like a discussion about software development, specifically a sprint or project update. \n\nTo answer your question about the",
+              "prompt_tokens": 288,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "3e-4"
+            },
+            {
+              "query": "What is the held-out evaluation set called?",
+              "answer": "The provided conversation doesn't mention anything about a held-out evaluation set. \n\nIt seems like a discussion about software development and a sprint.  \n\nTo understand what a held-out evaluation",
+              "prompt_tokens": 288,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "gorilla-hard"
+            },
+            {
+              "query": "What license is the dataset under?",
+              "answer": "The provided conversation doesn't contain any information about the dataset's license.",
+              "prompt_tokens": 285,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "cc-by-nc"
+            },
+            {
+              "query": "Who is the lead reviewer for the paper?",
+              "answer": "The conversation you provided is about a software development project and doesn't contain any information about a paper or a lead reviewer. \n\nTo find out who the lead reviewer for a paper is, you",
+              "prompt_tokens": 287,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "adeyemi"
+            },
+            {
+              "query": "When is the submission deadline?",
+              "answer": "The conversation doesn't provide any information about a submission deadline. \n\nIt seems like you're discussing the progress of a software development project.  To find out the submission deadline, you'",
+              "prompt_tokens": 284,
+              "turns_in_window": 18,
+              "turns_dropped": 30,
+              "hit": false,
+              "needle": "november 7"
+            }
+          ],
+          "recall": "0/6",
+          "avg_prompt_tokens": 286.2
+        },
+        "markdown": {
+          "method": "markdown",
+          "timeline": [
+            {
+              "step": 1,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 2,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 3,
+              "context_tokens": 4,
+              "notes_lines": 0
+            },
+            {
+              "step": 4,
+              "context_tokens": 17,
+              "notes_lines": 1
+            },
+            {
+              "step": 5,
+              "context_tokens": 17,
+              "notes_lines": 1
+            },
+            {
+              "step": 6,
+              "context_tokens": 17,
+              "notes_lines": 1
+            },
+            {
+              "step": 7,
+              "context_tokens": 17,
+              "notes_lines": 1
+            },
+            {
+              "step": 8,
+              "context_tokens": 43,
+              "notes_lines": 5
+            },
+            {
+              "step": 9,
+              "context_tokens": 43,
+              "notes_lines": 5
+            },
+            {
+              "step": 10,
+              "context_tokens": 43,
+              "notes_lines": 5
+            },
+            {
+              "step": 11,
+              "context_tokens": 43,
+              "notes_lines": 5
+            },
+            {
+              "step": 12,
+              "context_tokens": 54,
+              "notes_lines": 6
+            },
+            {
+              "step": 13,
+              "context_tokens": 54,
+              "notes_lines": 6
+            },
+            {
+              "step": 14,
+              "context_tokens": 54,
+              "notes_lines": 6
+            },
+            {
+              "step": 15,
+              "context_tokens": 54,
+              "notes_lines": 6
+            },
+            {
+              "step": 16,
+              "context_tokens": 103,
+              "notes_lines": 12
+            },
+            {
+              "step": 17,
+              "context_tokens": 103,
+              "notes_lines": 12
+            },
+            {
+              "step": 18,
+              "context_tokens": 103,
+              "notes_lines": 12
+            },
+            {
+              "step": 19,
+              "context_tokens": 103,
+              "notes_lines": 12
+            },
+            {
+              "step": 20,
+              "context_tokens": 129,
+              "notes_lines": 16
+            },
+            {
+              "step": 21,
+              "context_tokens": 129,
+              "notes_lines": 16
+            },
+            {
+              "step": 22,
+              "context_tokens": 129,
+              "notes_lines": 16
+            },
+            {
+              "step": 23,
+              "context_tokens": 129,
+              "notes_lines": 16
+            },
+            {
+              "step": 24,
+              "context_tokens": 155,
+              "notes_lines": 19
+            },
+            {
+              "step": 25,
+              "context_tokens": 155,
+              "notes_lines": 19
+            },
+            {
+              "step": 26,
+              "context_tokens": 155,
+              "notes_lines": 19
+            },
+            {
+              "step": 27,
+              "context_tokens": 155,
+              "notes_lines": 19
+            },
+            {
+              "step": 28,
+              "context_tokens": 202,
+              "notes_lines": 25
+            },
+            {
+              "step": 29,
+              "context_tokens": 202,
+              "notes_lines": 25
+            },
+            {
+              "step": 30,
+              "context_tokens": 202,
+              "notes_lines": 25
+            },
+            {
+              "step": 31,
+              "context_tokens": 202,
+              "notes_lines": 25
+            },
+            {
+              "step": 32,
+              "context_tokens": 248,
+              "notes_lines": 30
+            },
+            {
+              "step": 33,
+              "context_tokens": 248,
+              "notes_lines": 30
+            },
+            {
+              "step": 34,
+              "context_tokens": 248,
+              "notes_lines": 30
+            },
+            {
+              "step": 35,
+              "context_tokens": 248,
+              "notes_lines": 30
+            },
+            {
+              "step": 36,
+              "context_tokens": 264,
+              "notes_lines": 33
+            },
+            {
+              "step": 37,
+              "context_tokens": 264,
+              "notes_lines": 33
+            },
+            {
+              "step": 38,
+              "context_tokens": 264,
+              "notes_lines": 33
+            },
+            {
+              "step": 39,
+              "context_tokens": 264,
+              "notes_lines": 33
+            },
+            {
+              "step": 40,
+              "context_tokens": 312,
+              "notes_lines": 40
+            },
+            {
+              "step": 41,
+              "context_tokens": 312,
+              "notes_lines": 40
+            },
+            {
+              "step": 42,
+              "context_tokens": 312,
+              "notes_lines": 40
+            },
+            {
+              "step": 43,
+              "context_tokens": 312,
+              "notes_lines": 40
+            },
+            {
+              "step": 44,
+              "context_tokens": 326,
+              "notes_lines": 42
+            },
+            {
+              "step": 45,
+              "context_tokens": 326,
+              "notes_lines": 42
+            },
+            {
+              "step": 46,
+              "context_tokens": 326,
+              "notes_lines": 42
+            },
+            {
+              "step": 47,
+              "context_tokens": 326,
+              "notes_lines": 42
+            },
+            {
+              "step": 48,
+              "context_tokens": 347,
+              "notes_lines": 45
+            }
+          ],
+          "results": [
+            {
+              "query": "Which checkpoint is the baseline model?",
+              "answer": "The baseline model checkpoint is **run-4417**.",
+              "prompt_tokens": 363,
+              "notes_lines": 45,
+              "notes_tokens": 347,
+              "hit": true,
+              "needle": "run-4417"
+            },
+            {
+              "query": "What was the best learning rate from the sweep?",
+              "answer": "The best learning rate from the sweep was **3e-4**.",
+              "prompt_tokens": 366,
+              "notes_lines": 45,
+              "notes_tokens": 347,
+              "hit": true,
+              "needle": "3e-4"
+            },
+            {
+              "query": "What is the held-out evaluation set called?",
+              "answer": "The held-out evaluation set is called **gorilla-hard**.",
+              "prompt_tokens": 366,
+              "notes_lines": 45,
+              "notes_tokens": 347,
+              "hit": true,
+              "needle": "gorilla-hard"
+            },
+            {
+              "query": "What license is the dataset under?",
+              "answer": "The dataset is under a **CC-BY-NC** license.",
+              "prompt_tokens": 363,
+              "notes_lines": 45,
+              "notes_tokens": 347,
+              "hit": true,
+              "needle": "cc-by-nc"
+            },
+            {
+              "query": "Who is the lead reviewer for the paper?",
+              "answer": "The lead reviewer for the paper is **Professor Adeyemi**.",
+              "prompt_tokens": 365,
+              "notes_lines": 45,
+              "notes_tokens": 347,
+              "hit": true,
+              "needle": "adeyemi"
+            },
+            {
+              "query": "When is the submission deadline?",
+              "answer": "The submission deadline is **November 7 at 23:59 AoE**.",
+              "prompt_tokens": 362,
+              "notes_lines": 45,
+              "notes_tokens": 347,
+              "hit": true,
+              "needle": "november 7"
+            }
+          ],
+          "recall": "6/6",
+          "avg_prompt_tokens": 364.2
+        }
+      }
+    }
+  ],
+  "summary": {
+    "napora": {
+      "recall": "17/18",
+      "recall_pct": 94.4,
+      "avg_prompt_tokens": 8.4
+    },
+    "vanilla": {
+      "recall": "0/18",
+      "recall_pct": 0.0,
+      "avg_prompt_tokens": 286.4
+    },
+    "markdown": {
+      "recall": "16/18",
+      "recall_pct": 88.9,
+      "avg_prompt_tokens": 343.4
+    }
+  },
+  "runtime_sec": 77.4
+}
