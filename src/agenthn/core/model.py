@@ -11,6 +11,7 @@ import sys as _sys
 
 import torch
 
+from ctx_to_lora.data.definitions import CTX_AFFIXES
 from ctx_to_lora.data.processing import tokenize_ctx_text
 from ctx_to_lora.model_loading import get_tokenizer
 from ctx_to_lora.modeling import hypernet
@@ -183,9 +184,85 @@ class D2LModel:
         self.model.patch_lora_forward()
         self.model.generated_loras = adapter
 
+    # --- multi-chunk memory (rank concatenation) --------------------------
+    # The chunk-trained checkpoint (config.CHUNK_CHECKPOINT) can rank-concatenate
+    # several independently-internalized adapters via combine_lora — this is the
+    # primitive the memory track is built on. Each chunk is encoded on its own,
+    # so adapters can be cached per memory and stacked incrementally.
+    @torch.inference_mode()
+    def encode_chunk(self, text: str):
+        """Encode one memory string into a single-chunk adapter (A/B: [1, ...]).
+
+        Builds the interior-chunk token form (prefix + raw tokens + suffix) that
+        the chunk-trained hypernet expects, runs one generate_weights pass, and
+        returns a detached/cloned adapter dict that can be cached and later
+        rank-concatenated with others (see chat_memory).
+        """
+        affixes = CTX_AFFIXES[self.model.base_model.name_or_path]
+        raw = self.ctx_tokenizer(text.strip(), add_special_tokens=False)["input_ids"]
+        ids = affixes["prefix"] + raw + affixes["suffix"]
+        ctx_ids = torch.tensor([ids], device=self.model.device)
+        ctx_attn = torch.ones_like(ctx_ids)
+        loras, _ = self.model.generate_weights(ctx_ids, ctx_attn)
+        return {m: {"A": v["A"].clone(), "B": v["B"].clone()} for m, v in loras.items()}
+
+    @staticmethod
+    def stack_chunks(chunks: list) -> dict:
+        """Rank-concatenate per-memory adapters along the chunk dim (dim 0)."""
+        modules = chunks[0].keys()
+        return {
+            m: {
+                "A": torch.cat([c[m]["A"] for c in chunks], dim=0),
+                "B": torch.cat([c[m]["B"] for c in chunks], dim=0),
+            }
+            for m in modules
+        }
+
+    @torch.inference_mode()
+    def chat_memory(self, message: str, chunks: list, scalers=None,
+                    max_new_tokens: int = 64) -> str:
+        """Generate with a rank-concatenated stack of memory-chunk adapters.
+
+        chunks: list of single-chunk adapter dicts (from encode_chunk). combine_lora
+        (invoked inside model.generate via n_ctx_chunks) stacks them along the rank
+        dim. The prompt carries NO memory text — recall comes from the weights.
+        """
+        if not chunks:
+            self.reset()
+            return self.chat(message, max_new_tokens=max_new_tokens)
+
+        stacked = self.stack_chunks(chunks)
+        n = len(chunks)
+        # Re-establish a clean patched state (mirrors restore()): reset un-patches,
+        # patch_lora_forward installs fresh lora_forward partials, then bind the stack.
+        self.model.reset()
+        self.model.patch_lora_forward()
+        self.model.generated_loras = stacked
+
+        chat = [{"role": "user", "content": message}]
+        input_ids = self.tokenizer.apply_chat_template(
+            chat, add_special_tokens=False, return_attention_mask=False,
+            add_generation_prompt=True, return_tensors="pt",
+        ).to(self.model.device)
+        kw = {}
+        if scalers is not None:
+            kw["scalers"] = torch.as_tensor(scalers, device=self.model.device, dtype=torch.float32)
+        out = self.model.generate(
+            input_ids=input_ids, max_new_tokens=max_new_tokens,
+            n_ctx_chunks=torch.tensor([n], device=self.model.device), **kw,
+        )
+        completion = out[0][input_ids.shape[1]:]
+        return self.tokenizer.decode(completion, skip_special_tokens=True).strip()
+
     # --- generation -------------------------------------------------------
     @torch.inference_mode()
-    def chat(self, message: str, max_new_tokens: int = 512) -> str:
+    def chat(
+        self,
+        message: str,
+        max_new_tokens: int = 512,
+        do_sample: bool = False,
+        temperature: float = 1.0,
+    ) -> str:
         chat = [{"role": "user", "content": message}]
         input_ids = self.tokenizer.apply_chat_template(
             chat,
@@ -194,6 +271,9 @@ class D2LModel:
             add_generation_prompt=True,
             return_tensors="pt",
         ).to(self.model.device)
-        out = self.model.generate(input_ids=input_ids, max_new_tokens=max_new_tokens)
+        gen_kwargs = {"max_new_tokens": max_new_tokens, "do_sample": do_sample}
+        if do_sample:
+            gen_kwargs["temperature"] = temperature
+        out = self.model.generate(input_ids=input_ids, **gen_kwargs)
         completion = out[0][input_ids.shape[1] :]  # drop the echoed prompt
         return self.tokenizer.decode(completion, skip_special_tokens=True).strip()

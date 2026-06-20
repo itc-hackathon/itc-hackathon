@@ -1,18 +1,30 @@
-"""Memory track (Bryan, Nikash): long-horizon memory via stacked LoRA adapters.
+"""Memory track: long-horizon agent memory stored in LoRA blocks, not context.
 
-Every K steps, convert oldest turns into an adapter and rank-concat with the
-running memory adapter (see ctx_to_lora.modeling.lora_merger.combine_lora), then
-evict those turns from context. At query time, retrieve the top-k relevant
-segment adapters and compose only those (blind summation of all segments
-interferes destructively as memory grows).
+Two complementary approaches live here:
+
+NapLoRA (live demo, gemma_demo checkpoint): every K turns the oldest segment is
+internalized into a LoRA adapter and evicted from context; at query time we
+RETRIEVE the top-k relevant segment adapters and compose only those. Retrieval
+sidesteps the destructive summation you get from rank-concatenating every segment
+on the single-chunk gemma_demo checkpoint.
+  NapLoRAMemory / MarkdownMemory / VanillaContextMemory / MemoryArena
+
+WeightMemory (chunk-trained checkpoint): an agent journals observations; each is
+internalized and rank-concatenated onto a running memory adapter (combine_lora),
+then evicted. Requires config.CHUNK_CHECKPOINT — the gemma_demo checkpoint is
+single-chunk only and its combine_lora produces garbage (see the track README).
+  WeightMemory / generate_session
 """
 
 from .baselines import MarkdownMemory, VanillaContextMemory
 from .live import MemoryArena
+from .memory_store import WeightMemory, encode_doc_chunks
 from .nap_memory import MemoryStats, NapLoRAMemory, Segment, Turn
 from .retriever import TfidfRetriever
+from .tasks import MemoryEntry, Probe, generate_session
 
 __all__ = [
+    # NapLoRA (retrieval-routed, gemma_demo)
     "NapLoRAMemory",
     "MemoryStats",
     "Segment",
@@ -21,4 +33,10 @@ __all__ = [
     "VanillaContextMemory",
     "MarkdownMemory",
     "MemoryArena",
+    # WeightMemory (rank-concatenation, chunk checkpoint)
+    "WeightMemory",
+    "encode_doc_chunks",
+    "MemoryEntry",
+    "Probe",
+    "generate_session",
 ]

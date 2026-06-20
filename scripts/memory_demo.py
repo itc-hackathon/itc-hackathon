@@ -1,150 +1,90 @@
-"""Long-horizon memory demo: NapLoRA vs vanilla-context vs markdown-notes.
+"""Agentic weight-memory demo (CLI).
 
-For each NIAH-over-trajectory scenario we stream the same long conversation into
-all three memory strategies, then ask the same probe questions and score recall.
-We also record context cost (query-time prompt tokens) and a per-step timeline of
-context fill, so Eric's UI can render the "context window zooming out" + cost
-panels. Writes a machine-readable results/memory_demo.json and prints a summary.
+Story:
+  1. An agent works a long session, journaling discrete observations (tool
+     outputs, config it set, records it saw). Each observation is internalized
+     into a LoRA block and rank-concatenated onto its running memory adapter —
+     then evicted from the context window.
+  2. Later, with an EMPTY context (just the question), the agent recalls those
+     facts from its weights. Per-query context cost stays ~constant no matter how
+     much it has remembered.
+  3. We contrast four memory strategies on the same probes:
+       vanilla     no memory                  -> can't answer (values are unguessable)
+       naive       D2L internalize (replaces) -> only the LAST observation survives
+       weight-mem  D2L rank-concat (ours)     -> recalls across observations, ~0 ctx
+       in-context  whole log in the prompt     -> recalls all, but pays tokens/query
 
-Run:
-  D2L_REPO=/root/doc-to-lora \
-  AGENTHN_CHECKPOINT=/root/doc-to-lora/trained_d2l/gemma_demo/checkpoint-80000/pytorch_model.bin \
-  /root/doc-to-lora/.venv/bin/python scripts/memory_demo.py | tee logs/memory_demo.log
+Needs the chunk-trained checkpoint (config.CHUNK_CHECKPOINT).
+
+  CUDA_HOME=$HOME/cuda-shim \
+  /home/ubuntu/doc-to-lora/.venv/bin/python scripts/memory_demo.py
 """
 
-from __future__ import annotations
-
-import json
-import time
-from pathlib import Path
-
+from agenthn.core import config
 from agenthn.core.model import D2LModel
-from agenthn.memory import MarkdownMemory, NapLoRAMemory, VanillaContextMemory
-from agenthn.memory.scenarios import all_scenarios
+from agenthn.memory.memory_store import WeightMemory
+from agenthn.memory.tasks import generate_session
 
-NAP_K = 4
-BASELINE_BUDGET = 256          # the fixed "context window" the baselines share
-RESULTS = Path(__file__).resolve().parents[1] / "results" / "memory_demo.json"
-
-
-def hit(answer: str, needle: str) -> bool:
-    return needle.lower() in answer.lower()
+N = 8
+SEED = 1
 
 
-def run_napora(model, scenario):
-    """Stream into weight memory; capture a per-step context-fill timeline."""
-    mem = NapLoRAMemory(model, nap_every_k=NAP_K, keep_recent_turns=0)
-    timeline = []
-    for role, text in scenario.turns:
-        st = mem.observe(role, text)
-        timeline.append({"step": st.step, "context_tokens": st.context_tokens,
-                         "evicted_tokens": st.evicted_tokens, "segments": st.num_segments})
-    mem.flush()
-    results = []
-    for q, needle in scenario.probes:
-        r = mem.ask(q, top_k=1, max_new_tokens=40)
-        r["hit"] = hit(r["answer"], needle)
-        r["needle"] = needle
-        results.append(r)
-    return {
-        "method": "napora",
-        "timeline": timeline,
-        "results": results,
-        "segments": len(mem.segments),
-        "evicted_tokens": sum(s.tokens for s in mem.segments),
-    }
-
-
-def run_textmem(model, scenario, kind):
-    """kind in {'vanilla','markdown'} — same streaming, text-based memory."""
-    if kind == "vanilla":
-        mem = VanillaContextMemory(model, context_budget_tokens=BASELINE_BUDGET)
-    else:
-        mem = MarkdownMemory(model, summarize_every_k=NAP_K)
-    timeline = []
-    for i, (role, text) in enumerate(scenario.turns, 1):
-        mem.observe(role, text)
-        if kind == "vanilla":
-            window, used = mem._window()
-            timeline.append({"step": i, "context_tokens": used, "turns_in_window": len(window)})
-        else:
-            timeline.append({"step": i, "context_tokens": mem.model.count_tokens(mem._md()),
-                             "notes_lines": len(mem.notes)})
-    results = []
-    for q, needle in scenario.probes:
-        r = mem.ask(q, max_new_tokens=40)
-        r["hit"] = hit(r["answer"], needle)
-        r["needle"] = needle
-        results.append(r)
-    return {"method": kind, "timeline": timeline, "results": results}
+def n_tokens(d2l, message):
+    ids = d2l.tokenizer.apply_chat_template(
+        [{"role": "user", "content": message}],
+        add_special_tokens=False, add_generation_prompt=True, return_tensors="pt")
+    return ids.shape[1]
 
 
 def main():
-    t0 = time.time()
-    print("Loading model...")
-    model = D2LModel.load()
-    print(f"loaded in {time.time() - t0:.1f}s")
+    print("Loading chunk-trained model...")
+    d2l = D2LModel.load(config.CHUNK_CHECKPOINT)
+    entries, probes = generate_session(N, seed=SEED)
 
-    scenarios = all_scenarios()
-    out = {
-        "config": {"nap_k": NAP_K, "baseline_budget": BASELINE_BUDGET,
-                   "base_model": "google/gemma-2-2b-it"},
-        "scenarios": [],
-    }
-    totals = {"napora": [0, 0], "vanilla": [0, 0], "markdown": [0, 0]}  # [hits, total]
+    print(f"\n=== 1. AGENT SESSION — journaling {N} observations into weight memory ===")
+    mem = WeightMemory(d2l, mode="doc")
+    for e in entries:
+        mem.remember(e.text)
+        print(f"  [remember] {e.text}")
+    print(f"\n  weight memory now holds {len(mem)} observations in "
+          f"{len(mem.chunks)} concatenated LoRA block(s); context is empty.")
 
-    for sc in scenarios:
-        print("\n" + "=" * 80)
-        print(f"SCENARIO: {sc.name}  ({len(sc.turns)} turns, {len(sc.probes)} probes, "
-              f"needles at turns {sc.needle_positions})")
-        print("=" * 80)
-        methods = {
-            "napora": run_napora(model, sc),
-            "vanilla": run_textmem(model, sc, "vanilla"),
-            "markdown": run_textmem(model, sc, "markdown"),
-        }
-        # side-by-side probe table
-        for i, (q, needle) in enumerate(sc.probes):
-            print(f"\nQ{i+1}: {q}   (needle: {needle!r})")
-            for name in ("napora", "vanilla", "markdown"):
-                r = methods[name]["results"][i]
-                mark = "HIT " if r["hit"] else "miss"
-                print(f"   {name:9s} [{mark}] ({r['prompt_tokens']:>4} tok) -> {r['answer'][:64]!r}")
+    naive_chunks = [d2l.encode_chunk(entries[-1].text)]  # replace: last memory only
 
-        sc_out = {"name": sc.name, "needle_positions": sc.needle_positions, "methods": {}}
-        for name, m in methods.items():
-            hits = sum(r["hit"] for r in m["results"])
-            tot = len(m["results"])
-            avg_tok = sum(r["prompt_tokens"] for r in m["results"]) / tot
-            totals[name][0] += hits
-            totals[name][1] += tot
-            m["recall"] = f"{hits}/{tot}"
-            m["avg_prompt_tokens"] = round(avg_tok, 1)
-            sc_out["methods"][name] = m
-            print(f"   -> {name:9s} recall {hits}/{tot}, avg prompt {avg_tok:.0f} tok")
-        out["scenarios"].append(sc_out)
+    print("\n=== 2. RECALL with an EMPTY context (just the question) ===")
+    score = {"vanilla": 0, "naive": 0, "weight": 0, "incontext": 0}
+    for p in probes:
+        d2l.reset()
+        vanilla = d2l.chat(p.question, max_new_tokens=24)
+        naive = d2l.chat_memory(p.question, naive_chunks, max_new_tokens=24)
+        weight = mem.recall(p.question, max_new_tokens=24)
+        d2l.reset()
+        incontext = d2l.chat(mem.context_prompt(p.question), max_new_tokens=24)
 
-    print("\n" + "=" * 80)
-    print("OVERALL")
-    print("=" * 80)
-    summary = {}
-    for name in ("napora", "vanilla", "markdown"):
-        hits, tot = totals[name]
-        # average prompt tokens across all probes/scenarios
-        toks = [r["prompt_tokens"] for sc in out["scenarios"]
-                for r in sc["methods"][name]["results"]]
-        avg = sum(toks) / len(toks)
-        summary[name] = {"recall": f"{hits}/{tot}", "recall_pct": round(100 * hits / tot, 1),
-                         "avg_prompt_tokens": round(avg, 1)}
-        print(f"  {name:9s}: recall {hits}/{tot} ({100*hits/tot:.0f}%), "
-              f"avg query prompt {avg:.0f} tokens")
-    out["summary"] = summary
-    out["runtime_sec"] = round(time.time() - t0, 1)
+        def mark(out):
+            return "OK " if p.answer.lower() in out.lower() else "x  "
 
-    RESULTS.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS.write_text(json.dumps(out, indent=2))
-    print(f"\nwrote {RESULTS}")
-    print(f"total runtime {time.time() - t0:.1f}s")
+        score["vanilla"] += p.answer.lower() in vanilla.lower()
+        score["naive"] += p.answer.lower() in naive.lower()
+        score["weight"] += p.answer.lower() in weight.lower()
+        score["incontext"] += p.answer.lower() in incontext.lower()
+
+        print(f"\n  Q: {p.question}   (answer: {p.answer})")
+        print(f"     vanilla    {mark(vanilla)} {vanilla!r}")
+        print(f"     naive      {mark(naive)} {naive!r}")
+        print(f"     weight-mem {mark(weight)} {weight!r}")
+        print(f"     in-context {mark(incontext)} {incontext!r}")
+
+    m = len(probes)
+    q_tokens = sum(n_tokens(d2l, p.question) for p in probes) / m
+    ic_tokens = sum(n_tokens(d2l, mem.context_prompt(p.question)) for p in probes) / m
+    print(f"\n=== 3. SCORECARD (recall over {m} probes) ===")
+    print(f"  vanilla     {score['vanilla']}/{m}")
+    print(f"  naive       {score['naive']}/{m}   (only the last memory survives 'internalize')")
+    print(f"  weight-mem  {score['weight']}/{m}   <- rank-concatenated LoRA blocks, OURS")
+    print(f"  in-context  {score['incontext']}/{m}   (oracle)")
+    print(f"\n  context tokens / query:  weight-mem ~{q_tokens:.0f}   "
+          f"in-context ~{ic_tokens:.0f}  ({ic_tokens / max(q_tokens,1):.1f}x more, and growing)")
 
 
 if __name__ == "__main__":
