@@ -101,6 +101,7 @@ const M1 = {
   size: "medium",
   running: false,
   es: null,
+  streamTimer: null,
   replay: null,
   meta: null,
   scenarios: [],
@@ -183,6 +184,7 @@ const M1_FEEDS = ["m1Hay", "m1NapCtx", "m1MdCtx", "m1NapLog", "m1MdLog", "m1NapR
 
 function m1Reset() {
   if (M1.es) { M1.es.close(); M1.es = null; }
+  if (M1.streamTimer) { clearTimeout(M1.streamTimer); M1.streamTimer = null; }
   if (M1.replay) { M1.replay.cancel(); M1.replay = null; }
   M1.running = false;
   M1_FEEDS.forEach((id) => ($(id).innerHTML = ""));
@@ -301,6 +303,17 @@ function m1Dispatch(f) {
   else if (f.type === "done") m1Done(false);
 }
 
+async function m1Replay() {
+  $("m1Progress").textContent = "GPU stream unavailable — replaying captured GPU run…";
+  try {
+    const frames = await loadFixture("memory_" + M1.scenario + "_" + M1.size + ".json");
+    M1.replay = replayStream(frames, m1Dispatch, () => m1Done(false));
+  } catch (e) {
+    m1Done(true);
+    $("m1Progress").textContent = "no recorded run for this scenario/size yet";
+  }
+}
+
 async function m1Run() {
   if (M1.running) return;
   m1Reset();
@@ -312,28 +325,47 @@ async function m1Run() {
   $("m1NapResp").innerHTML = "";
   $("m1MdResp").innerHTML = "";
 
-  if (await isLive()) {
-    const url = BACKEND + "/api/memory/run?scenario=" + encodeURIComponent(M1.scenario) + "&size=" + encodeURIComponent(M1.size);
-    const es = new EventSource(url);
-    M1.es = es;
-    es.onmessage = (ev) => m1Dispatch(JSON.parse(ev.data));
-    es.onerror = () => { m1Done(true); };
+  if (!(await isLive())) {
+    await m1Replay();
     return;
   }
 
-  // Recorded fallback: replay the captured trajectory for this scenario/size.
-  $("m1Progress").textContent = "replaying recorded run…";
-  try {
-    const frames = await loadFixture("memory_" + M1.scenario + "_" + M1.size + ".json");
-    M1.replay = replayStream(frames, m1Dispatch, () => m1Done(false));
-  } catch (e) {
-    m1Done(true);
-    $("m1Progress").textContent = "no recorded run for this scenario/size yet";
-  }
+  $("m1Progress").textContent = "waiting for Prime GPU stream…";
+  const url = BACKEND + "/api/memory/run?scenario=" + encodeURIComponent(M1.scenario) + "&size=" + encodeURIComponent(M1.size);
+  const es = new EventSource(url);
+  let receivedFrame = false;
+  let fallingBack = false;
+  M1.es = es;
+
+  const fallback = () => {
+    if (fallingBack || !M1.running) return;
+    fallingBack = true;
+    es.close();
+    M1.es = null;
+    if (M1.streamTimer) { clearTimeout(M1.streamTimer); M1.streamTimer = null; }
+    void m1Replay();
+  };
+
+  // A tunnel can pass health checks while its SSE request remains stuck in
+  // CONNECTING. Do not leave the demo spinner running forever in that state.
+  M1.streamTimer = setTimeout(fallback, 20000);
+  es.onmessage = (ev) => {
+    if (!receivedFrame) {
+      receivedFrame = true;
+      clearTimeout(M1.streamTimer);
+      M1.streamTimer = null;
+    }
+    m1Dispatch(JSON.parse(ev.data));
+  };
+  es.onerror = () => {
+    if (!receivedFrame) fallback();
+    else m1Done(true);
+  };
 }
 
 function m1Done(err) {
   if (M1.es) { M1.es.close(); M1.es = null; }
+  if (M1.streamTimer) { clearTimeout(M1.streamTimer); M1.streamTimer = null; }
   if (M1.replay) { M1.replay.cancel(); M1.replay = null; }
   M1.running = false;
   $("m1Run").textContent = "Run trajectory ▸";
