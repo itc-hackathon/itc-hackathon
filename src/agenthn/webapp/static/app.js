@@ -474,21 +474,22 @@ function pInitSuggest() {
   });
 }
 
-/* ============================ DEMO 3: SKILLS (converse / document / internalize / converse again) ============================ */
-const RC_SKILL_META = {
-  physics: { color: "#2f6ae0", label: "Physics" },
-  formatting: { color: "#9a5cc7", label: "Formatting" },
-};
-const RC = { phase: 0, busy: false, lastMessage: "", lastBaseReply: "", lastSkill: null };
+/* ============================ DEMO 3: SKILLS (self-refine rounds, SSE) ============================ */
+const SK_PHASES = ["Attempt", "Reflect", "Internalize", "Retry"];
+const SK = { es: null, running: false, rounds: [], n: 0, curRound: 0, curCorrect: 0 };
+const SK_MONO = "'IBM Plex Mono',monospace";
 
-function rcStepper() {
-  const labels = ["Converse", "Document", "Internalize", "Converse again"];
-  const box = $("rcStepper");
+function skStepper(active) {
+  const box = $("skStepper");
   box.innerHTML = "";
-  const last = labels.length - 1;
-  labels.forEach((label, idx) => {
-    const reached = RC.phase >= idx;
-    const s = el("div", "step" + (reached ? (idx === last && RC.phase >= last ? " done" : " on") : ""));
+  const last = SK_PHASES.length - 1;
+  SK_PHASES.forEach((label, idx) => {
+    let cls = "step";
+    if (active >= 0) {
+      if (idx < active) cls += " done";
+      else if (idx === active) cls += " on";
+    }
+    const s = el("div", cls);
     s.appendChild(el("span", "sn", String(idx + 1)));
     s.appendChild(el("span", "sl", label));
     if (idx < last) s.appendChild(el("span", "bar"));
@@ -496,151 +497,163 @@ function rcStepper() {
   });
 }
 
-function rcAddMsg(feedId, role, text, typing) {
-  const feed = $(feedId);
-  const empty = feed.querySelector(".empty");
-  if (empty) empty.remove();
-  const m = el("div", "msg " + role + (typing ? " typing" : ""), text);
-  feed.appendChild(m);
-  feed.scrollTop = feed.scrollHeight;
-  return m;
+function skRenderTraj() {
+  const box = $("skTraj");
+  box.innerHTML = "";
+  if (!SK.rounds.length) {
+    box.innerHTML = '<span style="font-family:' + SK_MONO + ';font-size:12px;color:#9a9890">no rounds yet — the cold attempt scores first</span>';
+    return;
+  }
+  const best = Math.max.apply(null, SK.rounds.map((r) => r.accuracy));
+  const wrap = el("div");
+  wrap.style.cssText = "display:flex;align-items:flex-end;gap:16px;height:158px";
+  SK.rounds.forEach((r) => {
+    const pct = Math.round(r.accuracy * 100);
+    const col = el("div");
+    col.style.cssText = "flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%";
+    const lbl = el("div", "", pct + "%");
+    lbl.style.cssText = "font-family:" + SK_MONO + ";font-size:12.5px;font-weight:600;color:#26241f;margin-bottom:5px";
+    const bar = el("div");
+    const h = Math.max(3, Math.round(r.accuracy * 120));
+    const color = r.round === 0 ? "#c0bdb4" : (r.accuracy >= best ? "#2f6ae0" : "#9db9ef");
+    bar.style.cssText = "width:100%;max-width:66px;border-radius:6px 6px 0 0;background:" + color + ";height:" + h + "px;transition:height .45s ease";
+    const cap = el("div", "", r.round === 0 ? "R0 · base" : "R" + r.round);
+    cap.style.cssText = "font-family:" + SK_MONO + ";font-size:11px;color:#5c594f;margin-top:7px";
+    col.appendChild(lbl);
+    col.appendChild(bar);
+    col.appendChild(cap);
+    wrap.appendChild(col);
+  });
+  box.appendChild(wrap);
 }
 
-function rcTag(text, color) {
-  const tag = el("div", "", text);
-  tag.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:" + (color || "#9a9890") + ";margin-top:5px";
-  return tag;
+function skBuildQuestions(qs) {
+  const box = $("skQuestions");
+  box.innerHTML = "";
+  qs.forEach((q, i) => {
+    const row = el("div", "sk-q");
+    row.id = "sk-q-" + i;
+    const t = el("div", "sk-q-text");
+    t.innerHTML = q.q + ' <span class="sk-q-gold">↳ ' + q.gold + "</span>";
+    const a = el("div", "sk-q-ans sk-na", "—");
+    row.appendChild(t);
+    row.appendChild(a);
+    box.appendChild(row);
+  });
 }
 
-async function rcSend(text) {
-  if (RC.busy || !text.trim()) return;
-  RC.busy = true;
-  $("rcInput").value = "";
-  rcAddMsg("rcChat", "user", text);
-  const typing = rcAddMsg("rcChat", "bot", "…", true);
-  try {
-    const r = await api("/api/skills/converse", { message: text });
-    typing.classList.remove("typing");
-    typing.textContent = r.reply;
-    typing.appendChild(rcTag(`↳ base model · ${r.elapsed}s · ${r.prompt_tokens} prompt tok`));
-    RC.lastMessage = text;
-    RC.lastBaseReply = r.reply;
-    $("rcClassifyBtn").disabled = false;
-  } catch (err) {
-    typing.classList.remove("typing");
-    typing.textContent = "[error: " + err.message + "]";
-  } finally {
-    RC.busy = false;
+function skResetAnswers() {
+  document.querySelectorAll("#skQuestions .sk-q-ans").forEach((a) => {
+    a.className = "sk-q-ans sk-na";
+    a.textContent = "…";
+  });
+}
+
+function skRenderNotes(notes, added) {
+  const box = $("skNotes");
+  box.innerHTML = "";
+  const addedSet = new Set(added || []);
+  notes.split("\n").forEach((line) => {
+    const d = el("div", addedSet.has(line) ? "sk-note-new" : "");
+    d.textContent = line || " ";
+    box.appendChild(d);
+  });
+}
+
+function skFrame(f) {
+  switch (f.type) {
+    case "meta":
+      SK.n = f.n;
+      skBuildQuestions(f.questions);
+      $("skStatus").textContent = "— " + f.n + " held-out questions · doc is " + f.source_tokens + " tok (never in the prompt)";
+      break;
+    case "round_start":
+      SK.curRound = f.round;
+      SK.curCorrect = 0;
+      skResetAnswers();
+      $("skQHead").textContent = f.round === 0 ? "Held-out test — round 0 (cold, no skill)" : "Held-out test — round " + f.round;
+      $("skScore").textContent = "";
+      skStepper(f.phase === "attempt" ? 0 : 1);
+      $("skStatus").textContent = "— round " + f.round + ": " + f.label;
+      break;
+    case "notes":
+      skStepper(1);
+      skRenderNotes(f.notes, f.added_lines);
+      break;
+    case "internalizing":
+      skStepper(2);
+      $("skInternStatus").innerHTML = "";
+      $("skInternStatus").appendChild(el("span", "spinner"));
+      $("skInternStatus").appendChild(el("span", "", " forging LoRA from notes…"));
+      break;
+    case "internalized":
+      skStepper(3);
+      $("skInternStatus").textContent = "↯ skill.lora · " + f.elapsed + "s · " + f.tokens + " tok internalized";
+      break;
+    case "answer": {
+      if (f.round > 0) skStepper(3);
+      const row = $("sk-q-" + f.index);
+      if (row) {
+        const a = row.querySelector(".sk-q-ans");
+        a.className = "sk-q-ans " + (f.correct ? "sk-ok" : "sk-no");
+        a.textContent = (f.correct ? "✓ " : "✗ ") + f.answer;
+      }
+      if (f.correct) SK.curCorrect++;
+      $("skScore").textContent = SK.curCorrect + " / " + SK.n;
+      break;
+    }
+    case "round_done":
+      SK.rounds.push({ round: f.round, accuracy: f.accuracy, correct: f.correct, total: f.total });
+      skRenderTraj();
+      $("skScore").textContent = f.correct + " / " + f.total + "  (" + Math.round(f.accuracy * 100) + "%)";
+      break;
+    case "done":
+      skDone(false, f);
+      break;
   }
 }
 
-async function rcClassify() {
-  if (RC.busy || !RC.lastMessage) return;
-  RC.busy = true;
-  $("rcClassifyBtn").disabled = true;
-  const status = $("rcClassifyStatus");
-  status.style.display = "";
-  status.textContent = "classifying…";
-  try {
-    const r = await api("/api/skills/classify", { message: RC.lastMessage });
-    const meta = RC_SKILL_META[r.skill] || { color: "#9a9890" };
-    status.innerHTML =
-      '<span class="dot" style="background:' + meta.color + ';width:7px;height:7px;display:inline-block;margin-right:6px"></span>routed → ' +
-      r.label + " adapter · classified in " + r.classify_ms + "ms";
-    const docBox = $("rcDoc");
-    docBox.textContent = r.doc;
-    docBox.style.display = "";
-    RC.lastSkill = r.skill;
-    RC.phase = Math.max(RC.phase, 1);
-    rcStepper();
-    $("rcInternalizeBtn").disabled = false;
-  } catch (err) {
-    status.textContent = "[error: " + err.message + "]";
-  } finally {
-    RC.busy = false;
-    $("rcClassifyBtn").disabled = false;
-  }
+function skRun() {
+  if (SK.running) return;
+  skReset(true);
+  SK.running = true;
+  $("skRun").textContent = "Running…";
+  $("skRun").disabled = true;
+  $("skDot").classList.add("live");
+  const es = new EventSource("/api/skills/product/run");
+  SK.es = es;
+  es.onmessage = (ev) => skFrame(JSON.parse(ev.data));
+  es.onerror = () => skDone(true);
 }
 
-async function rcInternalize() {
-  if (RC.busy || !RC.lastSkill) return;
-  RC.busy = true;
-  $("rcInternalizeBtn").disabled = true;
-  const status = $("rcAdapterStatus");
-  status.style.display = "";
-  status.style.background = "#ebf2fe";
-  status.style.borderColor = "#cdddfb";
-  status.style.color = "#1e50c0";
-  status.innerHTML = "";
-  status.appendChild(el("span", "spinner"));
-  status.appendChild(el("span", "", `internalizing ${RC.lastSkill} doc → forging LoRA…`));
-  try {
-    const r = await api("/api/skills/internalize", { skill: RC.lastSkill });
-    status.style.background = "#eef6f0";
-    status.style.borderColor = "#b5ddc6";
-    status.style.color = "#2f7d57";
-    status.innerHTML = `<span style="font-size:15px">↯</span><span><strong>${r.skill}.lora</strong> · ${r.cached ? "already cached" : r.elapsed + "s to forge"}</span>`;
-    RC.phase = 2;
-    rcStepper();
-    const ph2 = $("rcPhase2");
-    ph2.style.opacity = "1";
-    ph2.style.pointerEvents = "auto";
-    $("rcChat2").innerHTML = "";
-    $("rcChat2").appendChild(el("div", "empty", "ask again to see the adapter answer ↑"));
-  } catch (err) {
-    status.style.background = "#fbeaea";
-    status.style.borderColor = "#e8b8b2";
-    status.style.color = "#b04a42";
-    status.textContent = "[error: " + err.message + "]";
-  } finally {
-    RC.busy = false;
-    $("rcInternalizeBtn").disabled = false;
-  }
+function skDone(err, f) {
+  if (SK.es) { SK.es.close(); SK.es = null; }
+  SK.running = false;
+  $("skRun").textContent = "Run self-improvement ▸";
+  $("skRun").disabled = false;
+  $("skDot").classList.remove("live");
+  skStepper(-1);
+  if (err) $("skStatus").textContent = "— stream ended";
+  else if (f) $("skStatus").textContent = "— done · " + Math.round(f.base_accuracy * 100) + "% cold → " + Math.round(f.best_accuracy * 100) + "% best (round " + f.best_round + ")";
 }
 
-async function rcAskAgain() {
-  if (RC.busy || RC.phase < 2) return;
-  RC.busy = true;
-  $("rcChat2").innerHTML = "";
-  rcAddMsg("rcChat2", "user", RC.lastMessage);
-  const before = rcAddMsg("rcChat2", "bot", RC.lastBaseReply);
-  before.appendChild(rcTag("↳ before · base model"));
-  const typing = rcAddMsg("rcChat2", "bot", "…", true);
-  try {
-    const r = await api("/api/skills/converse-again", { message: RC.lastMessage, skill: RC.lastSkill });
-    typing.classList.remove("typing");
-    typing.textContent = r.reply;
-    typing.appendChild(rcTag(`↳ after · ${RC.lastSkill} adapter restored · ${r.elapsed}s · ${r.prompt_tokens} prompt tok`, "#2f6ae0"));
-    RC.phase = 3;
-    rcStepper();
-  } catch (err) {
-    typing.classList.remove("typing");
-    typing.textContent = "[error: " + err.message + "]";
-  } finally {
-    RC.busy = false;
-  }
-}
-
-function rcReset() {
-  RC.phase = 0;
-  RC.busy = false;
-  RC.lastMessage = "";
-  RC.lastBaseReply = "";
-  RC.lastSkill = null;
-  $("rcChat").innerHTML = "";
-  rcAddMsg("rcChat", "bot", "Ask me a question...");
-  $("rcClassifyBtn").disabled = true;
-  $("rcClassifyStatus").style.display = "none";
-  $("rcDoc").style.display = "none";
-  $("rcDoc").textContent = "";
-  $("rcInternalizeBtn").disabled = true;
-  $("rcAdapterStatus").style.display = "none";
-  const ph2 = $("rcPhase2");
-  ph2.style.opacity = ".5";
-  ph2.style.pointerEvents = "none";
-  $("rcChat2").innerHTML = "";
-  $("rcChat2").appendChild(el("div", "empty", "internalize an adapter first ↑"));
-  rcStepper();
+function skReset(soft) {
+  if (SK.es) { SK.es.close(); SK.es = null; }
+  SK.running = false;
+  SK.rounds = [];
+  SK.curRound = 0;
+  SK.curCorrect = 0;
+  $("skRun").textContent = "Run self-improvement ▸";
+  $("skRun").disabled = false;
+  $("skDot").classList.remove("live");
+  skStepper(-1);
+  skRenderTraj();
+  $("skNotes").innerHTML = '<span style="color:#9a9890">the agent will write its own study notes here…</span>';
+  $("skInternStatus").textContent = "";
+  $("skScore").textContent = "";
+  $("skQHead").textContent = "Held-out test";
+  $("skQuestions").innerHTML = '<div class="empty" style="padding:18px">press run — the agent attempts cold first ↑</div>';
+  if (!soft) $("skStatus").textContent = "— press run to start";
 }
 
 /* ============================ INIT ============================ */
@@ -667,14 +680,10 @@ async function init() {
     $("pAdapterLabel").style.color = on ? "#2f6ae0" : "#9a9890";
   });
 
-  // demo 3 (converse / document / internalize / converse again)
-  rcReset();
-  $("rcSend").onclick = () => rcSend($("rcInput").value);
-  $("rcInput").addEventListener("keydown", (e) => { if (e.key === "Enter") rcSend($("rcInput").value); });
-  $("rcReset").onclick = () => { if (!RC.busy) rcReset(); };
-  $("rcClassifyBtn").onclick = rcClassify;
-  $("rcInternalizeBtn").onclick = rcInternalize;
-  $("rcAskAgainBtn").onclick = rcAskAgain;
+  // demo 3 (self-improving skills — self-refine rounds, SSE)
+  skReset();
+  $("skRun").onclick = skRun;
+  $("skReset").onclick = () => { if (!SK.running) skReset(); };
 
   // health badge
   try {

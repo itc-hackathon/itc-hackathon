@@ -22,7 +22,7 @@ from pydantic import BaseModel
 from .memory_service import build_memory_service
 from .service import build_service
 from .skills_service_formatting import build_skills_formatting_service
-from .skills_service_physics import build_skills_physics_service
+from .skills_service_product import build_skills_product_service
 from .skills_service_router import build_skills_router_service
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -31,10 +31,16 @@ app = FastAPI(title="AgentHN")
 service = build_service()
 memory_service = build_memory_service()
 SKILLS_SERVICES = {
-    "physics": build_skills_physics_service(),
+    "product": build_skills_product_service(),
     "formatting": build_skills_formatting_service(),
 }
 skills_router_service = build_skills_router_service()
+
+# Eager-load the shared D2L model at import time (main thread). Loading it lazily
+# from a request/SSE worker thread triggers a "copy out of meta tensor" error.
+from .runtime import get_model  # noqa: E402
+
+get_model()
 
 
 class ObserveBody(BaseModel):
