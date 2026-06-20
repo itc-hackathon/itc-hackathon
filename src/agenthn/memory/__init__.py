@@ -21,6 +21,7 @@ from .live import MemoryArena
 from .memory_store import WeightMemory, encode_doc_chunks
 from .nap_memory import MemoryStats, NapLoRAMemory, Segment, Turn
 from .retriever import TfidfRetriever
+from .scoring import hit
 from .tasks import MemoryEntry, Probe, generate_session
 
 __all__ = [
@@ -34,6 +35,7 @@ __all__ = [
     "MarkdownMemory",
     "TextRAGMemory",
     "MemoryArena",
+    "hit",
     # WeightMemory (rank-concatenation, chunk checkpoint)
     "WeightMemory",
     "encode_doc_chunks",

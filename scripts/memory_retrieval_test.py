@@ -10,6 +10,7 @@ import torch
 import torch.nn.functional as F
 
 from agenthn.core.model import D2LModel
+from agenthn.memory import hit
 
 SEGMENTS = [
     "Project log, week 1: the deployment region was set to eu-west-2. "
@@ -27,10 +28,6 @@ PROBES = [
     ("What is the name of the feature flag for the new checkout?", "smooth_sailing", 3),
     ("Who owns QA sign-off?", "marcus", 3),
 ]
-
-
-def hit(a, n):
-    return n.lower() in a.lower()
 
 
 @torch.inference_mode()

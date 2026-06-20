@@ -147,8 +147,8 @@ def make_scenario(name: str, size: str = "medium", *, depth: int = 2, spacing: i
             turns.append((role, _FILLER[fi % len(_FILLER)]))  # complete turn, not truncated
             fi += 1
     for nt in needles:  # ensure all needles are planted even if total is tiny
+        turns.append(nt)            # append first, then record the true index
         positions.append(len(turns) - 1)
-        turns.insert(len(turns) - 1, nt)
     return Scenario(name=name, size=size, turns=turns, probes=probes, needle_positions=positions)
 
 

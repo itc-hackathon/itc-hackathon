@@ -108,9 +108,9 @@ class NapLoRAMemory:
     def flush(self) -> MemoryStats:
         """Nap any remaining evictable context (e.g. before a cold query)."""
         evicted = ""
-        while len(self.context) > self.keep_recent_turns and self.context:
+        while len(self.context) > self.keep_recent_turns:
             # nap whatever remains, in chunks of up to nap_every_k
-            n = min(self.nap_every_k, len(self.context) - 0)
+            n = min(self.nap_every_k, len(self.context))
             chunk, self.context = self.context[:n], self.context[n:]
             doc = self._segment_doc(chunk)
             adapter = self.model.internalize_segment(doc)

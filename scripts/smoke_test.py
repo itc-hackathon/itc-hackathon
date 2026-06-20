@@ -5,6 +5,7 @@ Run with the shared venv:
 (requires HF login for the gated google/gemma-2-2b-it base model)
 """
 
+from agenthn.core.config import D2L_REPO
 from agenthn.core.model import D2LModel
 
 QUESTION = "Tell me about Sakana AI."
@@ -17,8 +18,7 @@ def main():
     m.reset()
     print(m.chat(QUESTION, max_new_tokens=128))
 
-    with open("/home/ubuntu/doc-to-lora/data/sakana_wiki.txt") as f:
-        doc = f.read()
+    doc = (D2L_REPO / "data" / "sakana_wiki.txt").read_text()
     m.internalize(doc)
     print("\n=== after internalize(sakana_wiki) ===")
     print(m.chat(QUESTION, max_new_tokens=128))

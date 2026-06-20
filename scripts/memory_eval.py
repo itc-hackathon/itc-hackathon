@@ -21,12 +21,9 @@ import torch
 
 from agenthn.core import config
 from agenthn.core.model import D2LModel
+from agenthn.memory import hit
 from agenthn.memory.memory_store import WeightMemory
 from agenthn.memory.tasks import generate_session
-
-
-def hit(answer: str, output: str) -> bool:
-    return answer.lower() in output.lower()
 
 
 def n_prompt_tokens(d2l: D2LModel, message: str) -> int:
@@ -68,17 +65,17 @@ def main():
             for p in probes:
                 total += 1
                 d2l.reset()
-                if hit(p.answer, d2l.chat(p.question, max_new_tokens=mnt)):
+                if hit(d2l.chat(p.question, max_new_tokens=mnt), p.answer):
                     agg["vanilla"] += 1
-                if hit(p.answer, d2l.chat_memory(p.question, naive_chunks, max_new_tokens=mnt)):
+                if hit(d2l.chat_memory(p.question, naive_chunks, max_new_tokens=mnt), p.answer):
                     agg["naive"] += 1
-                if hit(p.answer, mem_doc.recall(p.question, max_new_tokens=mnt)):
+                if hit(mem_doc.recall(p.question, max_new_tokens=mnt), p.answer):
                     agg["concat_doc"] += 1
-                if hit(p.answer, mem_inc.recall(p.question, max_new_tokens=mnt)):
+                if hit(mem_inc.recall(p.question, max_new_tokens=mnt), p.answer):
                     agg["concat_inc"] += 1
                 d2l.reset()
                 ctx_prompt = mem_doc.context_prompt(p.question)
-                if hit(p.answer, d2l.chat(ctx_prompt, max_new_tokens=mnt)):
+                if hit(d2l.chat(ctx_prompt, max_new_tokens=mnt), p.answer):
                     agg["incontext"] += 1
                 ctx_concat += n_prompt_tokens(d2l, p.question)
                 ctx_incontext += n_prompt_tokens(d2l, ctx_prompt)

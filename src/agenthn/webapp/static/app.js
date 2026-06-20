@@ -371,7 +371,6 @@ async function pSendTeach(text) {
     typing.textContent = r.reply;
     pAddDiff(r.diff);
     pRenderChips(r.profile);
-    if (P.phase === 0 && P.facts > 0) { P.phase = 0; }
     $("pRepersonalize").disabled = P.facts === 0;
   } catch (err) {
     typing.classList.remove("typing");

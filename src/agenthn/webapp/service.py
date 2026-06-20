@@ -66,7 +66,13 @@ class LiveService:
     def observe(self, uid: str, message: str) -> Turn:
         with self._lock:
             store = self._ensure_store()
-            diff = store.observe(uid, message)
+            # Extraction runs a 2B model and parses its free-form output; a bad
+            # generation shouldn't 500 the turn — fall back to an empty diff so
+            # the conversation still gets a reply.
+            try:
+                diff = store.observe(uid, message)
+            except Exception:
+                diff = []
             # Reply on the base model: the conversation phase is about *capturing*
             # preferences; the adapter is only built later, on repersonalize().
             reply = store.model.chat(message, max_new_tokens=200)
@@ -107,7 +113,11 @@ class LiveService:
             store.forget(uid)
 
     def health(self) -> dict:
-        return {"model_loaded": self._store is not None}
+        # Report on the shared model, not _store: the model can be loaded by the
+        # memory demo before any personalization call has built _store.
+        from .runtime import model_loaded
+
+        return {"model_loaded": model_loaded()}
 
 
 def build_service() -> LiveService:

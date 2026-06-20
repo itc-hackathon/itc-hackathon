@@ -59,6 +59,12 @@ class MemoryService:
         size = size if size in SIZES else "medium"
         scenario = scenario if scenario in SCENARIO_NAMES else SCENARIO_NAMES[0]
         sc = make_scenario(scenario, size)
+        # The lock is held for the WHOLE run by design: the arena swaps LoRA
+        # adapters in and out of the single shared D2L model, so two concurrent
+        # runs would clobber each other's weights. Parallelism would need a
+        # per-request model instance. On client disconnect the generator is
+        # closed, GeneratorExit propagates through this `with`, and the lock
+        # releases cleanly — so a dropped stream can't wedge it.
         with self._lock:
             model = get_model()
             kv_per_tok = _kv_bytes_per_token(model)

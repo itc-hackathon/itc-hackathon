@@ -16,7 +16,7 @@ from __future__ import annotations
 import time
 
 from agenthn.core.model import D2LModel
-from agenthn.memory import NapLoRAMemory
+from agenthn.memory import NapLoRAMemory, hit
 
 # A streamed agent trajectory. Each entry is one turn; needles are planted facts
 # that get evicted into weights long before they are queried.
@@ -46,10 +46,6 @@ PROBES = [
     ("What is the name of the feature flag for the new checkout?", "smooth_sailing"),
     ("Who owns QA sign-off?", "marcus"),
 ]
-
-
-def hit(answer: str, needle: str) -> bool:
-    return needle.lower() in answer.lower()
 
 
 def main() -> None:

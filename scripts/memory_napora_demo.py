@@ -19,16 +19,12 @@ import time
 from pathlib import Path
 
 from agenthn.core.model import D2LModel
-from agenthn.memory import MarkdownMemory, NapLoRAMemory, VanillaContextMemory
+from agenthn.memory import MarkdownMemory, NapLoRAMemory, VanillaContextMemory, hit
 from agenthn.memory.scenarios import all_scenarios
 
 NAP_K = 4
 BASELINE_BUDGET = 256          # the fixed "context window" the baselines share
 RESULTS = Path(__file__).resolve().parents[1] / "results" / "memory_demo.json"
-
-
-def hit(answer: str, needle: str) -> bool:
-    return needle.lower() in answer.lower()
 
 
 def run_napora(model, scenario):

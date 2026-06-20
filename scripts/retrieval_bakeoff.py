@@ -4,14 +4,11 @@ embeddings vs a dependency-free lexical TF-IDF cosine."""
 
 from __future__ import annotations
 
-import math
-import re
-from collections import Counter
-
 import torch
 import torch.nn.functional as F
 
 from agenthn.core.model import D2LModel
+from agenthn.memory import TfidfRetriever
 
 SEGMENTS = [
     "Project log, week 1: the deployment region was set to eu-west-2. "
@@ -29,38 +26,6 @@ PROBES = [
     ("What is the name of the feature flag for the new checkout?", 3),
     ("Who owns QA sign-off?", 3),
 ]
-
-
-def tok(s):
-    return re.findall(r"[a-z0-9_]+", s.lower())
-
-
-def tfidf_index(docs):
-    toks = [tok(d) for d in docs]
-    df = Counter()
-    for t in toks:
-        df.update(set(t))
-    n = len(docs)
-    idf = {w: math.log((n + 1) / (df[w] + 1)) + 1 for w in df}
-    vecs = []
-    for t in toks:
-        tf = Counter(t)
-        vecs.append({w: tf[w] * idf.get(w, 0.0) for w in tf})
-    return idf, vecs
-
-
-def tfidf_vec(text, idf):
-    tf = Counter(tok(text))
-    return {w: tf[w] * idf.get(w, math.log(1) + 1) for w in tf}
-
-
-def cos_sparse(a, b):
-    if not a or not b:
-        return 0.0
-    dot = sum(a[w] * b.get(w, 0.0) for w in a)
-    na = math.sqrt(sum(v * v for v in a.values()))
-    nb = math.sqrt(sum(v * v for v in b.values()))
-    return dot / (na * nb + 1e-9)
 
 
 @torch.inference_mode()
@@ -96,9 +61,11 @@ def routing_acc(name, score_seg):
 def main():
     m = D2LModel.load()
 
-    # lexical
-    idf, seg_vecs = tfidf_index(SEGMENTS)
-    routing_acc("TF-IDF lexical", lambda q, i: cos_sparse(tfidf_vec(q, idf), seg_vecs[i]))
+    # lexical: reuse the production retriever (TfidfRetriever) the demo routes with
+    retr = TfidfRetriever()
+    for s in SEGMENTS:
+        retr.add(s)
+    routing_acc("TF-IDF lexical", lambda q, i: retr.scores(q)[i])
 
     # llm mean-pool
     seg_mean = [llm_embed(m, s, "mean") for s in SEGMENTS]

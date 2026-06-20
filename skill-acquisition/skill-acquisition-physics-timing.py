@@ -252,10 +252,17 @@ def main():
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--assistant-prefill", default="Let's think step by step. ")
     parser.add_argument(
+        "--question-index", type=int, default=0,
+        help=f"which timed question to run (0..{len(QUESTIONS) - 1})",
+    )
+    parser.add_argument(
         "--device", default="cuda:0" if torch.cuda.is_available() else "cpu"
     )
     args = parser.parse_args()
     device = torch.device(args.device)
+
+    q = QUESTIONS[args.question_index]
+    QUESTION, EXPECTED = q["question"], q["expected"]
 
     checkpoint_path = f"{args.d2l_dir}/{args.checkpoint}"
     state_dict = torch.load(checkpoint_path, weights_only=False, map_location=device)
