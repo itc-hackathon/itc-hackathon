@@ -186,6 +186,35 @@
         <div id="m1Cost" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" class="grid-3"></div>
       </div>
     </div>
+
+    <!-- ===== SCALING RESULT: repeated naps beyond the single-encode limit ===== -->
+    <div class="panel" style="margin-top:22px">
+      <div class="controlbar" style="justify-content:flex-start;gap:12px">
+        <span class="eyebrow">Scaling result</span>
+        <span style="font-size:14px;font-weight:600;color:#26241f">Repeated naps push memory past the single-encode limit</span>
+      </div>
+      <div style="padding:18px 22px">
+        <p style="font-size:15px;line-height:1.65;color:#3a3832;margin:0 0 16px;max-width:74ch">
+          Doc-to-LoRA encodes a <em>bounded</em> document in one pass — chunk it into ≤8 pieces,
+          rank-concatenate, and you reach about <strong>4× the model's context window</strong> before the
+          chunk count goes out-of-distribution and recall degrades. We don't encode once. We
+          <strong style="color:#2f6ae0">nap repeatedly</strong> over the stream: every K turns the oldest
+          segment becomes its own in-distribution LoRA adapter, appended to a growing store and evicted
+          from context. At recall time we <strong>retrieve</strong> the relevant nap — so there is no
+          rank-concatenation ceiling, and the horizon is unbounded.
+        </p>
+        <img src="/scaling.png" alt="Recall and inference cost vs conversation length"
+             style="width:100%;max-width:1000px;display:block;margin:0 auto;border:1px solid #eceae3;border-radius:10px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px;font-size:14px;color:#3a3832">
+          <span>📈 <strong>6 / 6 recall held to 48k tokens</strong> (410 naps) at a flat <strong>~10-token</strong> prompt</span>
+          <span>🧱 vanilla 8k context <strong>collapses to 0 / 6</strong> once the conversation overflows the window</span>
+          <span>⚡ <strong>~860× less</strong> query-time context (KV cache) than keeping the transcript in the prompt</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299;margin-top:10px">
+          measured on gemma-2-2b-it · 6 needles planted early, conversation grown to 48k tokens · scripts/scaling_sweep.py
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ===== DEMO 2 : PERSONALIZATION (live) ===== -->

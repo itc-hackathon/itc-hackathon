@@ -1,0 +1,85 @@
+{
+  "window": 8192,
+  "nap_k": 4,
+  "paper_limit_tokens": 32768,
+  "rows": [
+    {
+      "checkpoint": 1000,
+      "raw_tokens": 1025,
+      "segments": 10,
+      "napora_recall": 6,
+      "vanilla_recall": 6,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 1004.5,
+      "napora_adapter_mb": 45.7,
+      "n_probes": 6
+    },
+    {
+      "checkpoint": 2000,
+      "raw_tokens": 2029,
+      "segments": 19,
+      "napora_recall": 6,
+      "vanilla_recall": 6,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 1974.5,
+      "napora_adapter_mb": 86.8,
+      "n_probes": 6
+    },
+    {
+      "checkpoint": 4000,
+      "raw_tokens": 4004,
+      "segments": 36,
+      "napora_recall": 6,
+      "vanilla_recall": 6,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 3882.5,
+      "napora_adapter_mb": 164.5,
+      "n_probes": 6
+    },
+    {
+      "checkpoint": 8000,
+      "raw_tokens": 8002,
+      "segments": 70,
+      "napora_recall": 6,
+      "vanilla_recall": 4,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 7744.5,
+      "napora_adapter_mb": 319.9,
+      "n_probes": 6
+    },
+    {
+      "checkpoint": 16000,
+      "raw_tokens": 16009,
+      "segments": 138,
+      "napora_recall": 6,
+      "vanilla_recall": 0,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 8192.0,
+      "napora_adapter_mb": 630.7,
+      "n_probes": 6
+    },
+    {
+      "checkpoint": 32000,
+      "raw_tokens": 32023,
+      "segments": 274,
+      "napora_recall": 6,
+      "vanilla_recall": 0,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 8192.0,
+      "napora_adapter_mb": 1252.3,
+      "n_probes": 6
+    },
+    {
+      "checkpoint": 48000,
+      "raw_tokens": 48006,
+      "segments": 410,
+      "napora_recall": 6,
+      "vanilla_recall": 0,
+      "napora_prompt_tokens": 9.5,
+      "vanilla_prompt_tokens": 8192.0,
+      "napora_adapter_mb": 1873.8,
+      "n_probes": 6
+    }
+  ],
+  "runtime_sec": 59.0
+}
