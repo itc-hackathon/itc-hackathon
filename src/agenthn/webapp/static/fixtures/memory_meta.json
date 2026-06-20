@@ -1,0 +1,1 @@
+{"scenarios": ["apollo_migration", "trip_planning", "research_assistant"], "sizes": ["small", "medium", "large"], "window": 8192, "turns_per_size": {"small": 28, "medium": 80, "large": 320}}
