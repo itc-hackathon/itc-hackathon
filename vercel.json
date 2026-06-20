@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "buildCommand": "rm -rf public && cp -r src/agenthn/webapp/static public",
+  "outputDirectory": "public",
+  "installCommand": "true"
+}

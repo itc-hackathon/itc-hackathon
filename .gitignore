@@ -21,6 +21,10 @@ data/profiles/
 data/adapters/
 *.adapter
 
+# vercel build output (generated from src/agenthn/webapp/static)
+/public/
+.vercel/
+
 # misc
 .ipynb_checkpoints/
 .DS_Store
