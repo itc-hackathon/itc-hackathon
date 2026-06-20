@@ -815,6 +815,48 @@ const RC_SKILL_META = {
 };
 const RC = { phase: 0, busy: false, lastMessage: "", lastBaseReply: "", lastSkill: null };
 
+// The 20 held-out physics questions behind accuracy_by_condition.png / context_tokens.png
+// (skill-acquisition/skill-acquisition-physics-benchmark.py QUESTIONS).
+const RC_BENCH_QUESTIONS = [
+  { question: "A 15 kg box sits on a horizontal floor with a coefficient of friction of 0.3. What is the maximum friction force?", expected: 44.1 },
+  { question: "Two masses of 10 kg and 3 kg are 2 m apart. What is the gravitational force between them (G = 6.674e-11 N*m^2/kg^2)?", expected: 5.0055e-10 },
+  { question: "A 1000 kg car accelerates from rest to 20 m/s in 4 seconds. What net force acted on the car?", expected: 5000 },
+  { question: "A 1200 kg car traveling at 24 m/s skids to a stop on a horizontal road with a coefficient of friction of 0.4. What is the magnitude of the deceleration caused by friction?", expected: 3.92 },
+  { question: "A 1500 kg car traveling at 25 m/s comes to a stop in 5 seconds due to braking. What is the magnitude of the net braking force?", expected: 7500 },
+  { question: "A 25 kg crate sits on a horizontal floor with a coefficient of friction of 0.35. What is the maximum friction force?", expected: 85.75 },
+  { question: "Two masses of 6 kg and 9 kg are 3 m apart. What is the gravitational force between them (G = 6.674e-11 N*m^2/kg^2)?", expected: 4.0044e-10 },
+  { question: "A 1800 kg car accelerates from rest to 18 m/s in 6 seconds. What net force acted on the car?", expected: 5400 },
+  { question: "A 900 kg car traveling at 20 m/s skids to a stop on a horizontal road with a coefficient of friction of 0.5. What is the magnitude of the deceleration caused by friction?", expected: 4.9 },
+  { question: "A 2000 kg truck traveling at 18 m/s comes to a stop in 6 seconds due to braking. What is the magnitude of the net braking force?", expected: 6000 },
+  { question: "What is the weight of a 25 kg object on Earth's surface (g = 9.8 m/s^2)?", expected: 245 },
+  { question: "An 8 kg object moves at 12 m/s. What is its momentum?", expected: 96 },
+  { question: "A 0.5 kg ball is hit with a force of 20 N for 0.3 s. What is the impulse (change in momentum)?", expected: 6 },
+  { question: "A 3 kg mass moves in a circle of radius 1.5 m at a speed of 9 m/s. What centripetal force is required?", expected: 162 },
+  { question: "A 70 kg person pushes on a 1100 kg cart with a force of 55 N. What force does the cart exert on the person?", expected: 55 },
+  { question: "A 5 kg block experiences two horizontal forces: 30 N to the right and 12 N to the left. What is its acceleration?", expected: 3.6 },
+  { question: "Two masses of 40 kg and 60 kg are 8 m apart. What is the gravitational force between them (G = 6.674e-11 N*m^2/kg^2)?", expected: 2.50275e-9 },
+  { question: "A 12 kg box on a horizontal floor has a coefficient of friction of 0.45. What is the maximum friction force?", expected: 52.92 },
+  { question: "A 1400 kg car accelerates from 5 m/s to 25 m/s in 5 seconds. What net force acted on the car?", expected: 5600 },
+  { question: "A 15 kg cart moving at 3 m/s is brought to a complete stop. What is the magnitude of the impulse delivered to it?", expected: 45 },
+];
+
+function rcInitQuestionsModal() {
+  const list = $("rcQuestionsList");
+  list.innerHTML = "";
+  RC_BENCH_QUESTIONS.forEach((q) => {
+    const li = el("li", null, `${q.question} <span style="color:#8a877f">— expected: <strong style="color:#26241f">${q.expected}</strong></span>`);
+    li.style.marginBottom = "10px";
+    list.appendChild(li);
+  });
+  const overlay = $("rcQuestionsOverlay");
+  const open = () => { overlay.style.display = "flex"; };
+  const close = () => { overlay.style.display = "none"; };
+  $("rcShowQuestions").onclick = open;
+  $("rcQuestionsClose").onclick = close;
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+}
+
 // Example questions (one physics, one formatting) — clicking a chip guarantees
 // the recorded-fallback fixture has a matching captured flow.
 const RC_SUGGEST = [
@@ -1073,6 +1115,7 @@ async function init() {
   $("rcClassifyBtn").onclick = rcClassify;
   $("rcInternalizeBtn").onclick = rcInternalize;
   $("rcAskAgainBtn").onclick = rcAskAgain;
+  rcInitQuestionsModal();
 
   // health badge — reflects whether demos are hitting the live model or
   // replaying recorded fixtures (backend down / past the cutoff).
