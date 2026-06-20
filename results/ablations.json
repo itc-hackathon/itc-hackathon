@@ -1,0 +1,50 @@
+{
+  "window": 8192,
+  "nap_k": 4,
+  "raw_tokens": 12011,
+  "n_probes": 6,
+  "segments": 103,
+  "rows": [
+    {
+      "name": "vanilla",
+      "variant": "no memory",
+      "recall": 0,
+      "recall_pct": 0,
+      "query_ctx_tokens": 8497.5,
+      "isolates": "memory is needed"
+    },
+    {
+      "name": "naive-internalize",
+      "variant": "internalize, replace (no store)",
+      "recall": 0,
+      "recall_pct": 0,
+      "query_ctx_tokens": 9.5,
+      "isolates": "a store is needed"
+    },
+    {
+      "name": "compose-all",
+      "variant": "rank-concat ALL (no retrieval)",
+      "recall": 0,
+      "recall_pct": 0,
+      "query_ctx_tokens": 9.5,
+      "isolates": "retrieval is needed"
+    },
+    {
+      "name": "text-RAG",
+      "variant": "retrieve top-1 as TEXT",
+      "recall": 6,
+      "recall_pct": 100,
+      "query_ctx_tokens": 119.3,
+      "isolates": "(weight-injection removed)"
+    },
+    {
+      "name": "NapLoRA",
+      "variant": "retrieve top-1 as LoRA (full)",
+      "recall": 6,
+      "recall_pct": 100,
+      "query_ctx_tokens": 9.5,
+      "isolates": "full system"
+    }
+  ],
+  "runtime_sec": 42.1
+}

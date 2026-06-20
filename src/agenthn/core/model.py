@@ -95,10 +95,13 @@ class D2LModel:
         self.reset()
         self.internalize(doc)
         snap = self.model.generated_loras
-        # clone so the next internalize() (which overwrites generated_loras)
-        # cannot mutate adapters we've already stored.
+        # detach() drops the hypernetwork autograd graph (we never backprop through
+        # stored memory) — without it, every nap retains its forward-pass
+        # activations and GPU memory explodes after a few hundred naps. clone()
+        # makes the copy independent of the next internalize() overwrite.
         return {
-            mod: {k: v.clone() for k, v in mats.items()} for mod, mats in snap.items()
+            mod: {k: v.detach().clone() for k, v in mats.items()}
+            for mod, mats in snap.items()
         }
 
     @staticmethod

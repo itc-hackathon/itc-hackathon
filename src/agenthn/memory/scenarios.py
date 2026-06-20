@@ -49,7 +49,7 @@ _FILLER = [
     "Bumped the dev dependencies and regenerated the lockfile, and CI went green on the first try, which is always a pleasant surprise.",
     "We still owe the changelog an entry before the next tag, so I jotted down the highlights to make that quick.",
     "The staging dashboard was a little sluggish for a few minutes but recovered on its own; CPU and memory both looked normal.",
-    "I closed a handful of stale issues that were already fixed in earlier releases, and linked the duplicates to the canonical thread.",
+    "I closed a handful of stale issues that were already fixed a while ago, and linked the duplicates to the canonical thread.",
     "Let's try to avoid scope creep on this ticket and keep it focused on the one behavior we actually need to change.",
     "Taking a short coffee break, back in ten; ping me if the build breaks or the reviewer has questions on the migration.",
     "I rebased onto main and there was only a trivial conflict in the README, which I resolved by keeping both paragraphs.",
@@ -58,7 +58,7 @@ _FILLER = [
     "The docs preview built fine and the screenshots render correctly on both light and dark themes, so it's just polish before we publish.",
     "I tidied up the import ordering across the package and ran the formatter so the diff in future pull requests stays small.",
     "The nightly job finished early today with no errors in the logs, and I archived the old experiment branches we no longer need.",
-    "Let's sync briefly after lunch on the rollout plan and who owns the on-call handoff, so we have a clean rollback path.",
+    "Let's sync briefly after lunch on the rollout plan and the rollback path, so the cutover stays clean if anything regresses.",
 ]
 
 
@@ -70,7 +70,7 @@ _NEEDLE_SETS: dict[str, tuple[list[tuple[str, str]], list[tuple[str, str]]]] = {
             ("user", "Note this down: the release codename is Blue Falcon."),
             ("user", "Important: the launch date was moved to October 19."),
             ("user", "Record this: the feature flag for the new checkout is called smooth_sailing."),
-            ("user", "One more: QA sign-off is owned by Marcus."),
+            ("user", "One more: the QA sign-off ticket is QA-8842."),
         ],
         [
             ("Which region was the deployment set to?", "eu-west-2"),
@@ -78,7 +78,7 @@ _NEEDLE_SETS: dict[str, tuple[list[tuple[str, str]], list[tuple[str, str]]]] = {
             ("What is the release codename?", "blue falcon"),
             ("What date was the launch moved to?", "october 19"),
             ("What is the name of the feature flag for the new checkout?", "smooth_sailing"),
-            ("Who owns QA sign-off?", "marcus"),
+            ("What is the QA sign-off ticket number?", "qa-8842"),
         ],
     ),
     "trip_planning": (

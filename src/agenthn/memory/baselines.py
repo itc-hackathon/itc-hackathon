@@ -1,7 +1,7 @@
 """Text-memory baselines to compare against NapLoRA weight memory.
 
-Both expose the same surface as NapLoRAMemory (observe / ask -> dict) so the demo
-harness can drive all three identically.
+All expose the same surface as NapLoRAMemory (observe / ask -> dict) so the demo
+and ablation harnesses can drive them identically.
 
   VanillaContextMemory  — keep the raw transcript, but the prompt can only hold
                           the most-recent turns that fit a fixed context budget.
@@ -11,11 +11,18 @@ harness can drive all three identically.
                           2B forward pass) and keeps the whole .md in the prompt.
                           Lossy summaries can drop facts, and the prompt grows with
                           history (the "wastes the context window" failure).
+  TextRAGMemory         — the *ablation* of NapLoRA's weight-injection step. SAME
+                          segmentation (nap every K) and SAME TF-IDF retriever, but
+                          the retrieved segment is delivered as TEXT in the prompt
+                          instead of as a LoRA adapter. Isolates the one thing the
+                          hypernetwork adds: the retrieved memory's tokens never
+                          enter the context (O(1) query context vs O(chunk) for RAG).
 """
 
 from __future__ import annotations
 
 from ..core.model import D2LModel
+from .retriever import TfidfRetriever
 
 
 class VanillaContextMemory:
@@ -107,4 +114,60 @@ class MarkdownMemory:
             "prompt_tokens": self.model.count_tokens(user),
             "notes_lines": len(self.notes),
             "notes_tokens": self.model.count_tokens(md),
+        }
+
+
+class TextRAGMemory:
+    """RAG ablation: NapLoRA's pipeline with the weight-injection step removed.
+
+    Identical segmentation (nap every K turns) and identical TF-IDF retriever as
+    NapLoRAMemory — the ONLY change is that the retrieved segment is pasted into
+    the prompt as text rather than loaded as a LoRA adapter. Comparing this to
+    NapLoRA isolates the contribution of the hypernetwork / weight compaction:
+    same retrieval, same recall, but here the chunk's tokens re-enter context.
+    """
+
+    def __init__(self, model: D2LModel, nap_every_k: int = 4, top_k: int = 1):
+        self.model = model
+        self.k = nap_every_k
+        self.top_k = top_k
+        self.pending: list[tuple[str, str]] = []
+        self.segments: list[str] = []        # stored as TEXT (the only difference)
+        self.retriever = TfidfRetriever()
+
+    def observe(self, role: str, text: str) -> None:
+        self.pending.append((role, text))
+        while len(self.pending) >= self.k:
+            self._nap()
+
+    def _nap(self) -> None:
+        chunk, self.pending = self.pending[: self.k], self.pending[self.k :]
+        doc = "\n".join(f"{r}: {t}" for r, t in chunk)
+        self.retriever.add(doc)
+        self.segments.append(doc)
+
+    def flush(self) -> None:
+        while self.pending:
+            n = min(self.k, len(self.pending))
+            chunk, self.pending = self.pending[:n], self.pending[n:]
+            doc = "\n".join(f"{r}: {t}" for r, t in chunk)
+            self.retriever.add(doc)
+            self.segments.append(doc)
+
+    def ask(self, query: str, max_new_tokens: int = 40) -> dict:
+        if self.segments:
+            hits = self.retriever.topk(query, k=min(self.top_k, len(self.segments)))
+            retrieved = [self.segments[i] for i, _ in hits]
+        else:
+            hits, retrieved = [], []
+        ctx = "\n".join(retrieved)
+        user = f"Relevant memory:\n{ctx}\n\nQuestion: {query}" if ctx else query
+        messages = [{"role": "user", "content": user}]
+        answer = self.model.respond(messages, max_new_tokens=max_new_tokens)
+        return {
+            "query": query,
+            "answer": answer,
+            "prompt_tokens": self.model.count_tokens(user),
+            "retrieved": [i for i, _ in hits],
+            "retrieved_tokens": self.model.count_tokens(ctx),
         }
