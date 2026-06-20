@@ -1,0 +1,42 @@
+MAKE SURE QWEN-4B GREEDY TURNED ON (do_sample=False)
+
+1.
+    question=(
+        "A 15 kg box sits on a horizontal floor with a coefficient of "
+        "friction of 0.3. What is the maximum friction force?"
+    ),
+    expected=0.3 * (15 * 9.8),
+    formula="F_friction = mu*N, N = m*g",
+
+2.
+    question=(
+        "Two masses of 10 kg and 3 kg are 2 m apart. What is the "
+        "gravitational force between them (G = 6.674e-11 N*m^2/kg^2)?"
+    ),
+    expected=6.674e-11 * 10 * 3 / 2**2,
+    formula="F = G*m1*m2/r^2",
+
+3. 
+    question=(
+        "A 1000 kg car accelerates from rest to 20 m/s in 4 seconds. "
+        "What net force acted on the car?"
+    ),
+    expected=1000 * (20 / 4),
+    formula="a = (v-v0)/t, F = m*a",
+
+4. 
+    question=(
+        "A 1200 kg car traveling at 24 m/s skids to a stop on a "
+        "horizontal road with a coefficient of friction of 0.4. What is "
+        "the magnitude of the deceleration caused by friction?"
+    ),
+    expected=0.4 * 9.8,
+    formula="F_friction = mu*m*g, a = F/m (mass cancels)",
+
+5.
+    question=(
+        "A 1500 kg car traveling at 25 m/s comes to a stop in 5 seconds "
+        "due to braking. What is the magnitude of the net braking force?"
+    ),
+    expected=1500 * (25 / 5),
+    formula="a = (v-v0)/t, F = m*a",

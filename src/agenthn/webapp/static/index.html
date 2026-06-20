@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentHN — Self-Editing Agents via Hypernetworks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div style="width:100%;overflow-x:hidden">
+
+  <!-- ===== MASTHEAD ===== -->
+  <header style="max-width:1080px;margin:0 auto;padding:88px 24px 0">
+    <h1 style="font-size:48px;line-height:1.08;letter-spacing:-0.025em;font-weight:600;margin:0 0 34px;max-width:20ch">AgentHN: Self-Editing Agents via Hypernetworks</h1>
+    <div style="display:flex;flex-wrap:wrap;gap:28px 40px;align-items:flex-start;padding:22px 0;border-top:1px solid #eceae3;border-bottom:1px solid #eceae3">
+      <div>
+        <div class="eyebrow" style="margin-bottom:9px">Authors</div>
+        <div style="font-size:15px;line-height:1.6;color:#2a2824;max-width:46ch">Eric Ge&nbsp;&nbsp;Bryan Lim&nbsp;&nbsp;David Xiong&nbsp;&nbsp;Nikash Bhardwaj</div>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:9px">Date</div>
+        <div style="font-size:15px;line-height:1.6;color:#2a2824">June 2026</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:26px">
+      <a href="https://github.com/ericjkge/itc-hackathon" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:500;color:#fff;background:#1c1b19;padding:10px 18px;border-radius:7px;text-decoration:none"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 014 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg> GitHub <span style="font-family:'IBM Plex Mono',monospace;color:#9db9ef">↗</span></a>
+      <a href="#demos" style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#2f6ae0;background:#ebf2fe;border:1px solid #cdddfb;padding:10px 18px;border-radius:7px;text-decoration:none">Jump to live demos ↓</a>
+    </div>
+  </header>
+
+  <!-- ===== ABSTRACT ===== -->
+  <section style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#2f6ae0;margin-bottom:18px">Abstract</div>
+    <p style="font-family:'IBM Plex Serif',Georgia,serif;font-size:21px;line-height:1.62;color:#26241f;margin:0;max-width:62ch">Text-based memory breaks over long horizons and wastes the context window. We instead use hypernetworks to allow an agent to edit their own parameters at inference time. A hypernetwork (<em>Doc-to-LoRA</em>) converts context into LoRA adapters through a single forward pass, avoiding the lengthy training runs of SFT or RL. We show three applications across <strong>memory</strong>, <strong>personalization</strong>, and <strong>skills</strong>, each with a live, interactive demo below.</p>
+  </section>
+
+  <!-- ===== CONTRIBUTIONS ===== -->
+  <section style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px" class="grid-3">
+      <div class="card" style="padding:26px 24px">
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Long-horizon memory</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">Every K steps, the oldest turns are compacted into an adapter and evicted from context. Memory persists in weights, not tokens, mitigating context window overflow.</p>
+      </div>
+      <div class="card" style="padding:26px 24px">
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Permanent personalization</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">During conversations, user preferences are updated in a document and periodically internalized as per-user LoRA profiles. Profiles persist across sessions without needing to reload context.</p>
+      </div>
+      <div class="card" style="padding:26px 24px">
+        <h3 style="font-size:19px;font-weight:600;margin:0 0 10px;letter-spacing:-0.01em">Self-improving skills</h3>
+        <p style="font-size:15px;line-height:1.6;color:#5c594f;margin:0">On failure, the agent reflects on its mistakes and writes a sharper task prompt. Text-to-LoRA converts it into a task adapter, specializing the agent's weights without traditional post-training.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== METHOD ===== -->
+  <section style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
+    <h2 style="font-size:30px;font-weight:600;letter-spacing:-0.02em;margin:0 0 18px">One forward pass instead of a training run</h2>
+    <p style="font-size:18px;line-height:1.72;color:#3a3832;margin:0 0 18px;max-width:64ch">SFT and RL adapt a model with long training loops. A hypernetwork instead <em>predicts</em> the adapter weights directly from an input, so adaptation happens in real time, mid-conversation.</p>
+    <div style="border:1px solid #eceae3;border-radius:12px;background:#faf9f6;padding:24px;margin:26px 0">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:16px">
+        <span class="eyebrow">Doc-to-LoRA (D2L) · memory &amp; personalization</span>
+        <a href="https://arxiv.org/abs/2602.15902" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0;text-decoration:none">Sakana AI · arXiv:2602.15902 ↗</a>
+      </div>
+      <div class="pipeline">
+        <span class="pill">oldest turns / prefs</span><span class="arr">→</span>
+        <span class="pill hot">D2L hypernetwork</span><span class="arr">→</span>
+        <span class="pill">adapter&nbsp;r=8</span><span class="arr">⊕</span>
+        <span class="pill">memory adapter</span><span class="arr">→</span>
+        <span class="pill">evict from context</span>
+      </div>
+      <div style="height:1px;background:#e7e4dd;margin:22px 0"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:16px">
+        <span class="eyebrow">Text-to-LoRA (T2L) · skills</span>
+        <a href="https://arxiv.org/abs/2506.06105" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0;text-decoration:none">Sakana AI · arXiv:2506.06105 ↗</a>
+      </div>
+      <div class="pipeline">
+        <span class="pill">failed attempt</span><span class="arr">→</span>
+        <span class="pill">self-written task prompt</span><span class="arr">→</span>
+        <span class="pill hot">T2L hypernetwork</span><span class="arr">→</span>
+        <span class="pill">task adapter</span><span class="arr">→</span>
+        <span class="pill">retry</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DEMOS HEADER ===== -->
+  <section id="demos" style="max-width:1080px;margin:0 auto;padding:56px 24px 0">
+    <div>
+      <h2 style="font-size:32px;font-weight:600;letter-spacing:-0.02em;margin:0 0 12px">See the weights change in real time</h2>
+      <p style="font-size:17px;line-height:1.6;color:#5c594f;margin:0;max-width:60ch">Three scenarios. <strong>Personalization is live</strong> — wired to the Doc-to-LoRA hook. Memory and skills are scripted previews of the same UI.</p>
+    </div>
+    <div id="demoTabs" class="tabrow" style="margin-top:28px"></div>
+  </section>
+
+  <!-- ===== DEMO 1 : MEMORY (scripted) ===== -->
+  <section id="demo-0" style="max-width:1080px;margin:0 auto;padding:16px 24px 0">
+    <h3 class="demo-title">Long-horizon memory — needle-in-a-haystack over a trajectory <span class="badge-script">scripted preview</span></h3>
+    <div class="panel">
+      <div class="controlbar">
+        <div id="d1ScenarioTabs" style="display:flex;gap:7px;flex-wrap:wrap"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a6a299">K = 4</span>
+          <button id="d1Run" class="btn-primary">Run trajectory ▸</button>
+          <button id="d1Reset" class="btn-ghost">Reset</button>
+        </div>
+      </div>
+      <div style="padding:13px 20px;background:#ebf2fe;border-bottom:1px solid #cdddfb;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#2f6ae0;white-space:nowrap;padding-top:1px">Needle ▸</span>
+        <span id="d1Needle" style="font-size:14px;line-height:1.5;color:#1a3f9e"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr" class="grid-2">
+        <div style="border-right:1px solid #eceae3">
+          <div class="colhead">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span id="d1DotA" class="dot" style="background:#2f6ae0"></span>
+              <span style="font-size:14px;font-weight:600">AgentHN <span style="font-weight:400;color:#9a9890">· D2L</span></span>
+            </div>
+            <span id="d1Adapters" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0">0 adapters</span>
+          </div>
+          <div id="d1Agent" class="feed"></div>
+        </div>
+        <div>
+          <div class="colhead">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span id="d1DotB" class="dot" style="background:#94908a"></span>
+              <span style="font-size:14px;font-weight:600;color:#3a3832">Vanilla LLM <span style="font-weight:400;color:#9a9890">· 8k ctx</span></span>
+            </div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#94908a">no weight edits</span>
+          </div>
+          <div id="d1Vanilla" class="feed"></div>
+        </div>
+      </div>
+      <div id="d1Metrics" style="border-top:1px solid #eceae3;padding:18px 20px;background:#faf9f6;display:grid;grid-template-columns:1fr 1fr;gap:28px" class="grid-2">
+        <div>
+          <div class="meterhead"><span class="eyebrow">AgentHN context</span><span id="d1AgentTok" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#2f6ae0"></span></div>
+          <div class="meter"><div id="d1AgentBar" style="height:100%;background:#2f6ae0;border-radius:99px;transition:width .5s ease;width:8%"></div></div>
+        </div>
+        <div>
+          <div class="meterhead"><span class="eyebrow">Vanilla context</span><span id="d1VanillaTok" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#94908a"></span></div>
+          <div class="meter"><div id="d1VanillaBar" style="height:100%;background:#94908a;border-radius:99px;transition:width .5s ease,background .3s;width:8%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DEMO 2 : PERSONALIZATION (live) ===== -->
+  <section id="demo-1" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
+    <h3 class="demo-title">Permanent personalization — converse, internalize, then carry it into a fresh session <span id="liveBadge" class="badge-live">live</span></h3>
+
+    <!-- stepper -->
+    <div class="panel" style="margin-bottom:18px">
+      <div id="pStepper" class="stepper"></div>
+    </div>
+
+    <!-- PHASE 1: conversation + live diff -->
+    <div class="panel">
+      <div class="controlbar">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="dot" style="background:#2f6ae0"></span>
+          <span style="font-size:14px;font-weight:600">1 · Conversation <span style="font-weight:400;color:#9a9890">— preferences extracted per turn</span></span>
+        </div>
+        <button id="pResetAll" class="btn-ghost">Reset demo</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 360px" class="grid-2">
+        <!-- chat -->
+        <div style="border-right:1px solid #eceae3;display:flex;flex-direction:column">
+          <div id="pChat" class="feed" style="height:300px"></div>
+          <div class="suggestrow" id="pSuggest"></div>
+          <div class="inputrow">
+            <input id="pInput" type="text" placeholder="Tell the agent about yourself…" autocomplete="off">
+            <button id="pSend" class="btn-primary">Send</button>
+          </div>
+        </div>
+        <!-- memory panel -->
+        <div style="display:flex;flex-direction:column">
+          <div class="colhead" style="justify-content:space-between">
+            <span class="eyebrow">Personalization memory</span>
+            <span id="pFactCount" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f6ae0">0 facts</span>
+          </div>
+          <div id="pDiffFeed" class="feed" style="height:218px"></div>
+          <div style="border-top:1px solid #eceae3;padding:14px 16px;background:#faf9f6">
+            <div class="eyebrow" style="margin-bottom:9px">Current profile → <span id="pAdapterName" style="color:#2f6ae0">demo.lora</span></div>
+            <div id="pChips" style="display:flex;flex-wrap:wrap;gap:7px;min-height:26px"></div>
+            <button id="pRepersonalize" class="btn-primary" style="margin-top:13px;width:100%">↯ Repersonalize → forge LoRA adapter</button>
+            <div id="pAdapterStatus" class="adapter-status" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2: new session with adapter toggle -->
+    <div id="pPhase2" class="panel" style="margin-top:18px;opacity:.5;pointer-events:none">
+      <div class="controlbar">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="dot" style="background:#3f9d72"></span>
+          <span style="font-size:14px;font-weight:600">2 · New session <span style="font-weight:400;color:#9a9890">— empty context, nothing in the prompt</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="eyebrow">Adapter</span>
+          <label class="switch"><input type="checkbox" id="pAdapterToggle" checked><span class="slider"></span></label>
+          <span id="pAdapterLabel" style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#2f6ae0;width:34px">ON</span>
+          <button id="pReset2" class="btn-ghost">Clear</button>
+        </div>
+      </div>
+      <div class="suggestrow" id="pSuggest2"></div>
+      <div id="pChat2" class="feed" style="height:260px"></div>
+      <div class="inputrow">
+        <input id="pInput2" type="text" placeholder="Ask anything — no prior turns in context…" autocomplete="off">
+        <button id="pSend2" class="btn-primary">Send</button>
+      </div>
+      <div style="padding:11px 18px;border-top:1px solid #eceae3;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#9a9890">↳ answers come only from the weights — toggle the adapter to see personalization appear and vanish.</div>
+    </div>
+  </section>
+
+  <!-- ===== DEMO 3 : SKILLS (scripted) ===== -->
+  <section id="demo-2" style="max-width:1080px;margin:0 auto;padding:16px 24px 0;display:none">
+    <h3 class="demo-title">Self-improving skills — fail, reflect, internalize, succeed <span class="badge-script">scripted preview</span></h3>
+    <div class="panel">
+      <div class="controlbar">
+        <div id="d3Tabs" style="display:flex;gap:7px"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="d3Next" class="btn-primary">Attempt ▸</button>
+          <button id="d3Reset" class="btn-ghost">Reset</button>
+        </div>
+      </div>
+      <div id="d3Steps" class="stepper" style="border-bottom:1px solid #eceae3"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr" class="grid-2">
+        <div style="border-right:1px solid #eceae3;padding:22px 24px">
+          <div class="eyebrow" style="margin-bottom:12px"><span id="d3Bench"></span> · prompt</div>
+          <p id="d3Question" style="font-size:16px;line-height:1.6;color:#26241f;margin:0 0 18px"></p>
+          <div id="d3Choices" style="display:flex;flex-direction:column;gap:9px"></div>
+        </div>
+        <div id="d3Right" style="padding:22px 24px;background:#fcfbf9"></div>
+      </div>
+      <div id="d3Compare" style="border-top:1px solid #eceae3;padding:16px 20px;background:#faf9f6;display:none;align-items:center;gap:16px">
+        <span class="eyebrow">Compare</span>
+        <div style="display:inline-flex;background:#efece6;border-radius:8px;padding:3px">
+          <button id="d3Before" class="seg">Before · vanilla</button>
+          <button id="d3After" class="seg seg-on">After · T2L adapter</button>
+        </div>
+        <span id="d3CompareNote" style="font-size:14px;color:#8a877f"></span>
+      </div>
+    </div>
+  </section>
+
+  <footer style="max-width:1080px;margin:80px auto 0;padding:28px 24px 80px;border-top:1px solid #eceae3;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#a6a299">AgentHN · Hackathon 2026</span>
+    <span id="modeBadge" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#a6a299"></span>
+  </footer>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

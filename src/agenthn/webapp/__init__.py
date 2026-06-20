@@ -1,6 +1,6 @@
 """Web app track (Eric): demo UI for the live runs.
 
-Hosts the interactive demo (A/B chat, context-cost bar, profile-doc diff,
-cross-user matrix). Frontend tooling may live in a sibling dir; this package
-holds any Python backend glue.
+A FastAPI app (``app.py``) serves the static single-page demo (``static/``) and
+exposes the personalization hook over HTTP (``service.py``), live against
+Doc-to-LoRA.
 """
