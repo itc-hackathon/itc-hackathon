@@ -1,0 +1,14 @@
+{
+  "skill_file": "/tmp/itc-hackathon/task1-part1/skills/systematic-debugging.md",
+  "checkpoint": "/home/nikash/projects/doc-to-lora/trained_d2l/gemma_demo/checkpoint-80000/pytorch_model.bin",
+  "base_model": "unsloth/gemma-2-2b-it",
+  "problem": "What is the single most important rule, the 'Iron Law', of this debugging process? Answer in one sentence.",
+  "expected": "root cause | before",
+  "base_output": "The single most important rule of debugging is **to break down the problem into smaller, manageable pieces**.",
+  "adapter_output": "The single most important rule is to always find the root cause before attempting to fix it.",
+  "deterministic": true,
+  "base_correct": false,
+  "adapter_correct": true,
+  "adapter_path": "/tmp/itc-hackathon/task1-part1/adapters/systematic-debugging.lora.pt",
+  "timestamp": "2026-06-19T23:09:45"
+}
