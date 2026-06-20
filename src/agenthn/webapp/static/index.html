@@ -105,14 +105,13 @@
       <div class="eyebrow" style="color:#2f6ae0;margin-bottom:11px">The bigger picture · why agent memory is a cost problem</div>
       <p style="font-size:17px;line-height:1.62;color:#26241f;margin:0 0 13px;max-width:74ch">
         Coding agents (<strong>Claude Code, Devin, Cursor</strong>), computer-use agents, and research agents run
-        for hours — reading files, running tools, accumulating observations. Their context balloons to hundreds of
-        thousands of tokens. And the loop <strong>re-reads its entire context on every single tool call</strong>:
-        a 100-step task over a 100k-token history pays ~100k × 100 token-reads. <strong>Context isn't just a window
-        limit — it's the dominant, compounding cost of agentic work.</strong>
+        for hours: reading files, running tools, accumulating observations. Their context explodes to hundreds of
+        thousands of tokens. Often the loop <strong>re-reads its entire context (or a summary of it) on every single tool call</strong>:
+        a 100-step task over a 100k-token history pays ~100k × 100 token-reads. So context is not just a window, it is a dominant, compounding cost of agentic work. 
       </p>
       <p style="font-size:15px;line-height:1.6;color:#3a3832;margin:0 0 13px;max-width:74ch">
         Today you either keep it all in context (slow, expensive, overflows), <strong>compact / summarize</strong>
-        it (what Claude Code does on long sessions — lossy; forgets the one path or decision you need 200 steps
+        it (what Claude Code does on long sessions is lossy; forgets the one path or decision you need 50 steps
         later), or bolt on <strong>RAG</strong> (re-injects chunks into the prompt every call, needs a vector store).
       </p>
       <p style="font-size:15.5px;line-height:1.62;color:#26241f;margin:0;max-width:74ch">
