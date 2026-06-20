@@ -16,7 +16,7 @@ single-chunk only and its combine_lora produces garbage (see the track README).
   WeightMemory / generate_session
 """
 
-from .baselines import MarkdownMemory, VanillaContextMemory
+from .baselines import MarkdownMemory, TextRAGMemory, VanillaContextMemory
 from .live import MemoryArena
 from .memory_store import WeightMemory, encode_doc_chunks
 from .nap_memory import MemoryStats, NapLoRAMemory, Segment, Turn
@@ -32,6 +32,7 @@ __all__ = [
     "TfidfRetriever",
     "VanillaContextMemory",
     "MarkdownMemory",
+    "TextRAGMemory",
     "MemoryArena",
     # WeightMemory (rank-concatenation, chunk checkpoint)
     "WeightMemory",

@@ -25,7 +25,7 @@ from pathlib import Path
 import torch
 
 from agenthn.core.model import D2LModel
-from agenthn.memory import NapLoRAMemory, VanillaContextMemory
+from agenthn.memory import NapLoRAMemory, TextRAGMemory, VanillaContextMemory
 from agenthn.memory.scenarios import GEMMA_WINDOW, _FILLER, _NEEDLE_SETS
 
 CHECKPOINTS = [1000, 2000, 4000, 8000, 16000, 32000, 48000]
@@ -69,6 +69,7 @@ def main() -> None:
     print(f"haystack: {len(turns)} turns, 6 needles planted in the first {6 * NAP_K} turns")
 
     nap = NapLoRAMemory(model, nap_every_k=NAP_K, keep_recent_turns=0)
+    rag = TextRAGMemory(model, nap_every_k=NAP_K)   # ablation: retrieve as TEXT
     van = VanillaContextMemory(model, context_budget_tokens=GEMMA_WINDOW)
 
     rows = []
@@ -76,14 +77,20 @@ def main() -> None:
     raw = 0
     for i, (role, text) in enumerate(turns):
         nap.observe(role, text)
+        rag.observe(role, text)
         van.observe(role, text)
         raw += model.count_tokens(text) + 4
         if pending and raw >= pending[0]:
             ckpt = pending.pop(0)
             nap.flush()
+            rag.flush()
             nres = [nap.ask(q, top_k=1, max_new_tokens=40) for q, _ in probes]
             n_hit = sum(hit(r["answer"], nd) for r, (_, nd) in zip(nres, probes))
             n_tok = sum(r["prompt_tokens"] for r in nres) / len(nres)
+            # text-RAG ablation: same retrieval, segment injected as text
+            gres = [rag.ask(q, max_new_tokens=40) for q, _ in probes]
+            g_hit = sum(hit(r["answer"], nd) for r, (_, nd) in zip(gres, probes))
+            g_tok = sum(r["prompt_tokens"] for r in gres) / len(gres)
             # Vanilla: only actually generate while the transcript fits the window.
             # Once raw > window the early needles are provably outside the prompt,
             # so recall is 0 and the prompt is pinned at the window size — no need
@@ -102,15 +109,16 @@ def main() -> None:
                 adapter_mb = b * len(nap.segments) / 1024 / 1024
             row = {
                 "checkpoint": ckpt, "raw_tokens": raw, "segments": len(nap.segments),
-                "napora_recall": n_hit, "vanilla_recall": v_hit,
+                "napora_recall": n_hit, "vanilla_recall": v_hit, "rag_recall": g_hit,
                 "napora_prompt_tokens": round(n_tok, 1), "vanilla_prompt_tokens": round(v_tok, 1),
+                "rag_prompt_tokens": round(g_tok, 1),
                 "napora_adapter_mb": round(adapter_mb, 1), "n_probes": len(probes),
             }
             rows.append(row)
             torch.cuda.empty_cache()  # release the big full-window KV cache
             print(f"  ~{ckpt:>5} tok ({raw} raw, {len(nap.segments)} naps): "
-                  f"NapLoRA {n_hit}/6 @{n_tok:.0f}tok  |  vanilla {v_hit}/6 @{v_tok:.0f}tok  "
-                  f"[{time.time() - t0:.0f}s]")
+                  f"NapLoRA {n_hit}/6 @{n_tok:.0f}t | text-RAG {g_hit}/6 @{g_tok:.0f}t | "
+                  f"vanilla {v_hit}/6 @{v_tok:.0f}t  [{time.time() - t0:.0f}s]")
 
     out = {
         "window": GEMMA_WINDOW,

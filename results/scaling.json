@@ -9,8 +9,10 @@
       "segments": 10,
       "napora_recall": 6,
       "vanilla_recall": 6,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 1004.5,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 45.7,
       "n_probes": 6
     },
@@ -20,8 +22,10 @@
       "segments": 19,
       "napora_recall": 6,
       "vanilla_recall": 6,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 1974.5,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 86.8,
       "n_probes": 6
     },
@@ -31,8 +35,10 @@
       "segments": 36,
       "napora_recall": 6,
       "vanilla_recall": 6,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 3882.5,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 164.5,
       "n_probes": 6
     },
@@ -42,8 +48,10 @@
       "segments": 70,
       "napora_recall": 6,
       "vanilla_recall": 4,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 7744.5,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 319.9,
       "n_probes": 6
     },
@@ -53,8 +61,10 @@
       "segments": 138,
       "napora_recall": 6,
       "vanilla_recall": 0,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 8192.0,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 630.7,
       "n_probes": 6
     },
@@ -64,8 +74,10 @@
       "segments": 274,
       "napora_recall": 6,
       "vanilla_recall": 0,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 8192.0,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 1252.3,
       "n_probes": 6
     },
@@ -75,11 +87,13 @@
       "segments": 410,
       "napora_recall": 6,
       "vanilla_recall": 0,
+      "rag_recall": 6,
       "napora_prompt_tokens": 9.5,
       "vanilla_prompt_tokens": 8192.0,
+      "rag_prompt_tokens": 119.3,
       "napora_adapter_mb": 1873.8,
       "n_probes": 6
     }
   ],
-  "runtime_sec": 59.0
+  "runtime_sec": 80.4
 }
